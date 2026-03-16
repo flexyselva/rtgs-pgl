@@ -384,23 +384,21 @@
       display: inline-block; font-size: 9px; letter-spacing: 0.22em;
       text-transform: uppercase; padding: 3px 10px;
       border: 1px solid rgba(138,150,168,0.3); color: var(--grey); font-weight: 400;
-      cursor: pointer; background: none; font-family: 'Raleway', sans-serif;
-      transition: border-color 0.2s, color 0.2s;
     }
-    .status-tbd:hover { border-color: rgba(201,168,76,0.4); color: var(--grey-lt); }
 
     /* Clickable status result */
     .status-result {
       display: inline-flex; align-items: center; gap: 5px;
-      background: none; border: 1px solid var(--border);
-      padding: 3px 10px; cursor: pointer;
+      border: 1px solid var(--border);
+      padding: 3px 10px;
       font-family: 'Raleway', sans-serif; font-size: 11px; font-weight: 500;
-      letter-spacing: 0.14em;
-      transition: border-color 0.2s, background 0.2s;
-      white-space: nowrap;
+      letter-spacing: 0.14em; white-space: nowrap;
     }
-    .status-result:hover {
-      border-color: var(--gold); background: rgba(201,168,76,0.06);
+
+    /* Clickable row */
+    .schedule-table tbody tr.clickable-row { cursor: pointer; }
+    .schedule-table tbody tr.clickable-row:hover td {
+      background: rgba(201,168,76,0.07); color: var(--white);
     }
     .status-d { color: var(--td-accent); }
     .status-r { color: var(--tr-accent); }
@@ -1014,16 +1012,16 @@
 
     function statusCell(match) {
       if (match.status === 'tbd') {
-        return `<button class="status-tbd" onclick="openModal(${match.id})">TBD</button>`;
+        return `<span class="status-tbd">TBD</span>`;
       }
       const { d, r } = match.points;
       const dClass = d > r ? 'status-d' : (d === r ? 'status-halved' : 'status-d');
       const rClass = r > d ? 'status-r' : (r === d ? 'status-halved' : 'status-r');
-      return `<button class="status-result" onclick="openModal(${match.id})" title="View match details">
+      return `<span class="status-result">
         <span class="${dClass}">D: ${d}</span>
         <span class="status-sep">·</span>
         <span class="${rClass}">R: ${r}</span>
-      </button>`;
+      </span>`;
     }
 
     /* ── Filtering ── */
@@ -1078,7 +1076,7 @@
         tbody.innerHTML = `<tr><td colspan="6"><div class="table-empty">No matches found</div></td></tr>`;
       } else {
         tbody.innerHTML = slice.map(m => `
-          <tr>
+          <tr class="clickable-row" onclick="openModal(${m.id})" title="View match details">
             <td>${m.num}</td>
             <td class="match-name">${m.name}</td>
             <td>${formatPill(m.format)}</td>
