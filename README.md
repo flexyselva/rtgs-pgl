@@ -8,7 +8,7 @@ A static website for the **RTGS Premier Golf League (RTGS PGL)** — a private g
 
 ## Season 3 — 2026
 
-16 players split into two teams competing across 10+ courses in 28 individual matches.
+16 players split into two teams competing across 10+ courses in 40 individual matches.
 
 | Team | Players | Colour |
 |------|---------|--------|
