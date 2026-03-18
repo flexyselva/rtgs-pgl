@@ -25,7 +25,7 @@ A static website for the **RTGS Premier Golf League (RTGS PGL)** — a private g
 
 ### Points
 - Win → 1 pt · Halve → 0.5 pt each · Loss → 0 pt
-- First team to **14.5 points** wins the Season 3 title
+- First team to **20.5 points** wins the Season 3 title
 
 ---
 
