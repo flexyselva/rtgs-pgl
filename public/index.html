@@ -134,6 +134,22 @@
     }
 
     /* Crest / emblem */
+    .crest-wrap {
+      margin: 0 auto 36px;
+      width: 110px; height: 110px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(201,168,76,0.45);
+      box-shadow: 0 0 24px rgba(201,168,76,0.15), 0 0 0 4px rgba(201,168,76,0.07);
+      overflow: hidden;
+      background: #ffffff;
+    }
+    .crest-img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      display: block;
+    }
+    /* legacy — keep so mobile override below still compiles */
     .crest {
       margin: 0 auto 36px;
       width: 72px;
@@ -357,6 +373,7 @@
 
       .card { padding: 80px 24px 80px; }
 
+      .crest-wrap { width: 80px; height: 80px; margin-bottom: 24px; }
       .crest { width: 52px; height: 52px; margin-bottom: 24px; }
 
       .eyebrow {
@@ -412,21 +429,10 @@
   <!-- Main content -->
   <div class="card">
 
-    <!-- Crest emblem -->
-    <svg class="crest" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Outer ring -->
-      <circle cx="36" cy="36" r="34" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/>
-      <!-- Inner ring -->
-      <circle cx="36" cy="36" r="28" stroke="#c9a84c" stroke-width="0.5" opacity="0.25"/>
-      <!-- Flagstick -->
-      <line x1="32" y1="14" x2="32" y2="55" stroke="#c9a84c" stroke-width="1.6" stroke-linecap="round"/>
-      <!-- Flag -->
-      <polygon points="32,14 50,22 32,30" fill="#c9a84c" opacity="0.85"/>
-      <!-- Ground ellipse -->
-      <ellipse cx="36" cy="55" rx="10" ry="2.5" fill="#c9a84c" opacity="0.2"/>
-      <!-- Top ornament diamonds -->
-      <rect x="35" y="5" width="3" height="3" fill="#c9a84c" opacity="0.6" transform="rotate(45 36.5 6.5)"/>
-    </svg>
+    <!-- Logo -->
+    <div class="crest-wrap">
+      <img src="/rtgs-logo.jpg" alt="RTGS Golf Logo" class="crest-img" />
+    </div>
 
     <!-- Eyebrow -->
     <p class="eyebrow">Premier Golf League</p>
@@ -439,10 +445,10 @@
     </div>
 
     <!-- Main title -->
-    <h1>RT<span class="accent">G</span>S</h1>
+    <h1>RT<span class="accent">G</span>S <span class="accent">GOLF</span></h1>
 
     <!-- Tagline -->
-    <p class="tagline">Creating Lifelong Bonds</p>
+    <p class="tagline">Forging Lifelong Bonds</p>
 
     <!-- Divider ornament -->
     <div class="divider">
