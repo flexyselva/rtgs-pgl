@@ -5,11 +5,18 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "rtgs-pgl",
+	"main": "src/index.ts",
 	"compatibility_date": "2026-03-01",
 	"assets": {
-		// The path to the directory containing the `index.html` file to be served at `/`
 		"directory": "./public"
 	},
+	"kv_namespaces": [
+		{
+			"binding": "RESULTS",
+			"id": "4b2feae8b12d4fb8ba24912467780b01",
+			"preview_id": "649938e355604225a7cf692e8327e3b1"
+		}
+	],
 	"observability": {
 		"enabled": true
 	},

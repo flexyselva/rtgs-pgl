@@ -94,7 +94,7 @@
       right: 0;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       padding: 20px 48px;
       z-index: 50;
       opacity: 0;
@@ -107,6 +107,24 @@
       color: var(--grey);
       font-weight: 300;
     }
+    .header-signin {
+      background: none; border: 1px solid rgba(201,168,76,0.25);
+      color: var(--grey); font-family: 'Raleway', sans-serif;
+      font-size: 9px; letter-spacing: 0.38em; text-transform: uppercase;
+      padding: 5px 14px; cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .header-signin:hover { border-color: rgba(201,168,76,0.6); color: var(--gold-lt); }
+    .header-user {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--grey);
+    }
+    .header-signout {
+      background: none; border: none; color: var(--grey); font-family: 'Raleway', sans-serif;
+      font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase;
+      cursor: pointer; padding: 0; transition: color 0.2s;
+    }
+    .header-signout:hover { color: var(--grey-lt); }
 
     /* Main card */
     .card {
@@ -357,6 +375,92 @@
       font-weight: 300;
     }
 
+    /* ── Login overlay ── */
+    .login-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(5, 12, 25, 0.97);
+      backdrop-filter: blur(6px);
+      transition: opacity 0.4s ease;
+    }
+    .login-overlay.hidden {
+      opacity: 0; pointer-events: none;
+    }
+    .login-card {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 380px;
+      padding: 48px 40px 40px;
+      border: 1px solid rgba(201,168,76,0.22);
+      background: var(--navy-mid);
+      text-align: center;
+    }
+    .login-crest {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,168,76,0.35);
+      overflow: hidden;
+      margin: 0 auto 20px;
+      background: #fff;
+    }
+    .login-crest img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .login-eyebrow {
+      font-size: 9px; letter-spacing: 0.45em; text-transform: uppercase;
+      color: var(--gold); font-weight: 400; margin-bottom: 6px;
+    }
+    .login-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem; font-weight: 500; color: var(--white);
+      letter-spacing: 0.05em; margin-bottom: 8px;
+    }
+    .login-sub {
+      font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--grey); font-weight: 300; margin-bottom: 28px;
+    }
+    .login-divider {
+      display: flex; align-items: center; gap: 0; margin: 0 auto 28px; width: 200px;
+    }
+    .login-divider-line { flex: 1; height: 1px; background: rgba(201,168,76,0.2); }
+    .login-divider-dot { width: 4px; height: 4px; background: var(--gold-dk); transform: rotate(45deg); margin: 0 10px; }
+    .login-field {
+      width: 100%; background: rgba(10,22,40,0.8);
+      border: 1px solid rgba(201,168,76,0.15);
+      color: var(--white); font-family: 'Raleway', sans-serif;
+      font-size: 0.88rem; font-weight: 300; letter-spacing: 0.06em;
+      padding: 11px 14px; outline: none; margin-bottom: 10px;
+      transition: border-color 0.2s;
+    }
+    .login-field:focus { border-color: rgba(201,168,76,0.5); }
+    .login-field::placeholder { color: var(--grey); }
+    .login-btn {
+      width: 100%; padding: 12px;
+      background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.4);
+      color: var(--gold-lt); font-family: 'Raleway', sans-serif;
+      font-size: 10px; letter-spacing: 0.38em; text-transform: uppercase;
+      font-weight: 500; cursor: pointer; margin-top: 6px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .login-btn:hover { background: rgba(201,168,76,0.18); border-color: var(--gold); }
+    .login-error {
+      font-size: 11px; letter-spacing: 0.1em; color: #c44a4a;
+      min-height: 18px; margin-bottom: 6px; text-align: left;
+    }
+    .login-guest-wrap {
+      margin-top: 20px; padding-top: 18px;
+      border-top: 1px solid rgba(201,168,76,0.1);
+    }
+    .login-guest-btn {
+      background: none; border: none;
+      color: var(--grey); font-family: 'Raleway', sans-serif;
+      font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
+      cursor: pointer; padding: 0; transition: color 0.2s;
+    }
+    .login-guest-btn:hover { color: var(--grey-lt); }
+    .login-hint {
+      margin-top: 20px;
+      font-size: 10px; letter-spacing: 0.12em; color: rgba(138,150,168,0.4);
+    }
+
     /* ── Mobile ── */
     @media (max-width: 640px) {
       html, body { overflow: auto; height: auto; min-height: 100dvh; }
@@ -424,6 +528,7 @@
   <!-- Header -->
   <div class="header">
     <span class="header-label">Est. &nbsp;2020</span>
+    <div id="headerAuth"></div>
   </div>
 
   <!-- Main content -->
@@ -483,6 +588,97 @@
   <div class="footer">
     <span class="footer-text">RTGS Premier Golf League &nbsp;&mdash;&nbsp; All Rights Reserved</span>
   </div>
+
+  <!-- Login Overlay -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-card">
+      <div class="login-crest">
+        <img src="/rtgs-logo.jpg" alt="RTGS Golf" />
+      </div>
+      <p class="login-eyebrow">Member Access</p>
+      <div class="login-title">RTGS PGL</div>
+      <p class="login-sub">Season 3 &nbsp;·&nbsp; 2026</p>
+      <div class="login-divider">
+        <div class="login-divider-line"></div>
+        <div class="login-divider-dot"></div>
+        <div class="login-divider-line"></div>
+      </div>
+      <input type="text"     class="login-field" id="loginUser" placeholder="Username" autocomplete="username" />
+      <input type="password" class="login-field" id="loginPass" placeholder="Password" autocomplete="current-password"
+             onkeydown="if(event.key==='Enter') doLogin()" />
+      <div class="login-error" id="loginError"></div>
+      <button class="login-btn" onclick="doLogin()">Sign In</button>
+      <p class="login-hint">admin &nbsp;·&nbsp; captain &nbsp;·&nbsp; player / fan</p>
+    </div>
+  </div>
+
+  <script>
+    /* ── Auth ── */
+    const USERS = [
+      { username:'admin',     password:'rtgs@2026',  role:'admin',   team:null, display:'Admin' },
+      { username:'captain.d', password:'dhurandhar', role:'captain', team:'D',  display:'Capt · Team Dhurandhar' },
+      { username:'captain.r', password:'rushabh',    role:'captain', team:'R',  display:'Capt · Team Rushabh' },
+    ];
+
+    const DEFAULT_SESSION = { username:'guest', role:'fan', team:null, display:'Player / Fan' };
+
+    function getSession() {
+      try { return JSON.parse(sessionStorage.getItem('rtgs_session')) || DEFAULT_SESSION; }
+      catch(e) { return DEFAULT_SESSION; }
+    }
+
+    function openLoginOverlay() {
+      document.getElementById('loginOverlay').classList.remove('hidden');
+      document.getElementById('loginUser').focus();
+    }
+
+    function closeLoginOverlay() {
+      document.getElementById('loginOverlay').classList.add('hidden');
+      document.getElementById('loginError').textContent = '';
+    }
+
+    function doLogin() {
+      const u = document.getElementById('loginUser').value.trim().toLowerCase();
+      const p = document.getElementById('loginPass').value;
+      const err = document.getElementById('loginError');
+      const match = USERS.find(x => x.username === u && x.password === p);
+      if (!match) {
+        err.textContent = 'Invalid username or password.';
+        document.getElementById('loginPass').value = '';
+        return;
+      }
+      err.textContent = '';
+      sessionStorage.setItem('rtgs_session', JSON.stringify({
+        username: match.username, role: match.role,
+        team: match.team, display: match.display
+      }));
+      closeLoginOverlay();
+      renderHeaderAuth();
+    }
+
+    function doLogout() {
+      sessionStorage.removeItem('rtgs_session');
+      renderHeaderAuth();
+    }
+
+    function renderHeaderAuth() {
+      const session = getSession();
+      const el = document.getElementById('headerAuth');
+      if (session.role === 'fan') {
+        el.innerHTML = `<button class="header-signin" onclick="openLoginOverlay()">Sign In</button>`;
+      } else {
+        el.innerHTML = `
+          <div class="header-user">
+            <span>${session.display}</span>
+            <button class="header-signout" onclick="doLogout()">Sign Out</button>
+          </div>`;
+      }
+    }
+
+    // Start overlay hidden — only opens on demand
+    document.getElementById('loginOverlay').classList.add('hidden');
+    renderHeaderAuth();
+  </script>
 
 </body>
 </html>
