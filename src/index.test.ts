@@ -270,14 +270,28 @@ describe('API edge cases', () => {
     expect(res.status).toBe(405);
   });
 
-  it('DELETE /api/results returns 405 Method Not Allowed', async () => {
+  it('DELETE without write key returns 401', async () => {
     const env = makeEnv();
     const res = await worker.fetch(
       new Request('http://localhost/api/results', { method: 'DELETE' }),
       env,
       makeCtx(),
     );
-    expect(res.status).toBe(405);
+    expect(res.status).toBe(401);
+  });
+
+  it('DELETE with write key but without test mode returns 403', async () => {
+    const env = makeEnv();
+    const res = await worker.fetch(
+      new Request('http://localhost/api/results', {
+        method: 'DELETE',
+        headers: { 'X-Write-Key': WRITE_KEY },
+      }),
+      env,
+      makeCtx(),
+    );
+    expect(res.status).toBe(403);
+    expect((await res.json() as { error: string }).error).toBe('DELETE only permitted in test mode');
   });
 
   it('OPTIONS preflight returns 200 with CORS headers', async () => {
@@ -311,5 +325,94 @@ describe('API edge cases', () => {
       makeCtx(),
     );
     expect(res.status).toBe(200);
+  });
+});
+
+// ── Test Mode (X-Test-Mode: 1) ───────────────────────────────────────────────
+
+describe('Test mode (X-Test-Mode: 1)', () => {
+  let env: ReturnType<typeof makeEnv>;
+  beforeEach(() => { env = makeEnv(); });
+
+  function getTestMode(e: ReturnType<typeof makeEnv>) {
+    return worker.fetch(
+      new Request('http://localhost/api/results', { headers: { 'X-Test-Mode': '1' } }),
+      e, makeCtx(),
+    );
+  }
+
+  function postTestMode(body: unknown, e: ReturnType<typeof makeEnv>) {
+    return worker.fetch(
+      new Request('http://localhost/api/results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Write-Key': WRITE_KEY, 'X-Test-Mode': '1' },
+        body: JSON.stringify(body),
+      }),
+      e, makeCtx(),
+    );
+  }
+
+  function deleteTestMode(e: ReturnType<typeof makeEnv>) {
+    return worker.fetch(
+      new Request('http://localhost/api/results', {
+        method: 'DELETE',
+        headers: { 'X-Write-Key': WRITE_KEY, 'X-Test-Mode': '1' },
+      }),
+      e, makeCtx(),
+    );
+  }
+
+  it('GET in test mode returns empty object when no test results stored', async () => {
+    const res = await getTestMode(env);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({});
+  });
+
+  it('POST in test mode writes to isolated test KV key', async () => {
+    await postTestMode({ '1': { points: { d: 1, r: 0 } } }, env);
+    const testData = await getTestMode(env).then(r => r.json() as Record<string, unknown>);
+    expect(testData['1']).toBeDefined();
+  });
+
+  it('test mode writes do not affect production KV key', async () => {
+    await postTestMode({ '1': { points: { d: 1, r: 0 } } }, env);
+    const prodData = await getResults(env).then(r => r.json() as Record<string, unknown>);
+    expect(prodData['1']).toBeUndefined();
+  });
+
+  it('production writes do not affect test KV key', async () => {
+    await postResults({ '1': { points: { d: 1, r: 0 } } }, env);
+    const testData = await getTestMode(env).then(r => r.json() as Record<string, unknown>);
+    expect(testData['1']).toBeUndefined();
+  });
+
+  it('DELETE in test mode with write key returns 200 { ok: true }', async () => {
+    await postTestMode({ '1': { points: { d: 1, r: 0 } } }, env);
+    const res = await deleteTestMode(env);
+    expect(res.status).toBe(200);
+    expect((await res.json() as { ok: boolean }).ok).toBe(true);
+  });
+
+  it('DELETE in test mode clears only the test KV key', async () => {
+    await postResults({ '99': { points: { d: 1, r: 0 } } }, env);  // prod data
+    await postTestMode({ '1': { points: { d: 1, r: 0 } } }, env);   // test data
+    await deleteTestMode(env);
+    // test key should be empty
+    const testData = await getTestMode(env).then(r => r.json() as Record<string, unknown>);
+    expect(Object.keys(testData)).toHaveLength(0);
+    // prod key should be untouched
+    const prodData = await getResults(env).then(r => r.json() as Record<string, unknown>);
+    expect(prodData['99']).toBeDefined();
+  });
+
+  it('DELETE in test mode without write key returns 401', async () => {
+    const res = await worker.fetch(
+      new Request('http://localhost/api/results', {
+        method: 'DELETE',
+        headers: { 'X-Test-Mode': '1' },
+      }),
+      env, makeCtx(),
+    );
+    expect(res.status).toBe(401);
   });
 });
