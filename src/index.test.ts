@@ -187,6 +187,22 @@ describe('Admin persona', () => {
     expect(data['1'].points).toEqual({ d: 0.5, r: 0.5 });
   });
 
+  it('POSTing null for a match id clears that match from KV', async () => {
+    await postResults({ '1': { points: { d: 1, r: 0 } } }, env);
+    await postResults({ '1': null }, env);
+    const data = await getResults(env).then(r => r.json() as Record<string, unknown>);
+    expect(data['1']).toBeUndefined();
+  });
+
+  it('clearing one match does not affect other stored results', async () => {
+    await postResults({ '1': { points: { d: 1, r: 0 } } }, env);
+    await postResults({ '2': { points: { d: 0, r: 1 } } }, env);
+    await postResults({ '1': null }, env);
+    const data = await getResults(env).then(r => r.json() as Record<string, unknown>);
+    expect(data['1']).toBeUndefined();
+    expect(data['2']).toBeDefined();
+  });
+
   it('can record results for all 40 matches in a single POST', async () => {
     const payload: Record<string, unknown> = {};
     for (let i = 1; i <= 40; i++) payload[String(i)] = { points: { d: 1, r: 0 } };

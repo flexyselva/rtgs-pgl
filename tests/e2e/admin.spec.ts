@@ -53,6 +53,17 @@ test.describe('Admin persona', () => {
     const modal = page.locator('.modal, .result-modal, [id*="modal"], [class*="modal"]').first();
     await expect(modal).toBeVisible();
   });
+
+  test('result modal shows player names', async ({ page }) => {
+    await page.locator('button:has-text("✎")').first().click();
+    await expect(page.locator('#playersDisplay')).not.toBeEmpty();
+  });
+
+  test('Clear Score button is hidden for unplayed match', async ({ page }) => {
+    // Target a row that has no score yet (status TBD)
+    await page.locator('tr:has(.status-tbd) button:has-text("✎")').first().click();
+    await expect(page.locator('#resultClearBtn')).toBeHidden();
+  });
 });
 
 // ── API-level admin write tests (using fetch, not browser UI) ────────────────
@@ -94,5 +105,21 @@ test.describe('Admin — KV write/read via API', () => {
     await apiDelete(BASE);
     const data = await apiGet(BASE);
     expect(Object.keys(data)).toHaveLength(0);
+  });
+
+  test('POSTing null for a match id clears that match', async () => {
+    await apiPost(BASE, { '1': { points: { d: 1, r: 0 } } });
+    await apiPost(BASE, { '1': null });
+    const data = await apiGet(BASE);
+    expect(data['1']).toBeUndefined();
+  });
+
+  test('clearing one match does not affect other results', async () => {
+    await apiPost(BASE, { '1': { points: { d: 1, r: 0 } } });
+    await apiPost(BASE, { '2': { points: { d: 0, r: 1 } } });
+    await apiPost(BASE, { '1': null });
+    const data = await apiGet(BASE);
+    expect(data['1']).toBeUndefined();
+    expect(data['2']).toBeDefined();
   });
 });
