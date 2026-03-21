@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/jpeg" href="/rtgs-logo.jpg" />
   <title>Season 3 — RTGS Premier Golf League</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Raleway:wght@200;300;400;500;600&display=swap" rel="stylesheet">
   <style>
@@ -758,6 +759,28 @@
       transition: background 0.2s, border-color 0.2s;
     }
     .result-save-btn:hover { background: rgba(201,168,76,0.2); border-color: var(--gold); }
+    .result-clear-btn {
+      background: none; border: 1px solid rgba(196,74,74,0.4);
+      color: #c44a4a; font-family: 'Raleway', sans-serif;
+      font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+      padding: 9px 18px; cursor: pointer; margin-right: auto;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .result-clear-btn:hover { background: rgba(196,74,74,0.08); border-color: rgba(196,74,74,0.7); }
+    .result-players {
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .result-players-row {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.82rem; letter-spacing: 0.04em;
+    }
+    .result-players-team {
+      font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase;
+      font-weight: 600; min-width: 18px;
+    }
+    .result-players-team.td { color: var(--td-accent); }
+    .result-players-team.tr { color: var(--tr-accent); }
+    .result-players-names { color: var(--white); }
 
     /* ── Mobile ── */
     @media (max-width: 640px) {
@@ -1146,6 +1169,11 @@
         <button class="modal-close" onclick="closeResultModal()" aria-label="Close">&#x2715;</button>
       </div>
       <div class="result-modal-body">
+        <!-- Players (read-only, populated by JS) -->
+        <div class="result-field-group" id="playersGroup">
+          <span class="result-field-label">Players</span>
+          <div class="result-players" id="playersDisplay"></div>
+        </div>
         <div class="result-field-group">
           <span class="result-field-label">Outcome</span>
           <div class="result-radio-group">
@@ -1177,6 +1205,7 @@
         </div>
       </div>
       <div class="result-modal-footer">
+        <button class="result-clear-btn" id="resultClearBtn" onclick="clearResult()" style="display:none;">Clear Score</button>
         <button class="result-cancel-btn" onclick="closeResultModal()">Cancel</button>
         <button class="result-save-btn" onclick="saveResult()">Save Result</button>
       </div>
@@ -1744,6 +1773,20 @@
       document.getElementById('netScoreGroup').style.display = m.format === 'singles' ? '' : 'none';
       document.getElementById('netScoreInput').value = (m.singles && m.singles.netScore) ? m.singles.netScore : '';
 
+      // Populate player info
+      const playersDisplay = document.getElementById('playersDisplay');
+      if (m.format === 'singles' && m.singles) {
+        playersDisplay.innerHTML =
+          `<div class="result-players-row"><span class="result-players-team td">D</span><span class="result-players-names">${m.singles.d}</span></div>` +
+          `<div class="result-players-row"><span class="result-players-team tr">R</span><span class="result-players-names">${m.singles.r}</span></div>`;
+      } else if (m.foursome) {
+        playersDisplay.innerHTML =
+          `<div class="result-players-row"><span class="result-players-team td">D</span><span class="result-players-names">${m.foursome.d.join(' &amp; ')}</span></div>` +
+          `<div class="result-players-row"><span class="result-players-team tr">R</span><span class="result-players-names">${m.foursome.r.join(' &amp; ')}</span></div>`;
+      } else {
+        playersDisplay.innerHTML = '<span style="color:var(--grey);font-size:0.82rem;">TBD</span>';
+      }
+
       // Pre-select existing outcome
       const radios = document.querySelectorAll('input[name="outcome"]');
       radios.forEach(r => r.checked = false);
@@ -1753,12 +1796,44 @@
         else document.getElementById('outcomeH').checked = true;
       }
 
+      // Show Clear Score button only if match already has a result
+      document.getElementById('resultClearBtn').style.display = m.points ? '' : 'none';
+
       document.getElementById('resultModal').classList.add('open');
     }
 
     function closeResultModal() {
       document.getElementById('resultModal').classList.remove('open');
       resultEditId = null;
+    }
+
+    async function clearResult() {
+      if (!resultEditId) return;
+      const m = MATCHES.find(x => x.id === resultEditId);
+      if (!m) return;
+      if (!confirm(`Clear the score for ${m.name}? This will reset it to Upcoming.`)) return;
+
+      const clearBtn = document.getElementById('resultClearBtn');
+      const origText = clearBtn.textContent;
+      clearBtn.textContent = 'Clearing…';
+      clearBtn.disabled = true;
+
+      try {
+        await pushResult(resultEditId, null);
+
+        // Revert match to unplayed state in memory
+        m.points = null;
+        m.status = 'upcoming';
+        // Restore course/date to TBD if they were set by the result
+        // (keep original schedule values — reload would restore from KV)
+        closeResultModal();
+        applyFilters();
+      } catch(e) {
+        alert('Could not clear result: ' + e.message);
+      } finally {
+        clearBtn.textContent = origText;
+        clearBtn.disabled = false;
+      }
     }
 
     async function saveResult() {

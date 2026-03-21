@@ -66,10 +66,14 @@ export default {
           return json({ error: 'Invalid JSON' }, 400);
         }
 
-        // Merge incoming results with existing ones
+        // Merge incoming results with existing ones.
+        // A null value means "clear this match" — delete the key.
         const raw = await env.RESULTS.get(kvKey);
         const existing: Record<string, unknown> = raw ? JSON.parse(raw) : {};
         const merged = { ...existing, ...body };
+        for (const k of Object.keys(body)) {
+          if (body[k] === null) delete merged[k];
+        }
 
         await env.RESULTS.put(kvKey, JSON.stringify(merged));
         return json({ ok: true });
