@@ -4,14 +4,14 @@ _Brainstormed: 20 March 2026_
 
 ---
 
-## 1. Dual-Captain Score Approval
+## 1. Dual-Captain Score Approval — COMPLETED
 
 **Flow:**
-1. Captain D plays a match → enters the result (outcome + net score)
-2. Result shows as **"Pending"** — visible to both captains but not published to the scoreboard
-3. Captain R sees the pending result → reviews and either **Approves** or **Disputes**
-4. On approval → result goes **Live** and updates the scoreboard
-5. On dispute → status becomes **"Disputed"** — Admin sees it flagged and makes the final call
+1. ✅ Captain D plays a match → enters the result (outcome + net score)
+2. ✅ Result shows as **"Pending"** — visible to both captains but not published to the scoreboard
+3. ✅ Captain R sees the pending result → reviews and either **Approves** or **Disputes**
+4. ✅ On approval → result goes **Live** and updates the scoreboard
+5. ✅ On dispute → status becomes **"Disputed"** — Admin sees it flagged and makes the final call
 
 **Why this works well:**
 - Removes dependency on Admin for every result
@@ -87,7 +87,7 @@ Each of the 16 players gets a profile page showing:
 
 | Priority | Feature | Why |
 |----------|---------|-----|
-| 1 | **Dual-captain score approval** | Removes the admin bottleneck; both captains own the results |
+| 1 | **Dual-captain score approval** ✅ | Removes the admin bottleneck; both captains own the results |
 | 2 | **Real backend (Cloudflare KV/D1)** ✅ | Makes results shared across all devices — prerequisite for #1 |
 | 3 | **Live leaderboard with progress bar** ✅ | Most engaging feature for all 16 players |
 | 4 | **Player profiles** | Personal investment — everyone wants to see their own stats |
