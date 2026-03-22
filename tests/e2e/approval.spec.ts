@@ -295,6 +295,124 @@ test.describe('Admin override pending/disputed', () => {
   });
 });
 
+// ── Match detail modal — pending/disputed state (Observation 1) ──────────────
+
+test.describe('Match detail modal — unconfirmed state', () => {
+  test.beforeEach(async () => { await apiDelete(BASE); });
+  test.afterEach(async ()  => { await apiDelete(BASE); });
+
+  test('pending match shows "Pending Confirmation" status in detail modal', async ({ page }) => {
+    await seedPending();
+    await page.goto(URL);
+    await setSession(page, 'fan');
+    // Click the match row (not the ✎ button) to open the detail modal
+    await page.locator('tr.clickable-row').first().click();
+    await expect(page.locator('#modalBody')).toContainText(/Pending Confirmation/i);
+  });
+
+  test('disputed match shows "Result Disputed" status in detail modal', async ({ page }) => {
+    await seedDisputed();
+    await page.goto(URL);
+    await setSession(page, 'fan');
+    await page.locator('tr.clickable-row').first().click();
+    await expect(page.locator('#modalBody')).toContainText(/Result Disputed/i);
+  });
+
+  test('pending match shows approval note in detail modal', async ({ page }) => {
+    await seedPending();
+    await page.goto(URL);
+    await setSession(page, 'fan');
+    await page.locator('tr.clickable-row').first().click();
+    await expect(page.locator('.modal-pending-note')).toBeVisible();
+    await expect(page.locator('.modal-pending-note')).toContainText(/pending other captain/i);
+  });
+
+  test('disputed match shows disputed note in detail modal', async ({ page }) => {
+    await seedDisputed();
+    await page.goto(URL);
+    await setSession(page, 'fan');
+    await page.locator('tr.clickable-row').first().click();
+    await expect(page.locator('.modal-disputed-note')).toBeVisible();
+    await expect(page.locator('.modal-disputed-note')).toContainText(/admin review/i);
+  });
+
+  test('pending match score uses amber colour class (not confirmed win colour)', async ({ page }) => {
+    await seedPending();
+    await page.goto(URL);
+    await setSession(page, 'fan');
+    await page.locator('tr.clickable-row').first().click();
+    // Scores should use modal-score-unconfirmed, not modal-score-d / modal-score-r
+    await expect(page.locator('.modal-score-unconfirmed').first()).toBeVisible();
+    await expect(page.locator('.modal-score-d, .modal-score-r')).toHaveCount(0);
+  });
+
+  test('confirmed match still shows "Completed" and uses normal score colours', async ({ page }) => {
+    await apiPost(BASE, { '1': { points: { d: 1, r: 0 }, status: 'confirmed' } });
+    await page.goto(URL);
+    await setSession(page, 'fan');
+    await page.locator('tr.clickable-row').first().click();
+    await expect(page.locator('#modalBody')).toContainText(/Completed/i);
+    await expect(page.locator('.modal-score-d').first()).toBeVisible();
+    await expect(page.locator('.modal-pending-note, .modal-disputed-note')).toHaveCount(0);
+  });
+});
+
+// ── Captain dashboard live refresh (Observation 2) ───────────────────────────
+
+test.describe('Captain dashboard live refresh after actions', () => {
+  test.beforeEach(async () => { await apiDelete(BASE); });
+  test.afterEach(async ()  => { await apiDelete(BASE); });
+
+  test('after submitting, dashboard shows "Awaiting Approval" stat without reload', async ({ page }) => {
+    await page.goto(URL);
+    await setSession(page, 'captain-d');
+    await page.locator('.captain-edit-btn').first().click();
+    await page.locator('#outcomeD').check();
+    await page.locator('#resultSaveBtn').click();
+    await page.waitForSelector('.result-modal-overlay:not(.open)');
+    // Dashboard should immediately reflect awaiting approval — no reload
+    await expect(page.locator('.captain-db-body')).toContainText(/Awaiting Approval/i);
+  });
+
+  test('after approving, "Needs Review" stat disappears from dashboard without reload', async ({ page }) => {
+    await seedPending('captain.d');
+    await page.goto(URL);
+    await setSession(page, 'captain-r');
+    // Confirm "Needs Review" is visible before approval
+    await expect(page.locator('.captain-db-body')).toContainText(/Needs Review/i);
+    // Approve
+    await page.locator('.captain-edit-btn.review-btn').first().click();
+    await page.locator('#resultApproveBtn').click();
+    await page.waitForSelector('.result-modal-overlay:not(.open)');
+    // "Needs Review" should be gone from dashboard without a page reload
+    await expect(page.locator('.captain-db-body')).not.toContainText(/Needs Review/i);
+  });
+
+  test('after disputing, dashboard no longer shows "Needs Review" for reviewer', async ({ page }) => {
+    await seedPending('captain.d');
+    await page.goto(URL);
+    await setSession(page, 'captain-r');
+    await page.locator('.captain-edit-btn.review-btn').first().click();
+    await page.locator('#resultDisputeBtn').click();
+    await page.waitForSelector('.result-modal-overlay:not(.open)');
+    // After disputing, the match is disputed (not pending review for this captain anymore)
+    await expect(page.locator('.captain-db-body')).not.toContainText(/Needs Review/i);
+  });
+
+  test('after approving, submitting captain dashboard shows match as played (no Awaiting Approval)', async ({ page }) => {
+    // Seed a result submitted by captain.r
+    await seedPending('captain.r');
+    await page.goto(URL);
+    await setSession(page, 'captain-d'); // captain-d is the reviewer
+    await page.locator('.captain-edit-btn.review-btn').first().click();
+    await page.locator('#resultApproveBtn').click();
+    await page.waitForSelector('.result-modal-overlay:not(.open)');
+    // Switch to captain-r (the submitter) — reload to simulate them checking
+    await setSession(page, 'captain-r');
+    await expect(page.locator('.captain-db-body')).not.toContainText(/Awaiting Approval/i);
+  });
+});
+
 // ── Captain submits result flow ───────────────────────────────────────────────
 
 test.describe('Captain submit result', () => {

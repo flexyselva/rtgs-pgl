@@ -548,6 +548,19 @@
     .modal-score-r { color: var(--tr-accent); }
     .modal-score-half { color: var(--gold); }
     .modal-score-pending { color: var(--grey); font-size: 0.88rem; font-family: 'Raleway', sans-serif; font-weight: 300; letter-spacing: 0.1em; }
+    .modal-score-unconfirmed { color: #e8a020; }
+    .modal-pending-note {
+      margin-top: 10px; padding: 7px 12px;
+      font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: #e8a020; background: rgba(232,160,32,0.07);
+      border-left: 2px solid rgba(232,160,32,0.5);
+    }
+    .modal-disputed-note {
+      margin-top: 10px; padding: 7px 12px;
+      font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: #c44a4a; background: rgba(196,74,74,0.07);
+      border-left: 2px solid rgba(196,74,74,0.5);
+    }
 
     .modal-net-score {
       margin-top: 14px; padding: 10px 14px;
@@ -1718,7 +1731,12 @@
           </div>
           <div class="modal-meta-item">
             <span class="modal-meta-label">Status</span>
-            <span class="modal-meta-value">${m.status === 'tbd' ? 'Upcoming' : 'Completed'}</span>
+            <span class="modal-meta-value" style="${m.status === 'pending' ? 'color:#e8a020;' : m.status === 'disputed' ? 'color:#c44a4a;' : ''}">${
+              m.status === 'tbd' || m.status === 'upcoming' ? 'Upcoming'
+              : m.status === 'pending'  ? 'Pending Confirmation'
+              : m.status === 'disputed' ? 'Result Disputed'
+              : 'Completed'
+            }</span>
           </div>
         </div>
         <div class="modal-divider"></div>
@@ -1728,6 +1746,7 @@
         const s = m.singles;
         const dPts = m.points ? m.points.d : null;
         const rPts = m.points ? m.points.r : null;
+        const isUnconfirmed = m.status === 'pending' || m.status === 'disputed';
 
         body += `<div class="modal-players-label">Head-to-Head</div>`;
         body += `
@@ -1735,16 +1754,17 @@
             <span class="modal-team-badge modal-badge-d">Team D</span>
             <span class="modal-team-players">${s.d}</span>
             ${dPts !== null
-              ? `<span class="modal-team-score ${dPts > rPts ? 'modal-score-d' : dPts === rPts ? 'modal-score-half' : 'modal-score-r'}">${dPts}</span>`
+              ? `<span class="modal-team-score ${isUnconfirmed ? 'modal-score-unconfirmed' : dPts > rPts ? 'modal-score-d' : dPts === rPts ? 'modal-score-half' : 'modal-score-r'}">${dPts}</span>`
               : `<span class="modal-team-score modal-score-pending">—</span>`}
           </div>
           <div class="modal-team-row">
             <span class="modal-team-badge modal-badge-r">Team R</span>
             <span class="modal-team-players">${s.r}</span>
             ${rPts !== null
-              ? `<span class="modal-team-score ${rPts > dPts ? 'modal-score-r' : rPts === dPts ? 'modal-score-half' : 'modal-score-d'}">${rPts}</span>`
+              ? `<span class="modal-team-score ${isUnconfirmed ? 'modal-score-unconfirmed' : rPts > dPts ? 'modal-score-r' : rPts === dPts ? 'modal-score-half' : 'modal-score-d'}">${rPts}</span>`
               : `<span class="modal-team-score modal-score-pending">—</span>`}
           </div>
+          ${isUnconfirmed ? `<div class="${m.status === 'disputed' ? 'modal-disputed-note' : 'modal-pending-note'}">${m.status === 'disputed' ? 'Result disputed — admin review required' : 'Pending other captain\u2019s approval'}</div>` : ''}
         `;
 
         if (s.netScore) {
@@ -1772,6 +1792,7 @@
         const f = m.foursome;
         const dPts = m.points ? m.points.d : null;
         const rPts = m.points ? m.points.r : null;
+        const isUnconfirmed = m.status === 'pending' || m.status === 'disputed';
 
         body += `<div class="modal-players-label">Foursome</div>`;
         body += `
@@ -1779,16 +1800,17 @@
             <span class="modal-team-badge modal-badge-d">Team D</span>
             <span class="modal-team-players">${f.d[0]}<br>${f.d[1]}</span>
             ${dPts !== null
-              ? `<span class="modal-team-score ${dPts > rPts ? 'modal-score-d' : dPts === rPts ? 'modal-score-half' : 'modal-score-r'}">${dPts}</span>`
+              ? `<span class="modal-team-score ${isUnconfirmed ? 'modal-score-unconfirmed' : dPts > rPts ? 'modal-score-d' : dPts === rPts ? 'modal-score-half' : 'modal-score-r'}">${dPts}</span>`
               : `<span class="modal-team-score modal-score-pending">—</span>`}
           </div>
           <div class="modal-team-row">
             <span class="modal-team-badge modal-badge-r">Team R</span>
             <span class="modal-team-players">${f.r[0]}<br>${f.r[1]}</span>
             ${rPts !== null
-              ? `<span class="modal-team-score ${rPts > dPts ? 'modal-score-r' : rPts === dPts ? 'modal-score-half' : 'modal-score-d'}">${rPts}</span>`
+              ? `<span class="modal-team-score ${isUnconfirmed ? 'modal-score-unconfirmed' : rPts > dPts ? 'modal-score-r' : rPts === dPts ? 'modal-score-half' : 'modal-score-d'}">${rPts}</span>`
               : `<span class="modal-team-score modal-score-pending">—</span>`}
           </div>
+          ${isUnconfirmed ? `<div class="${m.status === 'disputed' ? 'modal-disputed-note' : 'modal-pending-note'}">${m.status === 'disputed' ? 'Result disputed — admin review required' : 'Pending other captain\u2019s approval'}</div>` : ''}
         `;
       }
 
@@ -2209,6 +2231,7 @@
         closeResultModal();
         applyFilters();
         if (isCaptain) updateAdminBarBadge();
+        renderCaptainDashboard();
       } catch(e) {
         alert('Could not save result: ' + e.message);
       } finally {
@@ -2245,6 +2268,7 @@
         closeResultModal();
         applyFilters();
         updateAdminBarBadge();
+        renderCaptainDashboard();
       } catch(e) {
         alert('Could not approve result: ' + e.message);
       } finally {
@@ -2281,6 +2305,7 @@
         closeResultModal();
         applyFilters();
         updateAdminBarBadge();
+        renderCaptainDashboard();
       } catch(e) {
         alert('Could not dispute result: ' + e.message);
       } finally {
