@@ -116,16 +116,90 @@
       transition: border-color 0.2s, color 0.2s;
     }
     .header-signin:hover { border-color: rgba(201,168,76,0.6); color: var(--gold-lt); }
-    .header-user {
-      display: flex; align-items: center; gap: 10px;
-      font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--grey);
+
+    /* ── Profile avatar + dropdown ── */
+    .profile-menu-wrap { position: relative; display: flex; align-items: center; }
+    .profile-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+      flex-shrink: 0; transition: opacity 0.2s; user-select: none;
     }
-    .header-signout {
-      background: none; border: none; color: var(--grey); font-family: 'Raleway', sans-serif;
+    .profile-avatar:hover { opacity: 0.8; }
+    .avatar-admin     { background: rgba(201,168,76,0.18); border: 1px solid rgba(201,168,76,0.5); color: var(--gold); }
+    .avatar-captain-d { background: rgba(74,144,196,0.18); border: 1px solid rgba(74,144,196,0.5); color: #4a90c4; }
+    .avatar-captain-r { background: rgba(196,74,74,0.18);  border: 1px solid rgba(196,74,74,0.5);  color: #c44a4a; }
+    .profile-dropdown {
+      position: absolute; top: calc(100% + 10px); right: 0;
+      background: #0d1e36; border: 1px solid rgba(201,168,76,0.18);
+      min-width: 190px; z-index: 600;
+      opacity: 0; pointer-events: none;
+      transform: translateY(-6px); transition: opacity 0.15s, transform 0.15s;
+    }
+    .profile-dropdown.open { opacity: 1; pointer-events: all; transform: translateY(0); }
+    .profile-dd-header {
+      padding: 13px 16px 11px; border-bottom: 1px solid rgba(201,168,76,0.12);
+      background: rgba(201,168,76,0.03);
+    }
+    .profile-dd-name { font-size: 11px; color: #ffffff; letter-spacing: 0.06em; margin-bottom: 3px; }
+    .profile-dd-role { font-size: 9px; color: #9faec0; letter-spacing: 0.3em; text-transform: uppercase; }
+    .profile-dd-item {
+      display: block; width: 100%; text-align: left; background: none;
+      border: none; border-bottom: 1px solid rgba(201,168,76,0.08);
+      color: #9faec0; font-family: 'Raleway', sans-serif;
       font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase;
-      cursor: pointer; padding: 0; transition: color 0.2s;
+      padding: 11px 16px; cursor: pointer; transition: color 0.15s, background 0.15s;
     }
-    .header-signout:hover { color: var(--grey-lt); }
+    .profile-dd-item:last-child { border-bottom: none; }
+    .profile-dd-item:hover { color: #ffffff; background: rgba(255,255,255,0.03); }
+    .profile-dd-item.signout:hover { color: #c44a4a; }
+
+    /* ── Session timeout toast ── */
+    .session-toast {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+      background: rgba(10,22,40,0.96); border: 1px solid rgba(201,168,76,0.2);
+      color: #9faec0; font-family: 'Raleway', sans-serif;
+      font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase;
+      padding: 10px 22px; z-index: 9999; opacity: 0; transition: opacity 0.4s;
+      pointer-events: none; white-space: nowrap;
+    }
+    .session-toast.show { opacity: 1; }
+
+    /* ── Profile info modal ── */
+    .profile-modal-overlay {
+      position: fixed; inset: 0; z-index: 700;
+      background: rgba(5,12,25,0.88);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .profile-modal-overlay.open { opacity: 1; pointer-events: all; }
+    .profile-modal {
+      background: #0d1e36; border: 1px solid rgba(201,168,76,0.18);
+      width: 280px; text-align: center;
+      transform: translateY(12px); transition: transform 0.2s;
+    }
+    .profile-modal-overlay.open .profile-modal { transform: translateY(0); }
+    .profile-modal-top {
+      padding: 28px 20px 20px;
+      border-bottom: 1px solid rgba(201,168,76,0.12);
+    }
+    .profile-modal-avatar {
+      width: 52px; height: 52px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 600; margin: 0 auto 14px;
+    }
+    .profile-modal-display { font-size: 1rem; color: #ffffff; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .profile-modal-role {
+      font-size: 9px; color: #9faec0; letter-spacing: 0.38em; text-transform: uppercase;
+    }
+    .profile-modal-footer { padding: 14px 20px; }
+    .profile-modal-close {
+      background: none; border: 1px solid rgba(201,168,76,0.25); color: #9faec0;
+      font-family: 'Raleway', sans-serif; font-size: 9px; letter-spacing: 0.3em;
+      text-transform: uppercase; padding: 8px 20px; cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .profile-modal-close:hover { border-color: rgba(201,168,76,0.5); color: #d0d8e4; }
 
     /* Main card */
     .card {
@@ -679,7 +753,111 @@
     // Start overlay hidden — only opens on demand
     document.getElementById('loginOverlay').classList.add('hidden');
     renderHeaderAuth();
+
+    /* ── Profile avatar helpers ── */
+    function getInitials(display) {
+      const parts = display.trim().split(/\s+/);
+      return parts.length >= 2
+        ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+        : display.slice(0, 2).toUpperCase();
+    }
+
+    function avatarClass(session) {
+      if (session.role === 'admin') return 'avatar-admin';
+      return session.team === 'R' ? 'avatar-captain-r' : 'avatar-captain-d';
+    }
+
+    function roleLabel(session) {
+      if (session.role === 'admin') return 'Admin';
+      return session.team === 'D' ? 'Captain · Dhurandhar' : 'Captain · Rushabh';
+    }
+
+    /* ── Override renderHeaderAuth to use profile avatar ── */
+    function renderHeaderAuth() {
+      const session = getSession();
+      const el = document.getElementById('headerAuth');
+      if (session.role === 'fan') {
+        el.innerHTML = `<button class="header-signin" onclick="openLoginOverlay()">Sign In</button>`;
+        return;
+      }
+      const initials = getInitials(session.display);
+      el.innerHTML = `
+        <div class="profile-menu-wrap" id="profileMenuWrap">
+          <div class="profile-avatar ${avatarClass(session)}" onclick="toggleProfileMenu()" title="${session.display}">${initials}</div>
+          <div class="profile-dropdown" id="profileDropdown">
+            <div class="profile-dd-header">
+              <div class="profile-dd-name">${session.display}</div>
+              <div class="profile-dd-role">${roleLabel(session)}</div>
+            </div>
+            <button class="profile-dd-item" onclick="openProfileModal()">Profile</button>
+            <button class="profile-dd-item signout" onclick="doLogout()">Sign Out</button>
+          </div>
+        </div>`;
+    }
+
+    function toggleProfileMenu() {
+      document.getElementById('profileDropdown').classList.toggle('open');
+    }
+
+    document.addEventListener('click', function(e) {
+      const wrap = document.getElementById('profileMenuWrap');
+      if (wrap && !wrap.contains(e.target)) {
+        const dd = document.getElementById('profileDropdown');
+        if (dd) dd.classList.remove('open');
+      }
+    });
+
+    function openProfileModal() {
+      const session = getSession();
+      const av = document.getElementById('profileModalAvatar');
+      av.className = 'profile-modal-avatar ' + avatarClass(session);
+      av.textContent = getInitials(session.display);
+      document.getElementById('profileModalDisplay').textContent = session.display;
+      document.getElementById('profileModalRole').textContent = roleLabel(session);
+      document.getElementById('profileModal').classList.add('open');
+      const dd = document.getElementById('profileDropdown');
+      if (dd) dd.classList.remove('open');
+    }
+
+    function closeProfileModal() {
+      document.getElementById('profileModal').classList.remove('open');
+    }
+
+    /* ── Session timeout — 30 min inactivity ── */
+    const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
+    let _lastActivity = Date.now();
+    ['mousemove','click','keydown','touchstart','scroll'].forEach(ev =>
+      document.addEventListener(ev, () => { _lastActivity = Date.now(); }, { passive: true })
+    );
+    setInterval(() => {
+      const session = getSession();
+      if (session.role === 'fan') return;
+      if (Date.now() - _lastActivity > SESSION_TIMEOUT_MS) {
+        sessionStorage.removeItem('rtgs_session');
+        const toast = document.getElementById('sessionToast');
+        toast.classList.add('show');
+        setTimeout(() => renderHeaderAuth(), 2000);
+      }
+    }, 60000);
+
   </script>
+
+  <!-- Profile info modal -->
+  <div class="profile-modal-overlay" id="profileModal" onclick="if(event.target===this)closeProfileModal()">
+    <div class="profile-modal">
+      <div class="profile-modal-top">
+        <div class="profile-modal-avatar" id="profileModalAvatar"></div>
+        <div class="profile-modal-display" id="profileModalDisplay"></div>
+        <div class="profile-modal-role" id="profileModalRole"></div>
+      </div>
+      <div class="profile-modal-footer">
+        <button class="profile-modal-close" onclick="closeProfileModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Session timeout toast -->
+  <div class="session-toast" id="sessionToast">Signed out due to inactivity</div>
 
 </body>
 </html>
