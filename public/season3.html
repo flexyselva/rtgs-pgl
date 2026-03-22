@@ -852,6 +852,63 @@
     .result-players-team.tr { color: var(--tr-accent); }
     .result-players-names { color: var(--white); }
 
+    /* ── Approval status badges ── */
+    .status-pending {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+      font-weight: 600; color: #e8a020; padding: 2px 8px;
+      border: 1px solid rgba(232,160,32,0.4); background: rgba(232,160,32,0.08);
+    }
+    .status-disputed {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+      font-weight: 600; color: #c44a4a; padding: 2px 8px;
+      border: 1px solid rgba(196,74,74,0.4); background: rgba(196,74,74,0.08);
+    }
+    .result-mode-banner {
+      padding: 9px 20px;
+      font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+      font-weight: 600; border-bottom: 1px solid var(--border);
+    }
+    .result-mode-banner.mode-pending  { color: #e8a020; background: rgba(232,160,32,0.06); }
+    .result-mode-banner.mode-review   { color: var(--gold); background: rgba(201,168,76,0.07); }
+    .result-mode-banner.mode-disputed { color: #c44a4a; background: rgba(196,74,74,0.06); }
+    .review-submitter {
+      font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--grey); padding-top: 12px;
+    }
+    .review-submitter span { color: var(--lt-grey); text-transform: none; letter-spacing: 0; font-size: 0.82rem; }
+    .result-approve-btn {
+      padding: 9px 16px; font-size: 10px; letter-spacing: 0.22em;
+      text-transform: uppercase; font-weight: 600; cursor: pointer;
+      border: 1px solid rgba(74,196,100,0.5); color: #4ac464;
+      background: rgba(74,196,100,0.08);
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .result-approve-btn:hover { background: rgba(74,196,100,0.16); border-color: rgba(74,196,100,0.8); }
+    .result-dispute-btn {
+      padding: 9px 16px; font-size: 10px; letter-spacing: 0.22em;
+      text-transform: uppercase; font-weight: 600; cursor: pointer;
+      border: 1px solid rgba(196,74,74,0.5); color: #c44a4a;
+      background: rgba(196,74,74,0.08);
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .result-dispute-btn:hover { background: rgba(196,74,74,0.16); border-color: rgba(196,74,74,0.8); }
+    .admin-bar-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 18px; height: 18px; padding: 0 5px;
+      background: rgba(232,160,32,0.2); border: 1px solid rgba(232,160,32,0.4);
+      color: #e8a020; font-size: 9px; letter-spacing: 0.1em; font-weight: 700;
+    }
+    .captain-edit-btn {
+      background: transparent; border: 1px solid rgba(74,144,196,0.35);
+      color: var(--grey); font-size: 11px; cursor: pointer;
+      padding: 1px 6px; margin-left: 6px; transition: border-color 0.15s, color 0.15s;
+    }
+    .captain-edit-btn:hover { border-color: rgba(74,144,196,0.7); color: #4a90c4; }
+    .captain-edit-btn.review-btn { border-color: rgba(232,160,32,0.4); color: #e8a020; }
+    .captain-edit-btn.review-btn:hover { border-color: rgba(232,160,32,0.8); color: var(--gold); }
+
     /* ── Mobile ── */
     @media (max-width: 640px) {
       nav { padding: 0 16px; height: 56px; }
@@ -1236,6 +1293,7 @@
         <span class="result-modal-title" id="resultModalTitle">Record Result</span>
         <button class="modal-close" onclick="closeResultModal()" aria-label="Close">&#x2715;</button>
       </div>
+      <div class="result-mode-banner" id="resultModeBanner" style="display:none;"></div>
       <div class="result-modal-body">
         <!-- Players (read-only, populated by JS) -->
         <div class="result-field-group" id="playersGroup">
@@ -1271,11 +1329,16 @@
           <label class="result-field-label" for="dateInput">Date</label>
           <input type="text" class="result-input" id="dateInput" placeholder="e.g. Apr 2026" />
         </div>
+        <div id="reviewSection" style="display:none;">
+          <div class="review-submitter">Submitted by &nbsp;<span id="reviewSubmittedBy"></span></div>
+        </div>
       </div>
       <div class="result-modal-footer">
         <button class="result-clear-btn" id="resultClearBtn" onclick="clearResult()" style="display:none;">Clear Score</button>
         <button class="result-cancel-btn" onclick="closeResultModal()">Cancel</button>
-        <button class="result-save-btn" onclick="saveResult()">Save Result</button>
+        <button class="result-dispute-btn" id="resultDisputeBtn" onclick="disputeResult()" style="display:none;">Dispute</button>
+        <button class="result-approve-btn" id="resultApproveBtn" onclick="approveResult()" style="display:none;">Approve</button>
+        <button class="result-save-btn" id="resultSaveBtn" onclick="saveResult()">Save Result</button>
       </div>
     </div>
   </div>
@@ -1385,11 +1448,15 @@
       MATCHES.forEach(m => {
         if (stored[m.id]) {
           const r = stored[m.id];
-          m.points = r.points;
-          m.status = 'played';
-          if (r.course)                              m.course            = r.course;
-          if (r.date)                                m.date              = r.date;
-          if (m.singles && r.netScore !== undefined) m.singles.netScore  = r.netScore;
+          const approvalStatus = r.status || 'confirmed'; // legacy results have no status → confirmed
+          m.approvalStatus = approvalStatus;
+          m.submittedBy    = r.submittedBy || null;
+          m.submittedAt    = r.submittedAt || null;
+          m.points         = r.points; // always store proposed/confirmed points
+          m.status         = approvalStatus === 'confirmed' ? 'played' : approvalStatus; // 'pending' | 'disputed' | 'played'
+          if (r.course)                              m.course           = r.course;
+          if (r.date)                                m.date             = r.date;
+          if (m.singles && r.netScore !== undefined) m.singles.netScore = r.netScore;
         }
       });
     }
@@ -1401,6 +1468,8 @@
         const stored = await res.json();
         applyStoredResults(stored);
         renderTable();
+        updateAdminBarBadge();
+        renderCaptainDashboard();
       } catch(e) {
         console.warn('Could not load results from KV:', e);
       }
@@ -1442,8 +1511,14 @@
     }
 
     function statusCell(match) {
-      if (match.status === 'tbd') {
+      if (match.status === 'tbd' || match.status === 'upcoming') {
         return `<span class="status-tbd">TBD</span>`;
+      }
+      if (match.status === 'pending') {
+        return `<span class="status-pending">Pending</span>`;
+      }
+      if (match.status === 'disputed') {
+        return `<span class="status-disputed">Disputed</span>`;
       }
       const { d, r } = match.points;
       const dClass = d > r ? 'status-d' : (d === r ? 'status-halved' : 'status-d');
@@ -1513,9 +1588,23 @@
             ? `<span class="my-team-dot ${SESSION.team === 'D' ? 'my-team-dot-d' : 'my-team-dot-r'}"></span>`
             : '';
           const rowClass = isMyTeamRow ? 'clickable-row my-team-row' : 'clickable-row';
-          const editBtn = SESSION && SESSION.role === 'admin'
-            ? `<button class="admin-edit-btn" onclick="event.stopPropagation();openResultModal(${m.id})" title="Record result">✎</button>`
-            : '';
+          const editBtn = (() => {
+            if (!SESSION) return '';
+            if (SESSION.role === 'admin') {
+              return `<button class="admin-edit-btn" onclick="event.stopPropagation();openResultModal(${m.id})" title="Record result">✎</button>`;
+            }
+            if (SESSION.role === 'captain' && isMyTeamMatch(m, SESSION.team)) {
+              const isPending = m.status === 'pending' || m.status === 'disputed';
+              const isOpen    = m.status === 'tbd' || m.status === 'upcoming';
+              if (isOpen || isPending) {
+                const isReview = isPending && m.submittedBy !== SESSION.username;
+                const cls   = isReview ? 'captain-edit-btn review-btn' : 'captain-edit-btn';
+                const title = isReview ? 'Review result' : (isPending ? 'Awaiting approval' : 'Submit result');
+                return `<button class="${cls}" onclick="event.stopPropagation();openResultModal(${m.id})" title="${title}">✎</button>`;
+              }
+            }
+            return '';
+          })();
           return `
             <tr class="${rowClass}" onclick="openModal(${m.id})" title="View match details">
               <td>${m.num}</td>
@@ -1853,11 +1942,23 @@
       const team = SESSION.team;
       const teamName = team === 'D' ? 'Team Dhurandhar' : 'Team Rushabh';
       const headerClass = team === 'D' ? 'captain-db-header-d' : 'captain-db-header-r';
-      const myPts  = getTeamPoints(team);
-      const oppPts = getTeamPoints(team === 'D' ? 'R' : 'D');
+      const myPts      = getTeamPoints(team);
+      const oppPts     = getTeamPoints(team === 'D' ? 'R' : 'D');
       const myMatchCnt = getMyMatchCount(team);
-      const played = MATCHES.filter(m => m.status === 'played' && isMyTeamMatch(m, team)).length;
-      const next   = getNextMyMatch(team);
+      const played     = MATCHES.filter(m => m.status === 'played' && isMyTeamMatch(m, team)).length;
+      const next       = getNextMyMatch(team);
+      // Matches pending the OTHER captain's review (submitted by this captain)
+      const awaitingReview = MATCHES.filter(m =>
+        (m.status === 'pending' || m.status === 'disputed') &&
+        isMyTeamMatch(m, team) &&
+        m.submittedBy === SESSION.username
+      ).length;
+      // Matches this captain needs to review
+      const needsReview = MATCHES.filter(m =>
+        (m.status === 'pending' || m.status === 'disputed') &&
+        isMyTeamMatch(m, team) &&
+        m.submittedBy !== SESSION.username
+      ).length;
 
       const dash = document.getElementById('captainDashboard');
       dash.innerHTML = `
@@ -1878,6 +1979,16 @@
             <div class="captain-db-stat-value">${played}/${myMatchCnt}</div>
             <div class="captain-db-stat-label">Matches Played</div>
           </div>
+          ${needsReview > 0 ? `
+          <div class="captain-db-stat" style="border-color:rgba(232,160,32,0.35);">
+            <div class="captain-db-stat-value" style="color:#e8a020;">${needsReview}</div>
+            <div class="captain-db-stat-label">Needs Review</div>
+          </div>` : ''}
+          ${awaitingReview > 0 ? `
+          <div class="captain-db-stat" style="border-color:rgba(201,168,76,0.2);">
+            <div class="captain-db-stat-value" style="color:var(--grey);">${awaitingReview}</div>
+            <div class="captain-db-stat-label">Awaiting Approval</div>
+          </div>` : ''}
         </div>
         ${next ? `
         <div class="captain-next-match">
@@ -1895,21 +2006,75 @@
       applyFilters();
     }
 
-    /* ── Result entry modal (admin) ── */
-    let resultEditId = null;
+    /* ── Result entry modal ── */
+    let resultEditId   = null;
+    let resultModalMode = 'edit'; // 'edit' | 'await' | 'review' | 'admin-review'
 
     function openResultModal(id) {
       const m = MATCHES.find(x => x.id === id);
       if (!m) return;
       resultEditId = id;
 
-      document.getElementById('resultModalTitle').textContent = `Record — ${m.name}`;
-      document.getElementById('courseInput').value = m.course !== 'TBD' ? m.course : '';
-      document.getElementById('dateInput').value   = m.date   || '';
-      document.getElementById('netScoreGroup').style.display = m.format === 'singles' ? '' : 'none';
-      document.getElementById('netScoreInput').value = (m.singles && m.singles.netScore) ? m.singles.netScore : '';
+      // Determine mode
+      if (SESSION.role === 'captain') {
+        const isPending = m.status === 'pending' || m.status === 'disputed';
+        if (isPending && m.submittedBy === SESSION.username) {
+          resultModalMode = 'await';
+        } else if (isPending) {
+          resultModalMode = 'review';
+        } else {
+          resultModalMode = 'edit';
+        }
+      } else if (SESSION.role === 'admin' && (m.status === 'pending' || m.status === 'disputed')) {
+        resultModalMode = 'admin-review';
+      } else {
+        resultModalMode = 'edit';
+      }
 
-      // Populate player info
+      document.getElementById('resultModalTitle').textContent = m.name;
+
+      // Mode banner
+      const modeBanner = document.getElementById('resultModeBanner');
+      if (resultModalMode === 'await') {
+        modeBanner.style.display = '';
+        modeBanner.className = 'result-mode-banner mode-pending';
+        modeBanner.textContent = '\u23F3 Awaiting other captain\u2019s approval';
+      } else if (resultModalMode === 'review') {
+        modeBanner.style.display = '';
+        modeBanner.className = 'result-mode-banner mode-review';
+        modeBanner.textContent = '\u2713 Review — approve or dispute this result';
+      } else if (resultModalMode === 'admin-review') {
+        modeBanner.style.display = '';
+        modeBanner.className = `result-mode-banner ${m.status === 'disputed' ? 'mode-disputed' : 'mode-pending'}`;
+        modeBanner.textContent = m.status === 'disputed' ? 'Disputed — override or confirm' : 'Pending approval — override or confirm';
+      } else {
+        modeBanner.style.display = 'none';
+        modeBanner.className = 'result-mode-banner';
+      }
+
+      // Review section — who submitted
+      const reviewSection = document.getElementById('reviewSection');
+      if (m.submittedBy && resultModalMode !== 'edit') {
+        reviewSection.style.display = '';
+        document.getElementById('reviewSubmittedBy').textContent = m.submittedBy;
+      } else {
+        reviewSection.style.display = 'none';
+      }
+
+      // Populate fields
+      const isReadOnly = resultModalMode === 'await' || resultModalMode === 'review';
+      document.getElementById('courseInput').value    = (m.course && m.course !== 'TBD') ? m.course : '';
+      document.getElementById('dateInput').value      = m.date || '';
+      document.getElementById('netScoreGroup').style.display = m.format === 'singles' ? '' : 'none';
+      document.getElementById('netScoreInput').value  = (m.singles && m.singles.netScore) ? m.singles.netScore : '';
+      ['courseInput','dateInput','netScoreInput'].forEach(id => {
+        document.getElementById(id).disabled = isReadOnly;
+      });
+      document.querySelectorAll('input[name="outcome"]').forEach(r => {
+        r.disabled = isReadOnly;
+      });
+
+      // Player info
       const playersDisplay = document.getElementById('playersDisplay');
       if (m.format === 'singles' && m.singles) {
         playersDisplay.innerHTML =
@@ -1923,17 +2088,40 @@
         playersDisplay.innerHTML = '<span style="color:var(--grey);font-size:0.82rem;">TBD</span>';
       }
 
-      // Pre-select existing outcome
-      const radios = document.querySelectorAll('input[name="outcome"]');
-      radios.forEach(r => r.checked = false);
+      // Pre-select outcome (from stored points for pending/disputed)
+      document.querySelectorAll('input[name="outcome"]').forEach(r => r.checked = false);
       if (m.points) {
-        if (m.points.d > m.points.r) document.getElementById('outcomeD').checked = true;
+        if (m.points.d > m.points.r)      document.getElementById('outcomeD').checked = true;
         else if (m.points.r > m.points.d) document.getElementById('outcomeR').checked = true;
-        else document.getElementById('outcomeH').checked = true;
+        else                              document.getElementById('outcomeH').checked = true;
       }
 
-      // Show Clear Score button only if match already has a result
-      document.getElementById('resultClearBtn').style.display = m.points ? '' : 'none';
+      // Footer buttons
+      const clearBtn   = document.getElementById('resultClearBtn');
+      const saveBtn    = document.getElementById('resultSaveBtn');
+      const approveBtn = document.getElementById('resultApproveBtn');
+      const disputeBtn = document.getElementById('resultDisputeBtn');
+
+      // Clear: admin only, and only for played/pending/disputed
+      clearBtn.style.display = (SESSION.role === 'admin' && m.status !== 'tbd' && m.status !== 'upcoming') ? '' : 'none';
+
+      if (resultModalMode === 'edit') {
+        saveBtn.style.display = ''; saveBtn.textContent = 'Save Result';
+        approveBtn.style.display = 'none';
+        disputeBtn.style.display = 'none';
+      } else if (resultModalMode === 'await') {
+        saveBtn.style.display = 'none';
+        approveBtn.style.display = 'none';
+        disputeBtn.style.display = 'none';
+      } else if (resultModalMode === 'review') {
+        saveBtn.style.display = 'none';
+        approveBtn.style.display = '';
+        disputeBtn.style.display = '';
+      } else { // admin-review
+        saveBtn.style.display = ''; saveBtn.textContent = 'Override & Save';
+        approveBtn.style.display = ''; approveBtn.textContent = 'Approve As-Is';
+        disputeBtn.style.display = 'none';
+      }
 
       document.getElementById('resultModal').classList.add('open');
     }
@@ -1985,13 +2173,21 @@
       const date     = document.getElementById('dateInput').value.trim();
       const netScore = document.getElementById('netScoreInput').value.trim();
 
-      const data = { points: pts };
+      // Captains submit as pending; admin always confirms
+      const isCaptain = SESSION.role === 'captain';
+      const data = {
+        points: pts,
+        status: isCaptain ? 'pending' : 'confirmed',
+      };
+      if (isCaptain) {
+        data.submittedBy = SESSION.username;
+        data.submittedAt = new Date().toISOString();
+      }
       if (course)   data.course   = course;
       if (date)     data.date     = date;
       if (netScore) data.netScore = netScore;
 
-      // Disable save button while saving
-      const saveBtn = document.querySelector('.result-save-btn');
+      const saveBtn  = document.getElementById('resultSaveBtn');
       const origText = saveBtn.textContent;
       saveBtn.textContent = 'Saving…';
       saveBtn.disabled = true;
@@ -1999,11 +2195,12 @@
       try {
         await pushResult(resultEditId, data);
 
-        // Apply to live MATCHES
         const m = MATCHES.find(x => x.id === resultEditId);
         if (m) {
-          m.points = pts;
-          m.status = 'played';
+          m.points         = pts;
+          m.approvalStatus = data.status;
+          m.submittedBy    = data.submittedBy || null;
+          m.status         = isCaptain ? 'pending' : 'played';
           if (course) m.course = course;
           if (date)   m.date   = date;
           if (m.singles && netScore) m.singles.netScore = netScore;
@@ -2011,6 +2208,7 @@
 
         closeResultModal();
         applyFilters();
+        if (isCaptain) updateAdminBarBadge();
       } catch(e) {
         alert('Could not save result: ' + e.message);
       } finally {
@@ -2019,10 +2217,96 @@
       }
     }
 
+    async function approveResult() {
+      const m = MATCHES.find(x => x.id === resultEditId);
+      if (!m || !m.points) return;
+
+      const approveBtn = document.getElementById('resultApproveBtn');
+      const origText   = approveBtn.textContent;
+      approveBtn.textContent = 'Approving…';
+      approveBtn.disabled = true;
+
+      try {
+        const data = {
+          points:      m.points,
+          status:      'confirmed',
+          submittedBy: m.submittedBy,
+          submittedAt: m.submittedAt,
+        };
+        if (m.course && m.course !== 'TBD') data.course = m.course;
+        if (m.date)  data.date = m.date;
+        if (m.singles && m.singles.netScore) data.netScore = m.singles.netScore;
+
+        await pushResult(resultEditId, data);
+
+        m.approvalStatus = 'confirmed';
+        m.status         = 'played';
+
+        closeResultModal();
+        applyFilters();
+        updateAdminBarBadge();
+      } catch(e) {
+        alert('Could not approve result: ' + e.message);
+      } finally {
+        approveBtn.textContent = origText;
+        approveBtn.disabled = false;
+      }
+    }
+
+    async function disputeResult() {
+      const m = MATCHES.find(x => x.id === resultEditId);
+      if (!m || !m.points) return;
+
+      const disputeBtn = document.getElementById('resultDisputeBtn');
+      const origText   = disputeBtn.textContent;
+      disputeBtn.textContent = 'Disputing…';
+      disputeBtn.disabled = true;
+
+      try {
+        const data = {
+          points:      m.points,
+          status:      'disputed',
+          submittedBy: m.submittedBy,
+          submittedAt: m.submittedAt,
+        };
+        if (m.course && m.course !== 'TBD') data.course = m.course;
+        if (m.date)  data.date = m.date;
+        if (m.singles && m.singles.netScore) data.netScore = m.singles.netScore;
+
+        await pushResult(resultEditId, data);
+
+        m.approvalStatus = 'disputed';
+        m.status         = 'disputed';
+
+        closeResultModal();
+        applyFilters();
+        updateAdminBarBadge();
+      } catch(e) {
+        alert('Could not dispute result: ' + e.message);
+      } finally {
+        disputeBtn.textContent = origText;
+        disputeBtn.disabled = false;
+      }
+    }
+
     // Close result modal on overlay click
     document.getElementById('resultModal').addEventListener('click', function(e) {
       if (e.target === this) closeResultModal();
     });
+
+    /* ── Admin bar pending/disputed badge ── */
+    function updateAdminBarBadge() {
+      if (!SESSION || SESSION.role !== 'admin') return;
+      const count = MATCHES.filter(m => m.status === 'pending' || m.status === 'disputed').length;
+      const bar   = document.querySelector('.admin-bar');
+      if (!bar) return;
+      const existing = bar.querySelector('.admin-bar-badge');
+      if (existing) existing.remove();
+      if (count > 0) {
+        bar.insertAdjacentHTML('beforeend',
+          ` &nbsp;<span class="admin-bar-badge">${count} pending</span>`);
+      }
+    }
 
     /* ── Init ── */
     function initPersona() {

@@ -344,6 +344,85 @@ describe('API edge cases', () => {
   });
 });
 
+// ── Dual-captain approval data ───────────────────────────────────────────────
+
+describe('Dual-captain approval data', () => {
+  let env: ReturnType<typeof makeEnv>;
+  beforeEach(() => { env = makeEnv(); });
+
+  it('captain can POST a pending result with status and submittedBy fields', async () => {
+    const payload = {
+      '5': {
+        points: { d: 1, r: 0 },
+        status: 'pending',
+        submittedBy: 'captain.d',
+        submittedAt: '2026-03-21T10:00:00.000Z',
+        course: 'Prestige GC',
+        date: 'Mar 2026',
+      },
+    };
+    const res = await postResults(payload, env);
+    expect(res.status).toBe(200);
+  });
+
+  it('pending result is stored and returned verbatim via GET', async () => {
+    const payload = {
+      '5': {
+        points: { d: 1, r: 0 },
+        status: 'pending',
+        submittedBy: 'captain.d',
+        submittedAt: '2026-03-21T10:00:00.000Z',
+      },
+    };
+    await postResults(payload, env);
+    const data = await getResults(env).then(r => r.json() as Record<string, unknown>);
+    expect(data['5']).toMatchObject({ status: 'pending', submittedBy: 'captain.d' });
+  });
+
+  it('pending result can be overwritten to confirmed by admin', async () => {
+    // Captain submits as pending
+    await postResults({
+      '5': { points: { d: 1, r: 0 }, status: 'pending', submittedBy: 'captain.d' },
+    }, env);
+    // Admin confirms
+    await postResults({
+      '5': { points: { d: 1, r: 0 }, status: 'confirmed' },
+    }, env);
+    const data = await getResults(env).then(r => r.json() as Record<string, { status: string }>);
+    expect(data['5'].status).toBe('confirmed');
+  });
+
+  it('disputed result can be overwritten to confirmed', async () => {
+    await postResults({
+      '6': { points: { d: 0, r: 1 }, status: 'disputed', submittedBy: 'captain.d' },
+    }, env);
+    await postResults({
+      '6': { points: { d: 0, r: 1 }, status: 'confirmed' },
+    }, env);
+    const data = await getResults(env).then(r => r.json() as Record<string, { status: string }>);
+    expect(data['6'].status).toBe('confirmed');
+  });
+
+  it('legacy result with no status field is returned as-is (no status key)', async () => {
+    // Simulate a legacy result written without a status field
+    await env.RESULTS.put(KV_KEY, JSON.stringify({
+      '3': { points: { d: 0.5, r: 0.5 }, course: 'Classic GC', date: 'Jan 2026' },
+    }));
+    const data = await getResults(env).then(r => r.json() as Record<string, { status?: string }>);
+    expect(data['3'].status).toBeUndefined(); // worker passes through unchanged
+    expect(data['3']).toMatchObject({ points: { d: 0.5, r: 0.5 } });
+  });
+
+  it('pending result can be cleared (set to null)', async () => {
+    await postResults({
+      '7': { points: { d: 1, r: 0 }, status: 'pending', submittedBy: 'captain.d' },
+    }, env);
+    await postResults({ '7': null }, env);
+    const data = await getResults(env).then(r => r.json() as Record<string, unknown>);
+    expect(data['7']).toBeUndefined();
+  });
+});
+
 // ── Test Mode (X-Test-Mode: 1) ───────────────────────────────────────────────
 
 describe('Test mode (X-Test-Mode: 1)', () => {
