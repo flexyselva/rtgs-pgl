@@ -151,7 +151,7 @@ export default {
       let html = await assetResponse.text();
 
       // Inject version into footer — applies to all environments
-      const versionSuffix = `&nbsp;&middot;&nbsp; v${env.VERSION}`;
+      const versionSuffix = `&nbsp;&middot;&nbsp; v${env.VERSION ?? 'unknown'}`;
       html = html.replace('All Rights Reserved', 'All Rights Reserved' + versionSuffix);
 
       // Inject staging banner — staging only
