@@ -4,10 +4,37 @@
 
 A static website for the **RTGS Premier Golf League (RTGS PGL)**, hosted on **Cloudflare Workers** using Wrangler. The site is served from the `./public` directory as static assets.
 
-- **Live URL:** https://rtgs-pgl.selvaraj-s.workers.dev
+- **Production URL:** https://rtgs-pgl.selvaraj-s.workers.dev
+- **Staging URL:** https://rtgs-pgl-staging.selvaraj-s.workers.dev
 - **Stack:** Cloudflare Workers + static HTML/CSS (no frameworks)
-- **Deploy command:** `npx wrangler deploy`
+- **Deploy to staging:** `npx wrangler deploy --env staging`
+- **Deploy to prod:** `npx wrangler deploy`
 - **Dev command:** `npx wrangler dev` (runs on http://127.0.0.1:8787)
+
+---
+
+## Workflow (until CI/CD is set up)
+
+Feature development follows a staging-first flow. **All work goes through staging before prod.**
+
+### Environments
+| Environment | URL | KV Namespace | When to deploy |
+|---|---|---|---|
+| Staging | https://rtgs-pgl-staging.selvaraj-s.workers.dev | Isolated (staging KV) | On every feature commit |
+| Production | https://rtgs-pgl.selvaraj-s.workers.dev | Production KV | Only after explicit approval |
+
+### Trigger words
+| User says | Claude does |
+|---|---|
+| "commit it" | Create feature branch (if not already on one) → git add → commit → push to GitHub → `wrangler deploy --env staging` |
+| "looks good, merge to main" | Squash merge feature branch → main → `wrangler deploy` (prod) → sync local main |
+
+### Testing rules
+- **E2E tests (`npm run test:e2e`)** — always run against staging URL. Never local, never prod (unless explicitly requested for a production issue).
+- **Unit tests (`npm test`)** — run locally with Vitest, no deployment needed.
+- **Production testing** — only if the user explicitly asks (e.g. investigating a prod bug).
+
+---
 
 ## Pages
 

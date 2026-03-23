@@ -143,6 +143,22 @@ export default {
     }
 
     // ── Static assets (everything else) ──
-    return env.ASSETS.fetch(request);
+    const assetResponse = await env.ASSETS.fetch(request);
+
+    // Inject staging banner into HTML pages
+    if (
+      url.hostname.includes('staging') &&
+      assetResponse.headers.get('Content-Type')?.includes('text/html')
+    ) {
+      const html = await assetResponse.text();
+      const banner = `<div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#b45309;color:#fff;text-align:center;padding:8px 16px;font-family:Raleway,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.05em;">STAGING — This is not the live site. Data here is independent of production.</div><div style="height:37px"></div>`;
+      const injected = html.replace('<body>', '<body>' + banner);
+      return new Response(injected, {
+        status: assetResponse.status,
+        headers: assetResponse.headers,
+      });
+    }
+
+    return assetResponse;
   },
 };
