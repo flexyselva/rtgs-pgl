@@ -1427,7 +1427,6 @@
     const TEAM_R_PLAYERS = ['Shailendra Singh','Satyapal P','John C','Rahul R','Mazz','Rushabh L','Srikant N','DZ'];
 
     /* ── KV API — result persistence ── */
-    const WRITE_KEY = 'rtgs-kv-w-2026'; // shared write key (admin + captains)
 
     function applyStoredResults(stored) {
       MATCHES.forEach(m => {
@@ -1457,13 +1456,14 @@
         renderCaptainDashboard();
       } catch(e) {
         console.warn('Could not load results from KV:', e);
+        logError('fetchResults', e);
       }
     }
 
     async function pushResult(id, data) {
       const res = await fetch('/api/results', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Write-Key': WRITE_KEY },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (getSession().token || '') },
         body: JSON.stringify({ [id]: data }),
       });
       if (!res.ok) {
@@ -2180,6 +2180,7 @@
         applyFilters();
       } catch(e) {
         showErrorToast('Could not clear result: ' + e.message);
+        logError('clearResult', e);
       } finally {
         clearBtn.textContent = origText;
         clearBtn.disabled = false;
@@ -2255,6 +2256,7 @@
         renderCaptainDashboard();
       } catch(e) {
         showErrorToast('Could not save result: ' + e.message);
+        logError('saveResult', e);
       } finally {
         saveBtn.textContent = origText;
         saveBtn.disabled = false;
@@ -2293,6 +2295,7 @@
         renderCaptainDashboard();
       } catch(e) {
         showErrorToast('Could not approve result: ' + e.message);
+        logError('approveResult', e);
       } finally {
         approveBtn.textContent = origText;
         approveBtn.disabled = false;
@@ -2331,6 +2334,7 @@
         renderCaptainDashboard();
       } catch(e) {
         showErrorToast('Could not dispute result: ' + e.message);
+        logError('disputeResult', e);
       } finally {
         disputeBtn.textContent = origText;
         disputeBtn.disabled = false;

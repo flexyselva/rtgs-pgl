@@ -37,7 +37,10 @@
 	},
 	"compatibility_flags": [
 		"nodejs_compat"
-	]
+	],
+	// Secrets (set via: npx wrangler secret put SECRET_NAME)
+	// AUTH_HMAC_SECRET — used to sign/verify login tokens
+	// AUTH_USERS — JSON array of {username, passwordHash, role, team, display}
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

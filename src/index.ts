@@ -3,9 +3,12 @@
  *
  * Routes:
  *   GET  /api/results   → read all Season 3 results from KV
- *   POST /api/results   → write results to KV (requires X-Write-Key header)
+ *   POST /api/results   → write results to KV (requires X-Write-Key or Bearer token)
  *   POST /api/track     → append analytics event to daily KV key (open)
  *   GET  /api/analytics → read analytics events for last N days (requires X-Write-Key)
+ *   POST /api/login     → authenticate user, return signed token
+ *   POST /api/log       → store client-side error log entry (open)
+ *   GET  /api/log       → read error log entries for last N days (requires auth)
  *   *                   → forward to static assets (public/)
  */
 
@@ -14,6 +17,8 @@ interface Env {
   WRITE_KEY: string;
   ASSETS: Fetcher;
   VERSION: string;
+  AUTH_HMAC_SECRET: string;
+  AUTH_USERS: string;
 }
 
 const KV_KEY      = 'season3_results';
@@ -22,7 +27,7 @@ const KV_TEST_KEY = 'season3_results_test'; // isolated key used by E2E tests
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, X-Write-Key, X-Test-Mode',
+  'Access-Control-Allow-Headers': 'Content-Type, X-Write-Key, X-Test-Mode, Authorization',
 };
 
 function json(data: unknown, status = 200): Response {
@@ -30,6 +35,67 @@ function json(data: unknown, status = 200): Response {
     status,
     headers: { 'Content-Type': 'application/json', ...corsHeaders },
   });
+}
+
+// ── Auth helper functions ──────────────────────────────────────────────────
+
+async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function base64urlEncode(str: string): string {
+  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+async function signToken(payload: object, secret: string): Promise<string> {
+  const payloadB64 = base64urlEncode(JSON.stringify(payload));
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const msgData = encoder.encode(payloadB64);
+  const key = await crypto.subtle.importKey(
+    'raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+  );
+  const sig = await crypto.subtle.sign('HMAC', key, msgData);
+  const sigB64 = base64urlEncode(String.fromCharCode(...new Uint8Array(sig)));
+  return `${payloadB64}.${sigB64}`;
+}
+
+async function verifyToken(token: string, secret: string): Promise<object | null> {
+  const parts = token.split('.');
+  if (parts.length !== 2) return null;
+  const [payloadB64, sigB64] = parts;
+  try {
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(secret);
+    const msgData = encoder.encode(payloadB64);
+    const key = await crypto.subtle.importKey(
+      'raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']
+    );
+    // Decode provided signature
+    const providedSig = Uint8Array.from(atob(sigB64.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+    const valid = await crypto.subtle.verify('HMAC', key, providedSig, msgData);
+    if (!valid) return null;
+    const payload = JSON.parse(atob(payloadB64.replace(/-/g, '+').replace(/_/g, '/'))) as { exp?: number };
+    if (payload.exp && Date.now() > payload.exp) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+// ── Bearer token extraction + verification ────────────────────────────────
+
+async function verifyBearer(request: Request, secret: string): Promise<{ username: string; role: string; team: string | null; display: string } | null> {
+  const authHeader = request.headers.get('Authorization') ?? '';
+  if (!authHeader.startsWith('Bearer ')) return null;
+  const token = authHeader.slice(7);
+  const payload = await verifyToken(token, secret) as { username?: string; role?: string; team?: string | null; display?: string } | null;
+  if (!payload || !payload.username || !payload.role) return null;
+  return { username: payload.username, role: payload.role, team: payload.team ?? null, display: payload.display ?? '' };
 }
 
 export default {
@@ -42,6 +108,33 @@ export default {
     }
 
     // ── API routes ──
+
+    // ── POST /api/login — authenticate and return signed token ──
+    if (url.pathname === '/api/login' && request.method === 'POST') {
+      let body: { username?: string; password?: string };
+      try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
+
+      const { username, password } = body;
+      if (!username || !password) return json({ error: 'Invalid credentials' }, 401);
+
+      let users: Array<{ username: string; passwordHash: string; role: string; team: string | null; display: string }> = [];
+      try { users = JSON.parse(env.AUTH_USERS ?? '[]'); } catch { return json({ error: 'Server misconfigured' }, 500); }
+
+      const incoming = await hashPassword(password);
+      const match = users.find(u => u.username === username && u.passwordHash === incoming);
+      if (!match) return json({ error: 'Invalid credentials' }, 401);
+
+      const payload = {
+        username: match.username,
+        role:     match.role,
+        team:     match.team,
+        display:  match.display,
+        exp:      Date.now() + 30 * 60 * 1000,
+      };
+      const token = await signToken(payload, env.AUTH_HMAC_SECRET ?? '');
+      return json({ token, username: match.username, role: match.role, team: match.team, display: match.display });
+    }
+
     if (url.pathname === '/api/results') {
 
       // Determine which KV key to use — test mode uses an isolated key
@@ -55,10 +148,16 @@ export default {
         return json(results);
       }
 
-      // POST — write results (auth required)
+      // POST — write results (auth required: X-Write-Key or Bearer token with admin/captain role)
       if (request.method === 'POST') {
         const writeKey = request.headers.get('X-Write-Key') ?? '';
-        if (!env.WRITE_KEY || writeKey !== env.WRITE_KEY) {
+        const writeKeyOk = env.WRITE_KEY && writeKey === env.WRITE_KEY;
+        let bearerOk = false;
+        if (!writeKeyOk) {
+          const tokenPayload = await verifyBearer(request.clone(), env.AUTH_HMAC_SECRET ?? '');
+          bearerOk = tokenPayload !== null && (tokenPayload.role === 'admin' || tokenPayload.role === 'captain');
+        }
+        if (!writeKeyOk && !bearerOk) {
           return json({ error: 'Unauthorised' }, 401);
         }
 
@@ -141,6 +240,60 @@ export default {
       raws.forEach(raw => { if (raw) allEvents.push(...JSON.parse(raw)); });
 
       return json({ events: allEvents });
+    }
+
+    // ── POST /api/log — store client-side error (open, no auth) ──
+    if (url.pathname === '/api/log' && request.method === 'POST') {
+      let body: Record<string, unknown>;
+      try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
+
+      const now = new Date();
+      const dateKey = `errors_${now.toISOString().slice(0, 10)}`;
+      const entry = {
+        level:    String(body.level    || 'error').slice(0, 16),
+        context:  String(body.context  || '').slice(0, 64),
+        message:  String(body.message  || '').slice(0, 256),
+        stack:    String(body.stack    || '').slice(0, 512),
+        username: String(body.username || 'guest').slice(0, 64),
+        page:     String(body.page     || '/').slice(0, 128),
+        ts:       String(body.ts       || now.toISOString()).slice(0, 32),
+        ua:       String(body.ua       || '').slice(0, 128),
+      };
+
+      const raw = await env.RESULTS.get(dateKey);
+      const entries: unknown[] = raw ? JSON.parse(raw) : [];
+      if (entries.length >= 500) entries.splice(0, entries.length - 499); // cap at 500, drop oldest
+      entries.push(entry);
+      await env.RESULTS.put(dateKey, JSON.stringify(entries));
+      return json({ ok: true });
+    }
+
+    // ── GET /api/log — read error log entries for last N days (auth required) ──
+    if (url.pathname === '/api/log' && request.method === 'GET') {
+      const writeKey = request.headers.get('X-Write-Key') ?? '';
+      const writeKeyOk = env.WRITE_KEY && writeKey === env.WRITE_KEY;
+      let bearerOk = false;
+      if (!writeKeyOk) {
+        const tokenPayload = await verifyBearer(request.clone(), env.AUTH_HMAC_SECRET ?? '');
+        bearerOk = tokenPayload !== null && tokenPayload.role === 'admin';
+      }
+      if (!writeKeyOk && !bearerOk) {
+        return json({ error: 'Unauthorised' }, 401);
+      }
+
+      const days = Math.min(parseInt(url.searchParams.get('days') || '3'), 7);
+      const dateKeys: string[] = [];
+      for (let i = 0; i < days; i++) {
+        const d = new Date();
+        d.setUTCDate(d.getUTCDate() - i);
+        dateKeys.push(`errors_${d.toISOString().slice(0, 10)}`);
+      }
+
+      const raws = await Promise.all(dateKeys.map(k => env.RESULTS.get(k)));
+      const allErrors: unknown[] = [];
+      raws.forEach(raw => { if (raw) allErrors.push(...JSON.parse(raw)); });
+
+      return json({ errors: allErrors });
     }
 
     // ── Static assets (everything else) ──

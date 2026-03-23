@@ -19,9 +19,19 @@ import worker from './index';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const WRITE_KEY = 'rtgs-kv-w-2026';
-const WRONG_KEY = 'not-the-key';
-const KV_KEY    = 'season3_results';
+const WRITE_KEY       = 'rtgs-kv-w-2026';
+const WRONG_KEY       = 'not-the-key';
+const KV_KEY          = 'season3_results';
+const HMAC_SECRET     = 'test-hmac-secret';
+
+// Pre-hashed password for 'testpass' (SHA-256)
+// Generated via: crypto.createHash('sha256').update('testpass').digest('hex')
+const TEST_PASS_HASH  = '13d249f2cb4127b40cfa757866850278793f814ded3c587fe5889e889a7a9f6c';
+
+const TEST_USERS = JSON.stringify([
+  { username: 'admin',     passwordHash: TEST_PASS_HASH, role: 'admin',   team: null, display: 'Admin' },
+  { username: 'captain.d', passwordHash: TEST_PASS_HASH, role: 'captain', team: 'D',  display: 'Capt · D' },
+]);
 
 // ── Mock Env ─────────────────────────────────────────────────────────────────
 
@@ -47,8 +57,8 @@ function makeCtx(): ExecutionContext {
   return { waitUntil: () => {}, passThroughOnException: () => {} } as unknown as ExecutionContext;
 }
 
-function makeEnv(writeKey = WRITE_KEY): { RESULTS: KVNamespace; WRITE_KEY: string; ASSETS: Fetcher } {
-  return { RESULTS: makeKV(), WRITE_KEY: writeKey, ASSETS: makeAssets() };
+function makeEnv(writeKey = WRITE_KEY): { RESULTS: KVNamespace; WRITE_KEY: string; ASSETS: Fetcher; AUTH_HMAC_SECRET: string; AUTH_USERS: string } {
+  return { RESULTS: makeKV(), WRITE_KEY: writeKey, ASSETS: makeAssets(), AUTH_HMAC_SECRET: HMAC_SECRET, AUTH_USERS: TEST_USERS };
 }
 
 // ── Request helpers ──────────────────────────────────────────────────────────
@@ -509,5 +519,182 @@ describe('Test mode (X-Test-Mode: 1)', () => {
       env, makeCtx(),
     );
     expect(res.status).toBe(401);
+  });
+});
+
+// ── POST /api/login ──────────────────────────────────────────────────────────
+
+describe('POST /api/login', () => {
+  it('valid credentials return 200 with token and user info', async () => {
+    const env = makeEnv();
+    const res = await worker.fetch(
+      new Request('http://localhost/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: 'admin', password: 'testpass' }),
+      }),
+      env, makeCtx(),
+    );
+    expect(res.status).toBe(200);
+    const data = await res.json() as { token: string; username: string; role: string };
+    expect(typeof data.token).toBe('string');
+    expect(data.token.length).toBeGreaterThan(10);
+    expect(data.username).toBe('admin');
+    expect(data.role).toBe('admin');
+  });
+
+  it('invalid password returns 401', async () => {
+    const env = makeEnv();
+    const res = await worker.fetch(
+      new Request('http://localhost/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: 'admin', password: 'wrongpassword' }),
+      }),
+      env, makeCtx(),
+    );
+    expect(res.status).toBe(401);
+    const data = await res.json() as { error: string };
+    expect(data.error).toBe('Invalid credentials');
+  });
+
+  it('unknown username returns 401', async () => {
+    const env = makeEnv();
+    const res = await worker.fetch(
+      new Request('http://localhost/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: 'nobody', password: 'testpass' }),
+      }),
+      env, makeCtx(),
+    );
+    expect(res.status).toBe(401);
+  });
+
+  it('captain.d can log in and receives captain role', async () => {
+    const env = makeEnv();
+    const res = await worker.fetch(
+      new Request('http://localhost/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: 'captain.d', password: 'testpass' }),
+      }),
+      env, makeCtx(),
+    );
+    expect(res.status).toBe(200);
+    const data = await res.json() as { role: string; team: string };
+    expect(data.role).toBe('captain');
+    expect(data.team).toBe('D');
+  });
+
+  it('POST /api/results with valid Bearer token from login succeeds', async () => {
+    const env = makeEnv();
+    // First login
+    const loginRes = await worker.fetch(
+      new Request('http://localhost/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: 'admin', password: 'testpass' }),
+      }),
+      env, makeCtx(),
+    );
+    const { token } = await loginRes.json() as { token: string };
+
+    // Then POST with Bearer token
+    const res = await worker.fetch(
+      new Request('http://localhost/api/results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ '1': { points: { d: 1, r: 0 } } }),
+      }),
+      env, makeCtx(),
+    );
+    expect(res.status).toBe(200);
+    expect((await res.json() as { ok: boolean }).ok).toBe(true);
+  });
+});
+
+// ── POST /api/log ────────────────────────────────────────────────────────────
+
+describe('POST /api/log', () => {
+  it('stores an error entry and returns { ok: true }', async () => {
+    const env = makeEnv();
+    const res = await worker.fetch(
+      new Request('http://localhost/api/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          level: 'error', context: 'saveResult', message: 'Save failed',
+          stack: '', username: 'captain.d', page: '/season3.html',
+          ts: '2026-03-23T10:00:00.000Z', ua: 'TestAgent/1.0',
+        }),
+      }),
+      env, makeCtx(),
+    );
+    expect(res.status).toBe(200);
+    expect((await res.json() as { ok: boolean }).ok).toBe(true);
+  });
+
+  it('is open — no auth required', async () => {
+    const env = makeEnv();
+    const res = await worker.fetch(
+      new Request('http://localhost/api/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ level: 'error', message: 'test' }),
+      }),
+      env, makeCtx(),
+    );
+    expect(res.status).toBe(200);
+  });
+
+  it('truncates oversized fields', async () => {
+    const env = makeEnv();
+    const res = await worker.fetch(
+      new Request('http://localhost/api/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: 'x'.repeat(500) }),
+      }),
+      env, makeCtx(),
+    );
+    expect(res.status).toBe(200);
+  });
+});
+
+// ── GET /api/log ─────────────────────────────────────────────────────────────
+
+describe('GET /api/log', () => {
+  it('requires auth — returns 401 without key', async () => {
+    const env = makeEnv();
+    const res = await worker.fetch(
+      new Request('http://localhost/api/log'),
+      env, makeCtx(),
+    );
+    expect(res.status).toBe(401);
+  });
+
+  it('returns errors array when authenticated with write key', async () => {
+    const env = makeEnv();
+    // First store an entry
+    await worker.fetch(
+      new Request('http://localhost/api/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: 'test error' }),
+      }),
+      env, makeCtx(),
+    );
+    // Then read it
+    const res = await worker.fetch(
+      new Request('http://localhost/api/log?days=1', {
+        headers: { 'X-Write-Key': WRITE_KEY },
+      }),
+      env, makeCtx(),
+    );
+    expect(res.status).toBe(200);
+    const data = await res.json() as { errors: unknown[] };
+    expect(Array.isArray(data.errors)).toBe(true);
+    expect(data.errors.length).toBeGreaterThan(0);
   });
 });
