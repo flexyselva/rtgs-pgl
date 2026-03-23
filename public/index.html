@@ -712,6 +712,21 @@
       document.getElementById('loginError').textContent = '';
     }
 
+    /* ── Analytics tracking ── */
+    function trackEvent(eventName, extra) {
+      try {
+        const session = getSession();
+        fetch('/api/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(Object.assign({
+            event: eventName, page: '/',
+            persona: session.role, username: session.username,
+          }, extra))
+        }).catch(() => {});
+      } catch(e) {}
+    }
+
     function doLogin() {
       const u = document.getElementById('loginUser').value.trim().toLowerCase();
       const p = document.getElementById('loginPass').value;
@@ -727,11 +742,13 @@
         username: match.username, role: match.role,
         team: match.team, display: match.display
       }));
+      trackEvent('login', { persona: match.role, username: match.username });
       closeLoginOverlay();
       renderHeaderAuth();
     }
 
     function doLogout() {
+      trackEvent('logout');
       sessionStorage.removeItem('rtgs_session');
       renderHeaderAuth();
     }
@@ -753,6 +770,7 @@
     // Start overlay hidden — only opens on demand
     document.getElementById('loginOverlay').classList.add('hidden');
     renderHeaderAuth();
+    trackEvent('page_view');
 
     /* ── Profile avatar helpers ── */
     function getInitials(display) {
