@@ -146,6 +146,10 @@ body {
   background: rgba(30,8,8,0.97);
 }
 
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
 /* ── Footer ── */
 .footer {
   position: fixed;
