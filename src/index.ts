@@ -2,9 +2,11 @@
  * RTGS PGL — Cloudflare Worker
  *
  * Routes:
- *   GET  /api/results  → read all Season 3 results from KV
- *   POST /api/results  → write results to KV (requires X-Write-Key header)
- *   *                  → forward to static assets (public/)
+ *   GET  /api/results   → read all Season 3 results from KV
+ *   POST /api/results   → write results to KV (requires X-Write-Key header)
+ *   POST /api/track     → append analytics event to daily KV key (open)
+ *   GET  /api/analytics → read analytics events for last N days (requires X-Write-Key)
+ *   *                   → forward to static assets (public/)
  */
 
 interface Env {
@@ -93,6 +95,51 @@ export default {
       }
 
       return json({ error: 'Method not allowed' }, 405);
+    }
+
+    // ── POST /api/track — append analytics event (no auth) ──
+    if (url.pathname === '/api/track' && request.method === 'POST') {
+      let body: { event?: string; page?: string; persona?: string; username?: string };
+      try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
+
+      const now = new Date();
+      const dateKey = `analytics_${now.toISOString().slice(0, 10)}`;
+      const event = {
+        event:    String(body.event    || 'unknown').slice(0, 64),
+        page:     String(body.page     || '/').slice(0, 128),
+        persona:  String(body.persona  || 'fan').slice(0, 32),
+        username: String(body.username || 'guest').slice(0, 64),
+        ts:       now.toISOString(),
+        country:  (request.headers.get('CF-IPCountry') || '').slice(0, 8),
+      };
+
+      const raw = await env.RESULTS.get(dateKey);
+      const events: unknown[] = raw ? JSON.parse(raw) : [];
+      events.push(event);
+      await env.RESULTS.put(dateKey, JSON.stringify(events));
+      return json({ ok: true });
+    }
+
+    // ── GET /api/analytics — read events for last N days (auth required) ──
+    if (url.pathname === '/api/analytics' && request.method === 'GET') {
+      const writeKey = request.headers.get('X-Write-Key') ?? '';
+      if (!env.WRITE_KEY || writeKey !== env.WRITE_KEY) {
+        return json({ error: 'Unauthorised' }, 401);
+      }
+
+      const days = Math.min(parseInt(url.searchParams.get('days') || '7'), 30);
+      const dateKeys: string[] = [];
+      for (let i = 0; i < days; i++) {
+        const d = new Date();
+        d.setUTCDate(d.getUTCDate() - i);
+        dateKeys.push(`analytics_${d.toISOString().slice(0, 10)}`);
+      }
+
+      const raws = await Promise.all(dateKeys.map(k => env.RESULTS.get(k)));
+      const allEvents: unknown[] = [];
+      raws.forEach(raw => { if (raw) allEvents.push(...JSON.parse(raw)); });
+
+      return json({ events: allEvents });
     }
 
     // ── Static assets (everything else) ──

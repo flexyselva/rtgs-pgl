@@ -1051,6 +1051,7 @@
     <div class="admin-bar">
       <div class="admin-bar-dot"></div>
       Admin Mode &nbsp;·&nbsp; Click any match row to record a result
+      &nbsp;&nbsp;<a href="/analytics.html" style="color:var(--gold);font-size:10px;letter-spacing:0.2em;text-decoration:none;opacity:0.8;">&#9656; Analytics</a>
     </div>
   </div>
 
@@ -1711,6 +1712,7 @@
     function openModal(id) {
       const m = MATCHES.find(x => x.id === id);
       if (!m) return;
+      trackEvent('match_view', { match: id });
 
       document.getElementById('modalMatchNum').textContent   = `Match ${m.num}`;
       document.getElementById('modalMatchTitle').textContent = m.name;
@@ -2216,6 +2218,7 @@
 
       try {
         await pushResult(resultEditId, data);
+        trackEvent('result_submit', { match: resultEditId, status: data.status });
 
         const m = MATCHES.find(x => x.id === resultEditId);
         if (m) {
@@ -2261,6 +2264,7 @@
         if (m.singles && m.singles.netScore) data.netScore = m.singles.netScore;
 
         await pushResult(resultEditId, data);
+        trackEvent('result_approve', { match: resultEditId });
 
         m.approvalStatus = 'confirmed';
         m.status         = 'played';
@@ -2298,6 +2302,7 @@
         if (m.singles && m.singles.netScore) data.netScore = m.singles.netScore;
 
         await pushResult(resultEditId, data);
+        trackEvent('result_dispute', { match: resultEditId });
 
         m.approvalStatus = 'disputed';
         m.status         = 'disputed';
@@ -2333,6 +2338,20 @@
       }
     }
 
+    /* ── Analytics tracking ── */
+    function trackEvent(eventName, extra) {
+      try {
+        fetch('/api/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(Object.assign({
+            event: eventName, page: '/season3.html',
+            persona: SESSION.role, username: SESSION.username,
+          }, extra))
+        }).catch(() => {});
+      } catch(e) {}
+    }
+
     /* ── Init ── */
     function initPersona() {
       renderUserChip();
@@ -2355,6 +2374,7 @@
     }
 
     initPersona();
+    trackEvent('page_view');
     renderTable();      // render immediately with base data (fast)
     fetchResults();     // overlay KV results in background, re-renders when done
   </script>
