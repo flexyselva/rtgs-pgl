@@ -172,21 +172,24 @@ test.describe('Analytics dashboard — access control', () => {
 
   test('fan (no session) is redirected away from /analytics.html', async ({ page }) => {
     await page.goto('/analytics.html');
-    await expect(page).not.toHaveURL(/analytics\.html/);
+    await expect(page).not.toHaveURL(/\/analytics/);
   });
 
   test('captain is redirected away from /analytics.html', async ({ page }) => {
     await page.goto('/season3.html');
     await setSession(page, 'captain-d');
     await page.goto('/analytics.html');
-    await expect(page).not.toHaveURL(/analytics\.html/);
+    await expect(page).not.toHaveURL(/\/analytics/);
   });
 
   test('admin can access /analytics.html', async ({ page }) => {
-    await page.goto('/season3.html');
-    await setSession(page, 'admin');
+    await page.addInitScript(() => {
+      sessionStorage.setItem('rtgs_session', JSON.stringify(
+        { username: 'admin', role: 'admin', team: null, display: 'Admin' }
+      ));
+    });
     await page.goto('/analytics.html');
-    await expect(page).toHaveURL(/analytics\.html/);
+    await expect(page).toHaveURL(/\/analytics/);
   });
 
 });
@@ -282,8 +285,13 @@ test.describe('Admin bar — analytics link', () => {
   });
 
   test('analytics link navigates to dashboard', async ({ page }) => {
+    await page.addInitScript(() => {
+      sessionStorage.setItem('rtgs_session', JSON.stringify(
+        { username: 'admin', role: 'admin', team: null, display: 'Admin' }
+      ));
+    });
     await page.locator('.admin-bar a[href="/analytics.html"]').click();
-    await expect(page).toHaveURL(/analytics\.html/);
+    await page.waitForURL(/\/analytics/, { timeout: 10_000 });
     await expect(page.locator('.nav-title')).toContainText('Usage Analytics');
   });
 
