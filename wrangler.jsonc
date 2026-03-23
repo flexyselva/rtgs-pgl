@@ -19,12 +19,14 @@
 			"preview_id": "649938e355604225a7cf692e8327e3b1"
 		}
 	],
+	"vars": { "VERSION": "1.1.0" },
 	"observability": {
 		"enabled": true
 	},
 	"env": {
 		"staging": {
 			"name": "rtgs-pgl-staging",
+			"vars": { "VERSION": "1.1.0" },
 			"kv_namespaces": [
 				{
 					"binding": "RESULTS",
