@@ -1,0 +1,22 @@
+  <!-- Login Overlay -->
+  <div class="login-overlay hidden" id="loginOverlay">
+    <div class="login-card">
+      <div class="login-crest">
+        <img src="/rtgs-logo.jpg" alt="RTGS Golf" />
+      </div>
+      <p class="login-eyebrow">Member Access</p>
+      <div class="login-title">RTGS PGL</div>
+      <p class="login-sub">Season 3 &nbsp;·&nbsp; 2026</p>
+      <div class="login-divider">
+        <div class="login-divider-line"></div>
+        <div class="login-divider-dot"></div>
+        <div class="login-divider-line"></div>
+      </div>
+      <input type="text"     class="login-field" id="loginUser" placeholder="Username" autocomplete="username" />
+      <input type="password" class="login-field" id="loginPass" placeholder="Password" autocomplete="current-password"
+             onkeydown="if(event.key==='Enter') doLogin()" />
+      <div class="login-error" id="loginError"></div>
+      <button class="login-btn" onclick="doLogin()">Sign In</button>
+      <p class="login-hint">admin &nbsp;·&nbsp; captain &nbsp;·&nbsp; player / fan</p>
+    </div>
+  </div>

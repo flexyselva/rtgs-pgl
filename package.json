@@ -3,7 +3,9 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
+		"build": "node scripts/build-html.js",
 		"deploy": "wrangler deploy",
+		"predeploy": "npm run build",
 		"dev": "wrangler dev",
 		"start": "wrangler dev",
 		"test": "vitest run",
