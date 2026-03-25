@@ -31,8 +31,9 @@ Feature development follows a staging-first flow. **All work goes through stagin
 | "deploy to prod" / "looks good on staging" | `wrangler deploy` (prod only) |
 
 ### Testing rules
-- **E2E tests (`npm run test:e2e`)** — always run against staging URL. Never local, never prod (unless explicitly requested for a production issue).
-- **Unit tests (`npm test`)** — run locally with Vitest, no deployment needed.
+- **E2E tests (`npm run test:e2e`)** — **NEVER run automatically.** Only run when the user explicitly says so (e.g. "run E2E", "run the tests"). Reason: E2E tests hit the staging KV heavily and KV usage is limited. Do not run E2E as a routine step after every deploy.
+- **Unit tests (`npm test`)** — run locally with Vitest, no deployment needed. These are safe to run freely.
+- **E2E target** — always staging URL. Never local, never prod (unless explicitly requested for a production issue).
 - **Production testing** — only if the user explicitly asks (e.g. investigating a prod bug).
 
 ---
