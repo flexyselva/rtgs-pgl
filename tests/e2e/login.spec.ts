@@ -61,8 +61,9 @@ test.describe('Login flow — index.html', () => {
     await page.fill('#loginPass', 'rtgs@2026');
     await page.click('.login-btn');
     await expect(page.locator('#loginOverlay')).toHaveClass(/hidden/);
-    // Sign out
-    await page.locator('.header-signout').click();
+    // Open profile dropdown and sign out
+    await page.locator('.profile-avatar').click();
+    await page.locator('.profile-dd-item.signout').click();
     await expect(page.locator('.header-signin')).toBeVisible();
   });
 });

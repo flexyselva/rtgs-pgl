@@ -371,11 +371,11 @@
   <div class="top-bar"></div>
 
   <nav>
-    <a href="/season3.html" class="nav-back">
+    <a id="navBack" href="/" class="nav-back">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
         <path d="M9 2L4 7l5 5" stroke="#8a96a8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      Season 3
+      <span id="navBackLabel">Home</span>
     </a>
     <div class="nav-brand">RT<span>G</span>S</div>
     <div class="nav-actions">
@@ -435,6 +435,16 @@
   <script src="/auth.js"></script>
   <script>
     const SESSION = getSession();
+
+    // ── Dynamic back link ──
+    (function() {
+      const ref = document.referrer;
+      if (ref && ref.includes('season3.html')) {
+        document.getElementById('navBack').href = '/season3.html';
+        document.getElementById('navBackLabel').textContent = 'Season 3';
+      }
+      // default is already '/' + 'Home' from HTML
+    })();
 
     // ── Nav user chip ──
     function getInitials(display) {
