@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{{PARTIAL:_head}}
+{{TITLE:Gallery — RTGS Premier Golf League}}
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Raleway:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --grey:    #9faec0;
+      --grey-lt: #d0d8e4;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body { background-color: var(--navy); }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      opacity: 0.5; pointer-events: none; z-index: 0;
+    }
+
+    .top-bar { z-index: 200; }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 3px; left: 0; right: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 72px;
+      background: rgba(10,22,40,0.94); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(201,168,76,0.1);
+      z-index: 100;
+    }
+    .nav-back {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; color: var(--grey);
+      font-size: 10px; letter-spacing: 0.35em; text-transform: uppercase; font-weight: 300;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--gold); }
+    .nav-back:hover svg { transform: translateX(-3px); }
+    .nav-back svg { transition: transform 0.2s; }
+    .nav-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem; font-weight: 500; letter-spacing: 0.12em;
+      color: var(--white); text-transform: uppercase;
+    }
+    .nav-brand span { color: var(--gold); }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .nav-right {
+      font-size: 10px; letter-spacing: 0.38em; text-transform: uppercase;
+      color: var(--grey); font-weight: 300;
+    }
+
+    /* ── Help icon button ── */
+    .help-icon-btn {
+      background: none; border: 1px solid rgba(201,168,76,0.25);
+      color: var(--grey); font-family: 'Raleway', sans-serif;
+      font-size: 13px; font-weight: 600;
+      width: 26px; height: 26px; border-radius: 50%;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: border-color 0.2s, color 0.2s;
+    }
+    .help-icon-btn:hover { border-color: rgba(201,168,76,0.6); color: var(--gold-lt); }
+
+    /* ── Help modal ── */
+    .help-modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(5,12,25,0.97); backdrop-filter: blur(6px);
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    .help-modal-overlay.open { opacity: 1; pointer-events: all; }
+    .help-modal {
+      position: relative; width: 100%; max-width: 420px;
+      background: var(--navy-mid); border: 1px solid var(--border);
+      padding: 40px 36px 36px; text-align: center;
+    }
+    .help-modal-eyebrow {
+      font-size: 10px; letter-spacing: 0.4em; text-transform: uppercase;
+      color: var(--gold); font-weight: 400; margin-bottom: 8px;
+    }
+    .help-modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem; font-weight: 500; color: var(--white); margin-bottom: 8px;
+    }
+    .help-modal-sub {
+      font-size: 0.82rem; color: var(--grey); margin-bottom: 20px; line-height: 1.5;
+    }
+    .help-modal-success {
+      margin-top: 12px; color: var(--gold); font-size: 0.85rem;
+    }
+
+    /* ── Nav sign-in link ── */
+    .nav-signin-link {
+      background: none; border: 1px solid rgba(201,168,76,0.3);
+      color: var(--gold); font-family: 'Raleway', sans-serif;
+      font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
+      padding: 5px 14px; cursor: pointer; transition: border-color 0.2s, background 0.2s;
+    }
+    .nav-signin-link:hover { background: rgba(201,168,76,0.1); border-color: var(--gold); }
+
+    /* ── Profile avatar / dropdown ── */
+    .profile-menu-wrap { position: relative; }
+    .profile-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 600; cursor: pointer;
+      border: 1px solid rgba(201,168,76,0.4); letter-spacing: 0.04em;
+    }
+    .profile-avatar.role-admin    { background: rgba(201,168,76,0.15); color: var(--gold); }
+    .profile-avatar.role-captain  { background: rgba(74,144,196,0.15); color: #4a90c4; }
+    .profile-avatar.role-organiser{ background: rgba(100,180,120,0.15); color: #64b478; }
+    .profile-avatar.role-fan      { background: rgba(159,174,192,0.12); color: var(--grey); }
+    .profile-dropdown {
+      position: absolute; top: calc(100% + 10px); right: 0;
+      background: var(--navy-mid); border: 1px solid var(--border);
+      min-width: 160px; z-index: 200;
+      opacity: 0; pointer-events: none; transform: translateY(-6px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .profile-dropdown.open { opacity: 1; pointer-events: all; transform: translateY(0); }
+    .profile-dd-header { padding: 12px 14px 10px; border-bottom: 1px solid var(--border); }
+    .profile-dd-name { font-size: 0.82rem; font-weight: 500; color: var(--white); margin-bottom: 2px; }
+    .profile-dd-role { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--grey); }
+    .profile-dd-item {
+      display: block; width: 100%; text-align: left;
+      background: none; border: none; padding: 10px 14px;
+      font-family: 'Raleway', sans-serif; font-size: 0.8rem;
+      color: var(--grey); cursor: pointer; transition: color 0.2s, background 0.2s;
+    }
+    .profile-dd-item:hover { color: var(--white); background: rgba(255,255,255,0.04); }
+    .profile-dd-item.signout:hover { color: #e87070; }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative; padding: 100px 48px 40px; text-align: center; overflow: hidden;
+    }
+    .hero::after {
+      content: ''; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 100%, rgba(0,0,0,0.5) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase;
+      color: var(--gold); font-weight: 400; margin-bottom: 12px;
+      position: relative; z-index: 1;
+      animation: fadeUp 0.9s 0.1s ease both;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 6vw, 4.5rem); font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase; line-height: 1;
+      position: relative; z-index: 1;
+      animation: fadeUp 0.9s 0.2s ease both;
+    }
+    .hero h1 em { font-style: italic; color: var(--gold); font-weight: 400; }
+    .hero-divider {
+      display: flex; align-items: center; justify-content: center;
+      margin: 20px auto 0; width: 280px; max-width: 90%;
+      position: relative; z-index: 1;
+      animation: fadeIn 0.9s 0.5s ease both;
+    }
+    .hero-divider-line { flex: 1; height: 1px; background: rgba(201,168,76,0.25); }
+    .hero-divider-orn { display: flex; align-items: center; gap: 8px; padding: 0 14px; flex-shrink: 0; }
+    .diam    { width: 5px; height: 5px; background: var(--gold);    transform: rotate(45deg); }
+    .diam-sm { width: 3px; height: 3px; background: var(--gold-dk); transform: rotate(45deg); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+
+    /* ── Content wrapper ── */
+    .content {
+      position: relative; z-index: 1;
+      max-width: 1200px; margin: 0 auto; padding: 32px 48px 80px;
+    }
+
+    /* ── Upload section ── */
+    .gallery-upload-section {
+      display: none;
+      background: var(--navy-mid); border: 1px solid var(--border);
+      padding: 24px 28px; margin-bottom: 32px;
+    }
+    .gallery-upload-section.visible { display: block; }
+    .gallery-upload-label {
+      font-size: 10px; letter-spacing: 0.35em; text-transform: uppercase;
+      color: var(--gold); font-weight: 500; margin-bottom: 16px;
+    }
+    .gallery-upload-row {
+      display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap;
+    }
+    .gallery-upload-file {
+      flex: 0 0 auto;
+      background: none; border: 1px solid var(--border);
+      color: var(--grey); font-family: 'Raleway', sans-serif;
+      font-size: 0.8rem; padding: 8px 12px; cursor: pointer;
+    }
+    .gallery-upload-file::-webkit-file-upload-button {
+      background: rgba(201,168,76,0.12); border: 1px solid rgba(201,168,76,0.3);
+      color: var(--gold); font-family: 'Raleway', sans-serif;
+      font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+      padding: 5px 12px; cursor: pointer; margin-right: 10px;
+      transition: background 0.2s;
+    }
+    .gallery-upload-file::-webkit-file-upload-button:hover { background: rgba(201,168,76,0.22); }
+    .gallery-upload-desc {
+      flex: 1; min-width: 180px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--white); font-family: 'Raleway', sans-serif;
+      font-size: 0.85rem; padding: 8px 12px;
+    }
+    .gallery-upload-desc::placeholder { color: var(--grey); }
+    .gallery-upload-desc:focus { outline: none; border-color: rgba(201,168,76,0.4); }
+    .gallery-upload-btn {
+      background: rgba(201,168,76,0.12); border: 1px solid rgba(201,168,76,0.35);
+      color: var(--gold); font-family: 'Raleway', sans-serif;
+      font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
+      padding: 9px 20px; cursor: pointer; font-weight: 500;
+      transition: background 0.2s, border-color 0.2s;
+      flex-shrink: 0;
+    }
+    .gallery-upload-btn:hover { background: rgba(201,168,76,0.22); border-color: var(--gold); }
+    .gallery-upload-btn:disabled { opacity: 0.5; cursor: default; }
+    .gallery-upload-error {
+      margin-top: 10px; font-size: 0.8rem; color: #e87070;
+    }
+    .gallery-upload-success {
+      margin-top: 10px; font-size: 0.8rem; color: var(--gold);
+    }
+
+    /* ── Gallery grid ── */
+    .gallery-grid {
+      column-count: 3; column-gap: 12px;
+    }
+    .gallery-card {
+      break-inside: avoid; margin-bottom: 12px;
+      border: 1px solid var(--border); background: var(--navy-mid);
+      position: relative; display: inline-block; width: 100%;
+    }
+    .gallery-img {
+      width: 100%; display: block;
+      object-fit: cover; background: rgba(255,255,255,0.03);
+    }
+    .gallery-card-body { padding: 12px 16px 14px; }
+    .gallery-uploader {
+      font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--grey); margin-bottom: 6px;
+    }
+    .gallery-desc {
+      font-size: 0.85rem; color: var(--grey-lt); line-height: 1.5;
+      margin-bottom: 10px; word-break: break-word;
+    }
+    .gallery-actions {
+      display: flex; align-items: center; gap: 10px;
+      padding-top: 8px; border-top: 1px solid var(--border);
+    }
+    .gallery-like-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 16px; color: var(--grey); padding: 2px 0;
+      transition: color 0.2s; display: flex; align-items: center; gap: 5px;
+      font-family: 'Raleway', sans-serif; font-size: 0.8rem;
+    }
+    .gallery-like-btn.liked { color: var(--gold); }
+    .gallery-like-btn:disabled { cursor: default; opacity: 0.5; }
+    .gallery-like-heart { font-size: 15px; line-height: 1; }
+    .gallery-spacer { flex: 1; }
+    .gallery-comment-toggle {
+      background: none; border: none; cursor: pointer;
+      font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--grey); font-family: 'Raleway', sans-serif;
+      transition: color 0.2s; padding: 0;
+    }
+    .gallery-comment-toggle:hover { color: var(--gold); }
+    .gallery-delete-btn {
+      position: absolute; top: 6px; right: 6px;
+      background: rgba(10,22,40,0.75); border: 1px solid rgba(232,112,112,0.4);
+      color: #e87070; font-size: 12px; width: 22px; height: 22px;
+      border-radius: 50%; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .gallery-delete-btn:hover { background: rgba(232,112,112,0.2); border-color: #e87070; }
+
+    /* ── Comments ── */
+    .gallery-comments { margin-top: 12px; display: none; }
+    .gallery-comments.open { display: block; }
+    .gallery-comment-item {
+      padding: 6px 0; border-bottom: 1px solid rgba(201,168,76,0.08);
+      font-size: 0.82rem; line-height: 1.45;
+    }
+    .gallery-comment-item:last-of-type { border-bottom: none; }
+    .gallery-comment-user { color: var(--gold); font-weight: 500; margin-right: 6px; }
+    .gallery-comment-text { color: var(--grey-lt); }
+    .gallery-comment-form {
+      display: flex; gap: 8px; margin-top: 10px;
+    }
+    .gallery-comment-input {
+      flex: 1; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--white); font-family: 'Raleway', sans-serif;
+      font-size: 0.82rem; padding: 6px 10px;
+    }
+    .gallery-comment-input::placeholder { color: var(--grey); }
+    .gallery-comment-input:focus { outline: none; border-color: rgba(201,168,76,0.35); }
+    .gallery-comment-post {
+      background: none; border: 1px solid rgba(201,168,76,0.25);
+      color: var(--gold); font-family: 'Raleway', sans-serif;
+      font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+      padding: 6px 12px; cursor: pointer; transition: border-color 0.2s, background 0.2s;
+      flex-shrink: 0;
+    }
+    .gallery-comment-post:hover { border-color: var(--gold); background: rgba(201,168,76,0.1); }
+    .gallery-comment-post:disabled { opacity: 0.5; cursor: default; }
+
+    /* ── States ── */
+    .gallery-empty {
+      text-align: center; padding: 60px 20px;
+      color: var(--grey); font-size: 0.9rem; letter-spacing: 0.05em;
+    }
+    .gallery-empty strong {
+      display: block; font-family: 'Playfair Display', serif;
+      font-size: 1.2rem; color: var(--grey-lt); margin-bottom: 10px;
+    }
+    .gallery-loading {
+      text-align: center; padding: 60px 20px;
+      color: var(--grey); font-size: 0.82rem; letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    /* ── Footer ── */
+    footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 28px 48px; text-align: center;
+    }
+    .foot-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.9rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--white); margin-bottom: 6px;
+    }
+    .foot-brand span { color: var(--gold); }
+    .foot-copy {
+      font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase;
+      color: rgba(159,174,192,0.45); font-weight: 300;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .gallery-grid { column-count: 2; }
+    }
+    @media (max-width: 640px) {
+      nav { padding: 0 16px; height: 56px; }
+      .hero { padding: 76px 20px 32px; }
+      .content { padding: 24px 16px 60px; }
+      footer { padding: 20px 16px; }
+      .gallery-grid { column-count: 1; }
+      .gallery-upload-row { flex-direction: column; }
+      .gallery-upload-desc { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar"></div>
+
+  <nav>
+    <a href="/season3.html" class="nav-back">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M9 2L4 7l5 5" stroke="#8a96a8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Season 3
+    </a>
+    <div class="nav-brand">RT<span>G</span>S</div>
+    <div class="nav-actions">
+      <button class="help-icon-btn" onclick="openHelpModal()" title="Questions &amp; Feedback" aria-label="Help">?</button>
+      <div class="nav-right" id="navRight"></div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="hero">
+    <p class="hero-eyebrow">Match Day Memories</p>
+    <h1><em>Gallery</em></h1>
+    <div class="hero-divider">
+      <div class="hero-divider-line"></div>
+      <div class="hero-divider-orn">
+        <div class="diam-sm"></div><div class="diam"></div><div class="diam-sm"></div>
+      </div>
+      <div class="hero-divider-line"></div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Upload section (organiser / admin only) -->
+    <div class="gallery-upload-section" id="uploadSection">
+      <div class="gallery-upload-label">Upload Photo</div>
+      <div class="gallery-upload-row">
+        <input type="file" class="gallery-upload-file" id="uploadFile" accept="image/*" />
+        <input type="text" class="gallery-upload-desc" id="uploadDesc" placeholder="Description (optional, max 200 chars)" maxlength="200" />
+        <button class="gallery-upload-btn" id="uploadBtn" onclick="uploadPhoto()">Upload</button>
+      </div>
+      <div class="gallery-upload-error" id="uploadError"></div>
+      <div class="gallery-upload-success" id="uploadSuccess"></div>
+    </div>
+
+    <!-- Gallery grid -->
+    <div id="galleryState" class="gallery-loading">Loading…</div>
+    <div class="gallery-grid" id="galleryGrid"></div>
+
+  </div>
+
+  <footer>
+    <div class="foot-brand">RT<span>G</span>S &nbsp;Premier Golf League</div>
+    <div class="foot-copy">Season 3 &nbsp;·&nbsp; 2026 &nbsp;—&nbsp; All Rights Reserved</div>
+  </footer>
+
+{{PARTIAL:_help-modal}}
+
+{{PARTIAL:_login-overlay}}
+
+{{PARTIAL:_session-toast}}
+
+  <!-- API error toast -->
+  <div class="session-toast session-toast--error" id="apiErrorToast"></div>
+
+  <script src="/auth.js"></script>
+  <script>
+    const SESSION = getSession();
+
+    // ── Nav user chip ──
+    function getInitials(display) {
+      const parts = (display || '').trim().split(/\s+/);
+      if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      return (display || 'G').slice(0, 2).toUpperCase();
+    }
+    function avatarClass(session) {
+      const r = session && session.role ? session.role : 'fan';
+      return 'role-' + r;
+    }
+    function roleLabel(session) {
+      if (session.role === 'admin')     return 'Admin';
+      if (session.role === 'organiser') return 'Organiser';
+      if (session.role === 'captain')   return session.team === 'D' ? 'Captain · Dhurandhar' : 'Captain · Rushabh';
+      return 'Player / Fan';
+    }
+
+    function renderUserChip() {
+      const navRight = document.getElementById('navRight');
+      if (!SESSION || SESSION.role === 'fan') {
+        navRight.innerHTML = `<button class="nav-signin-link" onclick="openLoginOverlay()">Sign In</button>`;
+        return;
+      }
+      const initials = getInitials(SESSION.display);
+      navRight.innerHTML = `
+        <div class="profile-menu-wrap" id="profileMenuWrap">
+          <div class="profile-avatar ${avatarClass(SESSION)}" onclick="toggleProfileMenu()" title="${SESSION.display}">${initials}</div>
+          <div class="profile-dropdown" id="profileDropdown">
+            <div class="profile-dd-header">
+              <div class="profile-dd-name">${SESSION.display}</div>
+              <div class="profile-dd-role">${roleLabel(SESSION)}</div>
+            </div>
+            <button class="profile-dd-item signout" onclick="doLogout()">Sign Out</button>
+          </div>
+        </div>`;
+    }
+
+    function toggleProfileMenu() {
+      document.getElementById('profileDropdown').classList.toggle('open');
+    }
+
+    document.addEventListener('click', function(e) {
+      const wrap = document.getElementById('profileMenuWrap');
+      if (wrap && !wrap.contains(e.target)) {
+        const dd = document.getElementById('profileDropdown');
+        if (dd) dd.classList.remove('open');
+      }
+    });
+
+    function doLogout() {
+      sessionStorage.removeItem('rtgs_session');
+      window.location.reload();
+    }
+
+    // ── Upload section visibility ──
+    function initUploadSection() {
+      if (SESSION && (SESSION.role === 'organiser' || SESSION.role === 'admin')) {
+        document.getElementById('uploadSection').classList.add('visible');
+      }
+    }
+
+    // ── Gallery API ──
+    async function loadGallery() {
+      try {
+        const res = await fetch('/api/gallery');
+        if (!res.ok) throw new Error('Failed to load gallery');
+        const data = await res.json();
+        renderGallery(data.photos || []);
+      } catch (e) {
+        document.getElementById('galleryState').textContent = 'Error loading gallery. Please try again.';
+        logError('loadGallery', e);
+      }
+    }
+
+    function renderGallery(photos) {
+      const stateEl = document.getElementById('galleryState');
+      const grid    = document.getElementById('galleryGrid');
+
+      if (!photos || photos.length === 0) {
+        stateEl.style.display = 'none';
+        stateEl.className = 'gallery-empty';
+        stateEl.style.display = 'block';
+        stateEl.innerHTML = '<strong>No photos yet.</strong>Check back after the next match day.';
+        grid.innerHTML = '';
+        return;
+      }
+
+      stateEl.style.display = 'none';
+      grid.innerHTML = photos.map(photo => buildCard(photo)).join('');
+    }
+
+    function buildCard(photo) {
+      const isAdmin    = SESSION && SESSION.role === 'admin';
+      const isLoggedIn = SESSION && SESSION.role !== 'fan';
+      const hasLiked   = SESSION && photo.likes && photo.likes.includes(SESSION.username);
+      const likeCount  = photo.likes ? photo.likes.length : 0;
+      const commentCount = photo.comments ? photo.comments.length : 0;
+
+      const imgSrc = `/api/gallery/image/${encodeURIComponent(photo.r2Key)}`;
+      const uploadDate = photo.uploadedAt ? new Date(photo.uploadedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+
+      const deleteBtn = isAdmin
+        ? `<button class="gallery-delete-btn" onclick="deletePhoto('${esc(photo.id)}')" title="Delete photo">&#x2715;</button>`
+        : '';
+
+      const likeBtn = isLoggedIn
+        ? `<button class="gallery-like-btn${hasLiked ? ' liked' : ''}" id="like-btn-${esc(photo.id)}" onclick="toggleLike('${esc(photo.id)}', ${hasLiked})">
+             <span class="gallery-like-heart">${hasLiked ? '♥' : '♡'}</span>
+             <span id="like-count-${esc(photo.id)}">${likeCount}</span>
+           </button>`
+        : `<span class="gallery-like-btn" style="cursor:default;"><span class="gallery-like-heart">♡</span> <span>${likeCount}</span></span>`;
+
+      const commentToggle = `<button class="gallery-comment-toggle" onclick="toggleComments('${esc(photo.id)}')">${commentCount} comment${commentCount !== 1 ? 's' : ''}</button>`;
+
+      const commentItems = (photo.comments || []).map(c => `
+        <div class="gallery-comment-item">
+          <span class="gallery-comment-user">${esc(c.username)}</span>
+          <span class="gallery-comment-text">${esc(c.text)}</span>
+        </div>`).join('');
+
+      const commentForm = isLoggedIn ? `
+        <div class="gallery-comment-form">
+          <input type="text" class="gallery-comment-input" id="comment-input-${esc(photo.id)}"
+                 placeholder="Add a comment…" maxlength="300"
+                 onkeydown="if(event.key==='Enter') postComment('${esc(photo.id)}')" />
+          <button class="gallery-comment-post" id="comment-btn-${esc(photo.id)}" onclick="postComment('${esc(photo.id)}')">Post</button>
+        </div>` : '';
+
+      return `
+        <div class="gallery-card" id="card-${esc(photo.id)}">
+          ${deleteBtn}
+          <img class="gallery-img" src="${imgSrc}" alt="${esc(photo.description || photo.filename || '')}" loading="lazy" />
+          <div class="gallery-card-body">
+            <div class="gallery-uploader">${esc(photo.uploadedBy)} &nbsp;·&nbsp; ${uploadDate}</div>
+            ${photo.description ? `<div class="gallery-desc">${esc(photo.description)}</div>` : ''}
+            <div class="gallery-actions">
+              ${likeBtn}
+              <div class="gallery-spacer"></div>
+              ${commentToggle}
+            </div>
+            <div class="gallery-comments" id="comments-${esc(photo.id)}">
+              ${commentItems}
+              ${commentForm}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function esc(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    function toggleComments(photoId) {
+      const el = document.getElementById('comments-' + photoId);
+      if (el) el.classList.toggle('open');
+    }
+
+    async function uploadPhoto() {
+      const fileInput = document.getElementById('uploadFile');
+      const descInput = document.getElementById('uploadDesc');
+      const btn       = document.getElementById('uploadBtn');
+      const errEl     = document.getElementById('uploadError');
+      const sucEl     = document.getElementById('uploadSuccess');
+
+      errEl.textContent = '';
+      sucEl.textContent = '';
+
+      const file = fileInput.files[0];
+      if (!file) { errEl.textContent = 'Please select an image file.'; return; }
+
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('description', descInput.value.trim().slice(0, 200));
+
+      btn.disabled = true;
+      btn.textContent = 'Uploading…';
+
+      try {
+        const res = await fetch('/api/gallery/upload', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + (SESSION.token || '') },
+          body: fd,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Upload failed');
+        sucEl.textContent = 'Photo uploaded!';
+        fileInput.value = '';
+        descInput.value = '';
+        setTimeout(() => { sucEl.textContent = ''; }, 3000);
+        await loadGallery();
+      } catch (e) {
+        errEl.textContent = e.message || 'Upload failed.';
+        logError('uploadPhoto', e);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Upload';
+      }
+    }
+
+    async function toggleLike(photoId, currentlyLiked) {
+      if (!SESSION || SESSION.role === 'fan') return;
+      const btn = document.getElementById('like-btn-' + photoId);
+      if (btn) btn.disabled = true;
+      try {
+        const action = currentlyLiked ? 'unlike' : 'like';
+        const res = await fetch('/api/gallery/like', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (SESSION.token || '') },
+          body: JSON.stringify({ photoId, action }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Like failed');
+        await loadGallery();
+      } catch (e) {
+        logError('toggleLike', e);
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    async function postComment(photoId) {
+      if (!SESSION || SESSION.role === 'fan') return;
+      const input = document.getElementById('comment-input-' + photoId);
+      const postBtn = document.getElementById('comment-btn-' + photoId);
+      const text = input ? input.value.trim() : '';
+      if (!text) return;
+
+      if (postBtn) postBtn.disabled = true;
+      try {
+        const res = await fetch('/api/gallery/comment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (SESSION.token || '') },
+          body: JSON.stringify({ photoId, text }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Comment failed');
+        await loadGallery();
+        // Re-open comments panel after refresh
+        setTimeout(() => {
+          const el = document.getElementById('comments-' + photoId);
+          if (el) el.classList.add('open');
+        }, 50);
+      } catch (e) {
+        logError('postComment', e);
+        if (postBtn) postBtn.disabled = false;
+      }
+    }
+
+    async function deletePhoto(photoId) {
+      if (!SESSION || SESSION.role !== 'admin') return;
+      if (!confirm('Delete this photo? This cannot be undone.')) return;
+      try {
+        const res = await fetch('/api/gallery/' + encodeURIComponent(photoId), {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + (SESSION.token || '') },
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Delete failed');
+        await loadGallery();
+      } catch (e) {
+        logError('deletePhoto', e);
+      }
+    }
+
+    // ── Help modal ──
+    function openHelpModal() {
+      document.getElementById('helpMessage').value = '';
+      document.getElementById('helpEmail').value = '';
+      document.getElementById('helpError').textContent = '';
+      document.getElementById('helpSuccess').style.display = 'none';
+      document.getElementById('helpSubmitBtn').style.display = '';
+      document.getElementById('helpSubmitBtn').disabled = false;
+      document.getElementById('helpSubmitBtn').textContent = 'Send Message';
+      document.getElementById('helpModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => document.getElementById('helpMessage').focus(), 50);
+    }
+
+    function closeHelpModal() {
+      document.getElementById('helpModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    async function submitHelp() {
+      const message = document.getElementById('helpMessage').value.trim();
+      const email   = document.getElementById('helpEmail').value.trim();
+      const errEl   = document.getElementById('helpError');
+      const btn     = document.getElementById('helpSubmitBtn');
+      errEl.textContent = '';
+      if (!message) { errEl.textContent = 'Please enter a message.'; return; }
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      try {
+        const res = await fetch('/api/help', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message, email,
+            page:     window.location.pathname,
+            persona:  SESSION ? SESSION.role     : 'fan',
+            username: SESSION ? SESSION.username : 'guest',
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Send failed');
+        }
+        btn.style.display = 'none';
+        document.getElementById('helpSuccess').style.display = '';
+        setTimeout(closeHelpModal, 2000);
+      } catch (e) {
+        errEl.textContent = e.message;
+        btn.disabled = false;
+        btn.textContent = 'Send Message';
+      }
+    }
+
+    // ── Keyboard shortcuts ──
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') { closeHelpModal(); }
+    });
+
+    // ── Init ──
+    renderUserChip();
+    initUploadSection();
+    loadGallery();
+    trackEvent('page_view', { page: '/gallery.html' });
+  </script>
+
+</body>
+</html>

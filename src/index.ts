@@ -16,6 +16,7 @@
 
 interface Env {
   RESULTS: KVNamespace;
+  GALLERY: R2Bucket;
   WRITE_KEY: string;
   ASSETS: Fetcher;
   VERSION: string;
@@ -28,6 +29,7 @@ const KV_TEST_KEY      = 'season3_results_test'; // isolated key used by E2E tes
 const KV_SCHEDULE_KEY  = 'season3_schedule';
 const KV_ROSTERS_KEY   = 'season3_rosters';
 const KV_HELP_KEY      = 'help_submissions';
+const KV_GALLERY_KEY   = 'season3_gallery'; // photo metadata list
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -392,6 +394,136 @@ export default {
       const raw = await env.RESULTS.get(KV_HELP_KEY);
       const all: unknown[] = raw ? JSON.parse(raw) : [];
       return json({ submissions: all.slice().reverse().slice(0, limit) });
+    }
+
+    // ── POST /api/gallery/upload — organiser or admin only ──
+    if (url.pathname === '/api/gallery/upload' && request.method === 'POST') {
+      const tokenPayload = await verifyBearer(request.clone(), env.AUTH_HMAC_SECRET ?? '');
+      if (!tokenPayload || (tokenPayload.role !== 'organiser' && tokenPayload.role !== 'admin')) {
+        return json({ error: 'Unauthorised' }, 401);
+      }
+
+      let formData: FormData;
+      try { formData = await request.formData(); } catch { return json({ error: 'Invalid form data' }, 400); }
+
+      const file = formData.get('file') as File | null;
+      const description = String(formData.get('description') || '').trim().slice(0, 200);
+
+      if (!file) return json({ error: 'No file provided' }, 400);
+      if (!file.type.startsWith('image/')) return json({ error: 'File must be an image' }, 400);
+      if (file.size > 10 * 1024 * 1024) return json({ error: 'Image must be under 10MB' }, 400);
+
+      const id = crypto.randomUUID();
+      const safeFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 100);
+      const r2Key = `photos/${id}/${safeFilename}`;
+
+      await env.GALLERY.put(r2Key, file.stream(), {
+        httpMetadata: { contentType: file.type },
+      });
+
+      const photo = {
+        id,
+        r2Key,
+        filename: safeFilename,
+        description,
+        uploadedBy: tokenPayload.username,
+        uploadedAt: new Date().toISOString(),
+        likes: [] as string[],
+        comments: [] as Array<{ username: string; text: string; ts: string }>,
+      };
+
+      const raw = await env.RESULTS.get(KV_GALLERY_KEY);
+      const photos: unknown[] = raw ? JSON.parse(raw) : [];
+      photos.push(photo);
+      if (photos.length > 500) photos.splice(0, photos.length - 500);
+      await env.RESULTS.put(KV_GALLERY_KEY, JSON.stringify(photos));
+
+      return json({ ok: true, id });
+    }
+
+    // ── GET /api/gallery — public, returns all photo metadata newest first ──
+    if (url.pathname === '/api/gallery' && request.method === 'GET') {
+      const raw = await env.RESULTS.get(KV_GALLERY_KEY);
+      const photos: unknown[] = raw ? JSON.parse(raw) : [];
+      return json({ photos: photos.slice().reverse() });
+    }
+
+    // ── GET /api/gallery/image/* — serve image from R2 (public) ──
+    if (url.pathname.startsWith('/api/gallery/image/') && request.method === 'GET') {
+      const r2Key = decodeURIComponent(url.pathname.replace('/api/gallery/image/', ''));
+      const object = await env.GALLERY.get(r2Key);
+      if (!object) return new Response('Not found', { status: 404 });
+      const headers = new Headers(corsHeaders);
+      headers.set('Content-Type', object.httpMetadata?.contentType || 'image/jpeg');
+      headers.set('Cache-Control', 'public, max-age=31536000');
+      return new Response(object.body, { headers });
+    }
+
+    // ── POST /api/gallery/like — authenticated users ──
+    if (url.pathname === '/api/gallery/like' && request.method === 'POST') {
+      const tokenPayload = await verifyBearer(request.clone(), env.AUTH_HMAC_SECRET ?? '');
+      if (!tokenPayload) return json({ error: 'Unauthorised' }, 401);
+
+      let body: { photoId?: string; action?: string };
+      try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
+
+      const { photoId, action } = body;
+      if (!photoId || !action) return json({ error: 'Missing fields' }, 400);
+
+      const raw = await env.RESULTS.get(KV_GALLERY_KEY);
+      const photos: Array<{ id: string; likes: string[] }> = raw ? JSON.parse(raw) : [];
+      const photo = photos.find(p => p.id === photoId);
+      if (!photo) return json({ error: 'Photo not found' }, 404);
+
+      const username = tokenPayload.username;
+      if (action === 'like' && !photo.likes.includes(username)) {
+        photo.likes.push(username);
+      } else if (action === 'unlike') {
+        photo.likes = photo.likes.filter(u => u !== username);
+      }
+
+      await env.RESULTS.put(KV_GALLERY_KEY, JSON.stringify(photos));
+      return json({ ok: true, likes: photo.likes.length });
+    }
+
+    // ── POST /api/gallery/comment — authenticated users ──
+    if (url.pathname === '/api/gallery/comment' && request.method === 'POST') {
+      const tokenPayload = await verifyBearer(request.clone(), env.AUTH_HMAC_SECRET ?? '');
+      if (!tokenPayload) return json({ error: 'Unauthorised' }, 401);
+
+      let body: { photoId?: string; text?: string };
+      try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
+
+      const text = String(body.text || '').trim().slice(0, 300);
+      if (!text || !body.photoId) return json({ error: 'Missing fields' }, 400);
+
+      const raw = await env.RESULTS.get(KV_GALLERY_KEY);
+      const photos: Array<{ id: string; comments: Array<{ username: string; text: string; ts: string }> }> = raw ? JSON.parse(raw) : [];
+      const photo = photos.find(p => p.id === body.photoId);
+      if (!photo) return json({ error: 'Photo not found' }, 404);
+
+      photo.comments.push({ username: tokenPayload.username, text, ts: new Date().toISOString() });
+
+      await env.RESULTS.put(KV_GALLERY_KEY, JSON.stringify(photos));
+      return json({ ok: true });
+    }
+
+    // ── DELETE /api/gallery/:id — admin only ──
+    const galleryDeleteMatch = url.pathname.match(/^\/api\/gallery\/([^/]+)$/);
+    if (galleryDeleteMatch && request.method === 'DELETE') {
+      const tokenPayload = await verifyBearer(request.clone(), env.AUTH_HMAC_SECRET ?? '');
+      if (!tokenPayload || tokenPayload.role !== 'admin') return json({ error: 'Unauthorised' }, 401);
+
+      const photoId = galleryDeleteMatch[1];
+      const raw = await env.RESULTS.get(KV_GALLERY_KEY);
+      const photos: Array<{ id: string; r2Key: string }> = raw ? JSON.parse(raw) : [];
+      const photo = photos.find(p => p.id === photoId);
+      if (!photo) return json({ error: 'Not found' }, 404);
+
+      await env.GALLERY.delete(photo.r2Key);
+      const updated = photos.filter(p => p.id !== photoId);
+      await env.RESULTS.put(KV_GALLERY_KEY, JSON.stringify(updated));
+      return json({ ok: true });
     }
 
     // ── Static assets (everything else) ──
