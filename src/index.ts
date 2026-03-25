@@ -4,6 +4,8 @@
  * Routes:
  *   GET  /api/results   → read all Season 3 results from KV
  *   POST /api/results   → write results to KV (requires X-Write-Key or Bearer token)
+ *   GET  /api/schedule  → read Season 3 match schedule and rosters from KV (public)
+ *   POST /api/schedule  → write schedule/rosters to KV (requires X-Write-Key or admin Bearer)
  *   POST /api/track     → append analytics event to daily KV key (open)
  *   GET  /api/analytics → read analytics events for last N days (requires X-Write-Key)
  *   POST /api/login     → authenticate user, return signed token
@@ -21,8 +23,10 @@ interface Env {
   AUTH_USERS: string;
 }
 
-const KV_KEY      = 'season3_results';
-const KV_TEST_KEY = 'season3_results_test'; // isolated key used by E2E tests
+const KV_KEY           = 'season3_results';
+const KV_TEST_KEY      = 'season3_results_test'; // isolated key used by E2E tests
+const KV_SCHEDULE_KEY  = 'season3_schedule';
+const KV_ROSTERS_KEY   = 'season3_rosters';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -191,6 +195,53 @@ export default {
           return json({ error: 'DELETE only permitted in test mode' }, 403);
         }
         await env.RESULTS.delete(kvKey);
+        return json({ ok: true });
+      }
+
+      return json({ error: 'Method not allowed' }, 405);
+    }
+
+    // ── GET /api/schedule — return match schedule + rosters (public) ──
+    // ── POST /api/schedule — overwrite schedule and/or rosters (admin only) ──
+    if (url.pathname === '/api/schedule') {
+
+      if (request.method === 'GET') {
+        const [scheduleRaw, rostersRaw] = await Promise.all([
+          env.RESULTS.get(KV_SCHEDULE_KEY),
+          env.RESULTS.get(KV_ROSTERS_KEY),
+        ]);
+        const matches = scheduleRaw ? JSON.parse(scheduleRaw) : [];
+        const rosters = rostersRaw ? JSON.parse(rostersRaw) : { teamD: [], teamR: [] };
+        return json({ matches, rosters });
+      }
+
+      if (request.method === 'POST') {
+        const writeKey = request.headers.get('X-Write-Key') ?? '';
+        const writeKeyOk = env.WRITE_KEY && writeKey === env.WRITE_KEY;
+        let bearerOk = false;
+        if (!writeKeyOk) {
+          const tokenPayload = await verifyBearer(request.clone(), env.AUTH_HMAC_SECRET ?? '');
+          bearerOk = tokenPayload !== null && tokenPayload.role === 'admin';
+        }
+        if (!writeKeyOk && !bearerOk) {
+          return json({ error: 'Unauthorised' }, 401);
+        }
+
+        let body: { matches?: unknown[]; rosters?: { teamD?: unknown[]; teamR?: unknown[] } };
+        try {
+          body = await request.json();
+        } catch {
+          return json({ error: 'Invalid JSON' }, 400);
+        }
+
+        const writes: Promise<void>[] = [];
+        if (body.matches !== undefined) {
+          writes.push(env.RESULTS.put(KV_SCHEDULE_KEY, JSON.stringify(body.matches)));
+        }
+        if (body.rosters !== undefined) {
+          writes.push(env.RESULTS.put(KV_ROSTERS_KEY, JSON.stringify(body.rosters)));
+        }
+        await Promise.all(writes);
         return json({ ok: true });
       }
 

@@ -1351,80 +1351,16 @@
     const SESSION = getSession();
 
     /* ─────────────────────────────────────────────
-       MATCH DATA
+       MATCH DATA — loaded dynamically from KV via GET /api/schedule
        points: null = TBD, { d: X, r: Y } = played
        foursome: { d: ['Name','Name'], r: ['Name','Name'] }
        singles:  { d: 'Name', r: 'Name', netScore: null | '3&2' | '2 up' }
     ───────────────────────────────────────────── */
-    const MATCHES = [
-      // ── Session 1: April — Four Balls ──
-      { id:1,  num:'01', name:'Match 1',  format:'fourballs', course:'TBD', date:'Apr 2026', status:'tbd', points:null, foursome:{ d:['Vikrant Patil','Anuj Pandey'],        r:['John C','DZ'] } },
-      { id:2,  num:'02', name:'Match 2',  format:'fourballs', course:'TBD', date:'Apr 2026', status:'tbd', points:null, foursome:{ d:['Anirudha','Bala Sankaran'],           r:['Rahul R','Srikant N'] } },
-      { id:3,  num:'03', name:'Match 3',  format:'fourballs', course:'TBD', date:'Apr 2026', status:'tbd', points:null, foursome:{ d:['Selva S Sundaram','Nimesh Dave'],     r:['Mazz','Rushabh L'] } },
-      { id:4,  num:'04', name:'Match 4',  format:'fourballs', course:'TBD', date:'Apr 2026', status:'tbd', points:null, foursome:{ d:['Raghu Sundaram','Hemang C'],          r:['Shailendra Singh','Satyapal P'] } },
+    let MATCHES = [];
 
-      // ── Session 2: May — Scramble ──
-      { id:5,  num:'05', name:'Match 5',  format:'scramble',  course:'TBD', date:'May 2026', status:'tbd', points:null, foursome:{ d:['Vikrant Patil','Hemang C'],           r:['DZ','Satyapal P'] } },
-      { id:6,  num:'06', name:'Match 6',  format:'scramble',  course:'TBD', date:'May 2026', status:'tbd', points:null, foursome:{ d:['Nimesh Dave','Raghu Sundaram'],       r:['Shailendra Singh','Mazz'] } },
-      { id:7,  num:'07', name:'Match 7',  format:'scramble',  course:'TBD', date:'May 2026', status:'tbd', points:null, foursome:{ d:['Bala Sankaran','Selva S Sundaram'],   r:['Rushabh L','Rahul R'] } },
-      { id:8,  num:'08', name:'Match 8',  format:'scramble',  course:'TBD', date:'May 2026', status:'tbd', points:null, foursome:{ d:['Anuj Pandey','Anirudha'],             r:['Srikant N','John C'] } },
-
-      // ── Session 3: June — Alternate Shot ──
-      { id:9,  num:'09', name:'Match 9',  format:'alternate', course:'TBD', date:'Jun 2026', status:'tbd', points:null, foursome:{ d:['Vikrant Patil','Anirudha'],           r:['Satyapal P','Srikant N'] } },
-      { id:10, num:'10', name:'Match 10', format:'alternate', course:'TBD', date:'Jun 2026', status:'tbd', points:null, foursome:{ d:['Selva S Sundaram','Anuj Pandey'],     r:['Rahul R','Mazz'] } },
-      { id:11, num:'11', name:'Match 11', format:'alternate', course:'TBD', date:'Jun 2026', status:'tbd', points:null, foursome:{ d:['Raghu Sundaram','Bala Sankaran'],     r:['Shailendra Singh','DZ'] } },
-      { id:12, num:'12', name:'Match 12', format:'alternate', course:'TBD', date:'Jun 2026', status:'tbd', points:null, foursome:{ d:['Hemang C','Nimesh Dave'],             r:['John C','Rushabh L'] } },
-
-      // ── Session 4: July — Four Balls ──
-      { id:13, num:'13', name:'Match 13', format:'fourballs', course:'TBD', date:'Jul 2026', status:'tbd', points:null, foursome:{ d:['Vikrant Patil','Nimesh Dave'],        r:['Shailendra Singh','Rahul R'] } },
-      { id:14, num:'14', name:'Match 14', format:'fourballs', course:'TBD', date:'Jul 2026', status:'tbd', points:null, foursome:{ d:['Bala Sankaran','Hemang C'],           r:['Mazz','John C'] } },
-      { id:15, num:'15', name:'Match 15', format:'fourballs', course:'TBD', date:'Jul 2026', status:'tbd', points:null, foursome:{ d:['Anuj Pandey','Raghu Sundaram'],       r:['Rushabh L','Satyapal P'] } },
-      { id:16, num:'16', name:'Match 16', format:'fourballs', course:'TBD', date:'Jul 2026', status:'tbd', points:null, foursome:{ d:['Anirudha','Selva S Sundaram'],        r:['Srikant N','DZ'] } },
-
-      // ── Session 5: August — Scramble ──
-      { id:17, num:'17', name:'Match 17', format:'scramble',  course:'TBD', date:'Aug 2026', status:'tbd', points:null, foursome:{ d:['Vikrant Patil','Selva S Sundaram'],   r:['Satyapal P','Mazz'] } },
-      { id:18, num:'18', name:'Match 18', format:'scramble',  course:'TBD', date:'Aug 2026', status:'tbd', points:null, foursome:{ d:['Raghu Sundaram','Anirudha'],          r:['John C','Rahul R'] } },
-      { id:19, num:'19', name:'Match 19', format:'scramble',  course:'TBD', date:'Aug 2026', status:'tbd', points:null, foursome:{ d:['Hemang C','Anuj Pandey'],             r:['Shailendra Singh','Srikant N'] } },
-      { id:20, num:'20', name:'Match 20', format:'scramble',  course:'TBD', date:'Aug 2026', status:'tbd', points:null, foursome:{ d:['Nimesh Dave','Bala Sankaran'],        r:['DZ','Rushabh L'] } },
-
-      // ── Session 6: September — Alternate Shot ──
-      { id:21, num:'21', name:'Match 21', format:'alternate', course:'TBD', date:'Sep 2026', status:'tbd', points:null, foursome:{ d:['Vikrant Patil','Bala Sankaran'],      r:['Shailendra Singh','John C'] } },
-      { id:22, num:'22', name:'Match 22', format:'alternate', course:'TBD', date:'Sep 2026', status:'tbd', points:null, foursome:{ d:['Anuj Pandey','Nimesh Dave'],          r:['Mazz','DZ'] } },
-      { id:23, num:'23', name:'Match 23', format:'alternate', course:'TBD', date:'Sep 2026', status:'tbd', points:null, foursome:{ d:['Anirudha','Hemang C'],               r:['Rahul R','Satyapal P'] } },
-      { id:24, num:'24', name:'Match 24', format:'alternate', course:'TBD', date:'Sep 2026', status:'tbd', points:null, foursome:{ d:['Selva S Sundaram','Raghu Sundaram'],  r:['Rushabh L','Srikant N'] } },
-
-      // ── Singles — October (Round 1) ──
-      // Foursome A: Anuj vs Shailendra (HCP 14 same) + Bala vs Srikant (HCP 22 same)
-      { id:25, num:'25', name:'Match 25', format:'singles', course:'TBD', date:'Oct 2026', status:'tbd', points:null, singles:{ d:'Anuj Pandey',      r:'Shailendra Singh', netScore:null }, group:26 },
-      { id:26, num:'26', name:'Match 26', format:'singles', course:'TBD', date:'Oct 2026', status:'tbd', points:null, singles:{ d:'Bala Sankaran',    r:'Srikant N',        netScore:null }, group:25 },
-      // Foursome B: Vikrant vs John (HCP 16 same) + Raghu vs Mazz (HCP 20 same)
-      { id:27, num:'27', name:'Match 27', format:'singles', course:'TBD', date:'Oct 2026', status:'tbd', points:null, singles:{ d:'Vikrant Patil',    r:'John C',           netScore:null }, group:28 },
-      { id:28, num:'28', name:'Match 28', format:'singles', course:'TBD', date:'Oct 2026', status:'tbd', points:null, singles:{ d:'Raghu Sundaram',   r:'Mazz',             netScore:null }, group:27 },
-      // Foursome C: Selva vs Satyapal (HCP 16 same) + Hemang vs Rushabh (HCP 20 same)
-      { id:29, num:'29', name:'Match 29', format:'singles', course:'TBD', date:'Oct 2026', status:'tbd', points:null, singles:{ d:'Selva S Sundaram', r:'Satyapal P',       netScore:null }, group:30 },
-      { id:30, num:'30', name:'Match 30', format:'singles', course:'TBD', date:'Oct 2026', status:'tbd', points:null, singles:{ d:'Hemang C',         r:'Rushabh L',        netScore:null }, group:29 },
-      // Foursome D: Anirudha vs DZ (HCP 16 same) + Nimesh vs Rahul (HCP 20 v 16, adjacent)
-      { id:31, num:'31', name:'Match 31', format:'singles', course:'TBD', date:'Oct 2026', status:'tbd', points:null, singles:{ d:'Anirudha',         r:'DZ',               netScore:null }, group:32 },
-      { id:32, num:'32', name:'Match 32', format:'singles', course:'TBD', date:'Oct 2026', status:'tbd', points:null, singles:{ d:'Nimesh Dave',      r:'Rahul R',          netScore:null }, group:31 },
-
-      // ── Singles — November (Round 2) ──
-      // Foursome E: Anirudha vs Rahul (HCP 16 same) + Selva vs Shailendra (HCP 16 v 14, adjacent)
-      { id:33, num:'33', name:'Match 33', format:'singles', course:'TBD', date:'Nov 2026', status:'tbd', points:null, singles:{ d:'Anirudha',         r:'Rahul R',          netScore:null }, group:34 },
-      { id:34, num:'34', name:'Match 34', format:'singles', course:'TBD', date:'Nov 2026', status:'tbd', points:null, singles:{ d:'Selva S Sundaram', r:'Shailendra Singh', netScore:null }, group:33 },
-      // Foursome F: Raghu vs John (HCP 20 v 16, adjacent) + Hemang vs Srikant (HCP 20 v 22, adjacent)
-      { id:35, num:'35', name:'Match 35', format:'singles', course:'TBD', date:'Nov 2026', status:'tbd', points:null, singles:{ d:'Raghu Sundaram',   r:'John C',           netScore:null }, group:36 },
-      { id:36, num:'36', name:'Match 36', format:'singles', course:'TBD', date:'Nov 2026', status:'tbd', points:null, singles:{ d:'Hemang C',         r:'Srikant N',        netScore:null }, group:35 },
-      // Foursome G: Vikrant vs Satyapal (HCP 16 same) + Anuj vs DZ (HCP 14 v 16, adjacent)
-      { id:37, num:'37', name:'Match 37', format:'singles', course:'TBD', date:'Nov 2026', status:'tbd', points:null, singles:{ d:'Vikrant Patil',    r:'Satyapal P',       netScore:null }, group:38 },
-      { id:38, num:'38', name:'Match 38', format:'singles', course:'TBD', date:'Nov 2026', status:'tbd', points:null, singles:{ d:'Anuj Pandey',      r:'DZ',               netScore:null }, group:37 },
-      // Foursome H: Nimesh vs Mazz (HCP 20 same) + Bala vs Rushabh (HCP 22 v 20, adjacent)
-      { id:39, num:'39', name:'Match 39', format:'singles', course:'TBD', date:'Nov 2026', status:'tbd', points:null, singles:{ d:'Nimesh Dave',      r:'Mazz',             netScore:null }, group:40 },
-      { id:40, num:'40', name:'Match 40', format:'singles', course:'TBD', date:'Nov 2026', status:'tbd', points:null, singles:{ d:'Bala Sankaran',    r:'Rushabh L',        netScore:null }, group:39 },
-    ];
-
-    /* ── Persona constants ── */
-    const TEAM_D_PLAYERS = ['Vikrant Patil','Anuj Pandey','Anirudha','Selva S Sundaram','Raghu Sundaram','Hemang C','Nimesh Dave','Bala Sankaran'];
-    const TEAM_R_PLAYERS = ['Shailendra Singh','Satyapal P','John C','Rahul R','Mazz','Rushabh L','Srikant N','DZ'];
+    /* ── Persona constants — populated from KV rosters ── */
+    let TEAM_D_PLAYERS = [];
+    let TEAM_R_PLAYERS = [];
 
     /* ── KV API — result persistence ── */
 
@@ -1443,6 +1379,23 @@
           if (m.singles && r.netScore !== undefined) m.singles.netScore = r.netScore;
         }
       });
+    }
+
+    async function fetchSchedule() {
+      try {
+        const res = await fetch('/api/schedule');
+        if (!res.ok) throw new Error('Schedule fetch failed: ' + res.status);
+        const data = await res.json();
+        MATCHES        = data.matches  || [];
+        TEAM_D_PLAYERS = (data.rosters && data.rosters.teamD) || [];
+        TEAM_R_PLAYERS = (data.rosters && data.rosters.teamR) || [];
+      } catch(e) {
+        console.warn('Could not load schedule from KV:', e);
+        logError('fetchSchedule', e);
+      }
+      // Always continue to render and load results, even if schedule fetch failed
+      renderTable();
+      await fetchResults();
     }
 
     async function fetchResults() {
@@ -2383,8 +2336,7 @@
 
     initPersona();
     trackEvent('page_view');
-    renderTable();      // render immediately with base data (fast)
-    fetchResults();     // overlay KV results in background, re-renders when done
+    fetchSchedule();    // loads schedule + results from KV, then renders
   </script>
 
   <!-- Profile info modal -->
