@@ -1064,6 +1064,77 @@
       font-size: 9px; letter-spacing: 0.38em; text-transform: uppercase;
       color: rgba(138,150,168,0.45); font-weight: 300;
     }
+
+    /* ── Help icon button ── */
+    .help-icon-btn {
+      background: none; border: 1px solid rgba(201,168,76,0.25);
+      color: var(--grey); font-family: 'Raleway', sans-serif;
+      font-size: 13px; font-weight: 600;
+      width: 26px; height: 26px; border-radius: 50%;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: border-color 0.2s, color 0.2s;
+    }
+    .help-icon-btn:hover { border-color: rgba(201,168,76,0.6); color: var(--gold-lt); }
+
+    /* ── Help modal ── */
+    .help-modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(5,12,25,0.97); backdrop-filter: blur(6px);
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    .help-modal-overlay.open { opacity: 1; pointer-events: all; }
+    .help-modal {
+      position: relative; width: 100%; max-width: 420px;
+      padding: 48px 40px 40px; border: 1px solid rgba(201,168,76,0.22);
+      background: var(--navy-mid); text-align: center;
+    }
+    .help-modal-eyebrow {
+      font-size: 9px; letter-spacing: 0.45em; text-transform: uppercase;
+      color: var(--gold); font-weight: 400; margin-bottom: 6px;
+    }
+    .help-modal-title {
+      font-family: 'Playfair Display', serif; font-size: 1.4rem;
+      font-weight: 500; color: var(--white); letter-spacing: 0.05em; margin-bottom: 8px;
+    }
+    .help-modal-sub {
+      font-size: 11px; letter-spacing: 0.12em; color: var(--grey);
+      font-weight: 300; margin-bottom: 24px; line-height: 1.6;
+    }
+    .help-modal-textarea { resize: vertical; min-height: 90px; max-height: 200px; }
+    .help-modal-success {
+      margin-top: 14px; font-size: 11px; letter-spacing: 0.2em;
+      color: var(--gold); text-transform: uppercase;
+    }
+
+    /* ── Nav actions wrapper ── */
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+
+    /* ── Help Inbox (admin) ── */
+    .help-inbox-item {
+      border: 1px solid var(--border); background: var(--navy-mid);
+      margin-bottom: 8px; padding: 14px 18px;
+    }
+    .help-inbox-meta {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 8px; flex-wrap: wrap;
+    }
+    .help-inbox-ts { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold-dk); }
+    .help-inbox-persona { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--grey); }
+    .help-inbox-page { font-size: 9px; color: var(--grey); letter-spacing: 0.1em; margin-left: auto; }
+    .help-inbox-message {
+      font-size: 0.88rem; color: var(--grey-lt); line-height: 1.55;
+      margin-bottom: 10px; white-space: pre-wrap; word-break: break-word;
+    }
+    .help-inbox-reply-btn {
+      display: inline-block; font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase;
+      padding: 5px 14px; border: 1px solid rgba(201,168,76,0.35); color: var(--gold);
+      background: none; cursor: pointer; text-decoration: none;
+      font-family: 'Raleway', sans-serif; transition: border-color 0.2s, background 0.2s;
+    }
+    .help-inbox-reply-btn:hover { border-color: var(--gold); background: rgba(201,168,76,0.08); }
+    .help-inbox-no-email { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--grey); opacity: 0.6; }
+    .help-inbox-empty { color: var(--grey); font-size: 11px; padding: 20px 0; letter-spacing: 0.08em; text-align: center; }
   </style>
 </head>
 <body>
@@ -1078,7 +1149,10 @@
       Back
     </a>
     <div class="nav-brand">RT<span>G</span>S</div>
-    <div class="nav-right" id="navRight"></div>
+    <div class="nav-actions">
+      <button class="help-icon-btn" onclick="openHelpModal()" title="Questions &amp; Feedback" aria-label="Help">?</button>
+      <div class="nav-right" id="navRight"></div>
+    </div>
   </nav>
 
   <!-- Hero -->
@@ -1106,6 +1180,19 @@
       <div class="admin-bar-dot"></div>
       Admin Mode &nbsp;·&nbsp; Click any match row to record a result
       &nbsp;&nbsp;<a href="/analytics.html" style="color:var(--gold);font-size:10px;letter-spacing:0.2em;text-decoration:none;opacity:0.8;">&#9656; Analytics</a>
+    </div>
+  </div>
+
+  <!-- Help Inbox (admin only) -->
+  <div id="helpInboxWrap" style="display:none;">
+    <div class="content" style="padding-top:0; padding-bottom:0;">
+      <div class="section-header" style="margin-bottom:12px;">
+        <div class="section-label">Help Inbox</div>
+        <div class="section-header-line"></div>
+      </div>
+      <div id="helpInboxList">
+        <div class="help-inbox-empty">Loading…</div>
+      </div>
     </div>
   </div>
 
@@ -2022,7 +2109,7 @@
     }
 
     document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') closeModal();
+      if (e.key === 'Escape') { closeModal(); closeHelpModal(); }
     });
 
     /* ── Persona helpers ── */
@@ -2596,7 +2683,106 @@
       }
       if (SESSION && SESSION.role === 'admin') {
         document.getElementById('adminBarWrap').style.display = '';
+        document.getElementById('helpInboxWrap').style.display = '';
+        loadHelpInbox();
       }
+    }
+
+    /* ── Help modal ── */
+    function openHelpModal() {
+      document.getElementById('helpMessage').value = '';
+      document.getElementById('helpEmail').value = '';
+      document.getElementById('helpError').textContent = '';
+      document.getElementById('helpSuccess').style.display = 'none';
+      document.getElementById('helpSubmitBtn').style.display = '';
+      document.getElementById('helpSubmitBtn').disabled = false;
+      document.getElementById('helpSubmitBtn').textContent = 'Send Message';
+      document.getElementById('helpModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => document.getElementById('helpMessage').focus(), 50);
+    }
+
+    function closeHelpModal() {
+      document.getElementById('helpModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    async function submitHelp() {
+      const message = document.getElementById('helpMessage').value.trim();
+      const email   = document.getElementById('helpEmail').value.trim();
+      const errEl   = document.getElementById('helpError');
+      const btn     = document.getElementById('helpSubmitBtn');
+      errEl.textContent = '';
+      if (!message) { errEl.textContent = 'Please enter a message.'; return; }
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      const session = getSession();
+      try {
+        const res = await fetch('/api/help', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message,
+            email,
+            page:     window.location.pathname,
+            persona:  session ? session.role     : 'fan',
+            username: session ? session.username : 'guest',
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Send failed');
+        }
+        btn.style.display = 'none';
+        document.getElementById('helpSuccess').style.display = '';
+        setTimeout(closeHelpModal, 2000);
+      } catch (e) {
+        errEl.textContent = e.message;
+        btn.disabled = false;
+        btn.textContent = 'Send Message';
+      }
+    }
+
+    /* ── Help inbox ── */
+    async function loadHelpInbox() {
+      try {
+        const res = await fetch('/api/help', {
+          headers: { 'Authorization': 'Bearer ' + (SESSION.token || '') },
+        });
+        if (!res.ok) throw new Error('Failed');
+        const data = await res.json();
+        renderHelpInbox(data.submissions || []);
+      } catch {
+        document.getElementById('helpInboxList').innerHTML =
+          `<div class="help-inbox-empty">Could not load inbox.</div>`;
+      }
+    }
+
+    function renderHelpInbox(submissions) {
+      const el = document.getElementById('helpInboxList');
+      if (!submissions.length) {
+        el.innerHTML = `<div class="help-inbox-empty">No messages yet.</div>`;
+        return;
+      }
+      el.innerHTML = submissions.map(s => {
+        const ts = new Date(s.ts).toLocaleString('en-GB', {
+          day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+        const replyBtn = s.email
+          ? `<a href="mailto:${s.email}?subject=${encodeURIComponent('Re: Your RTGS PGL Message')}&body=${encodeURIComponent('Hi,\n\nThank you for your message:\n"' + s.message.slice(0,200) + '"\n\n')}" class="help-inbox-reply-btn">&#9654; Reply</a>`
+          : `<span class="help-inbox-no-email">No reply email</span>`;
+        return `
+          <div class="help-inbox-item">
+            <div class="help-inbox-meta">
+              <span class="help-inbox-ts">${ts}</span>
+              <span class="help-inbox-persona">${s.persona} · ${s.username}</span>
+              <span class="help-inbox-page">${s.page}</span>
+            </div>
+            <div class="help-inbox-message">${s.message.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>
+            ${replyBtn}
+          </div>
+        `;
+      }).join('');
     }
 
     initPersona();
@@ -2618,6 +2804,8 @@
       </div>
     </div>
   </div>
+
+{{PARTIAL:_help-modal}}
 
 {{PARTIAL:_login-overlay}}
 

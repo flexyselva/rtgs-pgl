@@ -27,6 +27,7 @@ const KV_KEY           = 'season3_results';
 const KV_TEST_KEY      = 'season3_results_test'; // isolated key used by E2E tests
 const KV_SCHEDULE_KEY  = 'season3_schedule';
 const KV_ROSTERS_KEY   = 'season3_rosters';
+const KV_HELP_KEY      = 'help_submissions';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -345,6 +346,52 @@ export default {
       raws.forEach(raw => { if (raw) allErrors.push(...JSON.parse(raw)); });
 
       return json({ errors: allErrors });
+    }
+
+    if (url.pathname === '/api/help' && request.method === 'POST') {
+      let body: { message?: string; email?: string; page?: string; persona?: string; username?: string };
+      try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
+
+      const message = String(body.message || '').trim().slice(0, 1000);
+      if (!message) return json({ error: 'Message is required' }, 400);
+
+      const email = String(body.email || '').trim().slice(0, 200);
+      if (email && !email.includes('@')) return json({ error: 'Invalid email' }, 400);
+
+      const now = new Date();
+      const entry = {
+        id:       crypto.randomUUID(),
+        message,
+        email,
+        page:     String(body.page     || '/').slice(0, 128),
+        persona:  String(body.persona  || 'fan').slice(0, 32),
+        username: String(body.username || 'guest').slice(0, 64),
+        ts:       now.toISOString(),
+        country:  (request.headers.get('CF-IPCountry') || '').slice(0, 8),
+      };
+
+      const raw = await env.RESULTS.get(KV_HELP_KEY);
+      const entries: unknown[] = raw ? JSON.parse(raw) : [];
+      entries.push(entry);
+      if (entries.length > 200) entries.splice(0, entries.length - 200);
+      await env.RESULTS.put(KV_HELP_KEY, JSON.stringify(entries));
+      return json({ ok: true, id: entry.id });
+    }
+
+    if (url.pathname === '/api/help' && request.method === 'GET') {
+      const writeKey = request.headers.get('X-Write-Key') ?? '';
+      const writeKeyOk = env.WRITE_KEY && writeKey === env.WRITE_KEY;
+      let bearerOk = false;
+      if (!writeKeyOk) {
+        const tokenPayload = await verifyBearer(request.clone(), env.AUTH_HMAC_SECRET ?? '');
+        bearerOk = tokenPayload !== null && tokenPayload.role === 'admin';
+      }
+      if (!writeKeyOk && !bearerOk) return json({ error: 'Unauthorised' }, 401);
+
+      const limit = Math.min(parseInt(url.searchParams.get('limit') || '50'), 200);
+      const raw = await env.RESULTS.get(KV_HELP_KEY);
+      const all: unknown[] = raw ? JSON.parse(raw) : [];
+      return json({ submissions: all.slice().reverse().slice(0, limit) });
     }
 
     // ── Static assets (everything else) ──

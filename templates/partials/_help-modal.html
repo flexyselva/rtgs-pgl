@@ -1,0 +1,23 @@
+<!-- Help / Feedback Modal -->
+<div class="help-modal-overlay" id="helpModal" onclick="if(event.target===this)closeHelpModal()">
+  <div class="help-modal">
+    <button class="login-close" onclick="closeHelpModal()" aria-label="Close">&#x2715;</button>
+    <div class="help-modal-eyebrow">Questions &amp; Feedback</div>
+    <div class="help-modal-title">Get in Touch</div>
+    <p class="help-modal-sub">Ask a question or share feedback with the league admins.</p>
+    <div class="login-divider">
+      <div class="login-divider-line"></div>
+      <div class="login-divider-dot"></div>
+      <div class="login-divider-line"></div>
+    </div>
+    <textarea class="login-field help-modal-textarea" id="helpMessage"
+              placeholder="Your question or feedback…" rows="4" maxlength="1000"></textarea>
+    <input type="email" class="login-field" id="helpEmail"
+           placeholder="Email address (optional — for a reply)" autocomplete="email" maxlength="200" />
+    <div class="login-error" id="helpError"></div>
+    <button class="login-btn" id="helpSubmitBtn" onclick="submitHelp()">Send Message</button>
+    <div class="help-modal-success" id="helpSuccess" style="display:none;">
+      Message sent — thank you!
+    </div>
+  </div>
+</div>

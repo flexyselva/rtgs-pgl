@@ -455,6 +455,48 @@
       .footer { padding: 16px 24px; }
       .footer-text { font-size: 8px; letter-spacing: 0.25em; }
     }
+
+    /* ── Help icon button ── */
+    .help-icon-btn {
+      background: none; border: 1px solid rgba(201,168,76,0.25);
+      color: var(--grey); font-family: 'Raleway', sans-serif;
+      font-size: 13px; font-weight: 600;
+      width: 26px; height: 26px; border-radius: 50%;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: border-color 0.2s, color 0.2s;
+    }
+    .help-icon-btn:hover { border-color: rgba(201,168,76,0.6); color: var(--gold-lt); }
+
+    /* ── Help modal ── */
+    .help-modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(5,12,25,0.97); backdrop-filter: blur(6px);
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    .help-modal-overlay.open { opacity: 1; pointer-events: all; }
+    .help-modal {
+      position: relative; width: 100%; max-width: 420px;
+      padding: 48px 40px 40px; border: 1px solid rgba(201,168,76,0.22);
+      background: var(--navy-mid); text-align: center;
+    }
+    .help-modal-eyebrow {
+      font-size: 9px; letter-spacing: 0.45em; text-transform: uppercase;
+      color: var(--gold); font-weight: 400; margin-bottom: 6px;
+    }
+    .help-modal-title {
+      font-family: 'Playfair Display', serif; font-size: 1.4rem;
+      font-weight: 500; color: var(--white); letter-spacing: 0.05em; margin-bottom: 8px;
+    }
+    .help-modal-sub {
+      font-size: 11px; letter-spacing: 0.12em; color: var(--grey);
+      font-weight: 300; margin-bottom: 24px; line-height: 1.6;
+    }
+    .help-modal-textarea { resize: vertical; min-height: 90px; max-height: 200px; }
+    .help-modal-success {
+      margin-top: 14px; font-size: 11px; letter-spacing: 0.2em;
+      color: var(--gold); text-transform: uppercase;
+    }
   </style>
 </head>
 <body>
@@ -470,7 +512,10 @@
   <!-- Header -->
   <div class="header">
     <span class="header-label">Est. &nbsp;2020</span>
-    <div id="headerAuth"></div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="help-icon-btn" onclick="openHelpModal()" title="Questions &amp; Feedback" aria-label="Help">?</button>
+      <div id="headerAuth"></div>
+    </div>
   </div>
 
   <!-- Main content -->
@@ -530,6 +575,8 @@
   <div class="footer">
     <span class="footer-text">RTGS Premier Golf League &nbsp;&mdash;&nbsp; All Rights Reserved</span>
   </div>
+
+{{PARTIAL:_help-modal}}
 
 {{PARTIAL:_login-overlay}}
 
@@ -645,6 +692,63 @@
         setTimeout(() => renderHeaderAuth(), 2000);
       }
     }, 60000);
+
+    /* ── Help modal ── */
+    function openHelpModal() {
+      document.getElementById('helpMessage').value = '';
+      document.getElementById('helpEmail').value = '';
+      document.getElementById('helpError').textContent = '';
+      document.getElementById('helpSuccess').style.display = 'none';
+      document.getElementById('helpSubmitBtn').style.display = '';
+      document.getElementById('helpSubmitBtn').disabled = false;
+      document.getElementById('helpSubmitBtn').textContent = 'Send Message';
+      document.getElementById('helpModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => document.getElementById('helpMessage').focus(), 50);
+    }
+
+    function closeHelpModal() {
+      document.getElementById('helpModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    async function submitHelp() {
+      const message = document.getElementById('helpMessage').value.trim();
+      const email   = document.getElementById('helpEmail').value.trim();
+      const errEl   = document.getElementById('helpError');
+      const btn     = document.getElementById('helpSubmitBtn');
+      errEl.textContent = '';
+      if (!message) { errEl.textContent = 'Please enter a message.'; return; }
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      const session = getSession();
+      try {
+        const res = await fetch('/api/help', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message,
+            email,
+            page:     window.location.pathname,
+            persona:  session ? session.role     : 'fan',
+            username: session ? session.username : 'guest',
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Send failed');
+        }
+        btn.style.display = 'none';
+        document.getElementById('helpSuccess').style.display = '';
+        setTimeout(closeHelpModal, 2000);
+      } catch (e) {
+        errEl.textContent = e.message;
+        btn.disabled = false;
+        btn.textContent = 'Send Message';
+      }
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHelpModal(); });
 
   </script>
 
