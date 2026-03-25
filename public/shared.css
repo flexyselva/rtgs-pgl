@@ -125,7 +125,16 @@ body {
   font-weight: 500; cursor: pointer; margin-top: 6px;
   transition: background 0.2s, border-color 0.2s;
 }
-.login-btn:hover { background: rgba(201,168,76,0.18); border-color: var(--gold); }
+.login-btn:hover, .help-submit-btn:hover { background: rgba(201,168,76,0.18); border-color: var(--gold); }
+.help-submit-btn {
+  width: 100%; padding: 12px;
+  background: rgba(201,168,76,0.1);
+  border: 1px solid rgba(201,168,76,0.4);
+  color: var(--gold-lt); font-family: 'Raleway', sans-serif;
+  font-size: 10px; letter-spacing: 0.38em; text-transform: uppercase;
+  font-weight: 500; cursor: pointer; margin-top: 6px;
+  transition: background 0.2s, border-color 0.2s;
+}
 .login-error {
   font-size: 11px; letter-spacing: 0.1em; color: #c44a4a;
   min-height: 18px; margin-bottom: 6px; text-align: left;
