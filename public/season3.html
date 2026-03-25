@@ -1147,6 +1147,127 @@
     .help-inbox-reply-btn:hover { border-color: var(--gold); background: rgba(201,168,76,0.08); }
     .help-inbox-no-email { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--grey); opacity: 0.6; }
     .help-inbox-empty { color: var(--grey); font-size: 11px; padding: 20px 0; letter-spacing: 0.08em; text-align: center; }
+
+    /* ── Sticky anchor strip ── */
+    .anchor-strip {
+      position: sticky;
+      top: 75px; /* fixed nav (3px + 72px) */
+      z-index: 150;
+      background: rgba(10,22,40,0.97);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(201,168,76,0.14);
+      border-top: 1px solid rgba(201,168,76,0.06);
+    }
+    .anchor-strip-inner {
+      max-width: 1120px; margin: 0 auto; padding: 0 48px;
+      display: flex; overflow-x: auto; scrollbar-width: none;
+    }
+    .anchor-strip-inner::-webkit-scrollbar { display: none; }
+    .anchor-link {
+      font-family: 'Raleway', sans-serif;
+      font-size: 9px; letter-spacing: 0.38em; text-transform: uppercase;
+      color: var(--grey); text-decoration: none;
+      padding: 12px 18px 10px; white-space: nowrap;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .anchor-link:hover { color: var(--grey-lt); }
+    .anchor-link.active { color: var(--gold); border-bottom-color: var(--gold); }
+    [id^="sec-"] { scroll-margin-top: 130px; } /* nav 75px + strip ~44px + 11px breathing */
+    @media (max-width: 640px) {
+      .anchor-strip { top: 59px; } /* 56px nav + 3px */
+      .anchor-strip-inner { padding: 0 16px; }
+      .anchor-link { font-size: 8px; letter-spacing: 0.28em; padding: 10px 12px 8px; }
+      [id^="sec-"] { scroll-margin-top: 108px; }
+    }
+
+    /* ── H2H / Leaderboard ── */
+    .leaderboard-table { width: 100%; border-collapse: collapse; }
+    .leaderboard-table th, .leaderboard-table td {
+      padding: 10px 12px; text-align: left; font-size: 0.82rem;
+      border-bottom: 1px solid var(--border); color: var(--grey-lt);
+    }
+    .leaderboard-table thead th {
+      font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--grey); background: rgba(201,168,76,0.03);
+    }
+    .leaderboard-table tbody tr:hover { background: rgba(201,168,76,0.03); }
+    .leaderboard-table .sort-col { cursor: pointer; user-select: none; }
+    .leaderboard-table .sort-col:hover { color: var(--gold-lt); }
+    .leaderboard-table .sort-active { color: var(--gold); border-bottom: 1px solid var(--gold); }
+    .lb-rank { color: var(--grey); font-size: 0.82rem; }
+    .lb-pts  { font-family: 'Playfair Display', serif; color: var(--gold); font-weight: 600; }
+    .lb-pct  { color: var(--grey); font-size: 0.82rem; }
+    .lb-name-btn {
+      background: none; border: none; color: var(--grey-lt); font-family: 'Raleway', sans-serif;
+      font-size: 0.88rem; cursor: pointer; padding: 0; text-align: left;
+      transition: color 0.15s;
+    }
+    .lb-name-btn:hover { color: var(--gold); }
+    .lb-team-d { color: var(--td-accent); font-size: 0.75rem; letter-spacing: 0.06em; }
+    .lb-team-r { color: var(--tr-accent); font-size: 0.75rem; letter-spacing: 0.06em; }
+
+    .format-h2h-wrap {
+      border: 1px solid var(--border); margin-bottom: 40px; overflow: hidden;
+    }
+    .format-h2h-header {
+      padding: 10px 20px; background: rgba(201,168,76,0.04);
+      border-bottom: 1px solid var(--border);
+      font-size: 9px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--gold);
+    }
+    .format-h2h-wrap table { width: 100%; border-collapse: collapse; }
+    .format-h2h-wrap td, .format-h2h-wrap th {
+      padding: 10px 16px; font-size: 0.82rem;
+      border-bottom: 1px solid rgba(201,168,76,0.06); color: var(--grey-lt);
+    }
+    .format-h2h-wrap tr:last-child td { border-bottom: none; }
+    .format-h2h-wrap th {
+      font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--gold); font-weight: 400;
+    }
+    .format-h2h-bar { display: flex; height: 4px; width: 80px; overflow: hidden; border-radius: 2px; }
+    .format-h2h-bar-d { background: var(--td-accent); }
+    .format-h2h-bar-r { background: var(--tr-accent); }
+    .format-h2h-bar-h { background: rgba(201,168,76,0.4); }
+    .format-h2h-empty { color: var(--grey); font-style: italic; font-size: 0.8rem; }
+
+    .pp-tabs { display: flex; border-bottom: 1px solid var(--border); margin: 12px 0 14px; }
+    .pp-tab-btn {
+      background: none; border: none; border-bottom: 2px solid transparent;
+      color: var(--grey); font-family: 'Raleway', sans-serif;
+      font-size: 9px; letter-spacing: 0.35em; text-transform: uppercase;
+      padding: 8px 16px 6px; cursor: pointer; margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .pp-tab-btn:hover { color: var(--grey-lt); }
+    .pp-tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+    .pp-tab-pane { display: none; }
+    .pp-tab-pane.active { display: block; }
+
+    .pp-h2h-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+    .pp-h2h-table th {
+      font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--gold); font-weight: 400; padding: 6px 0; text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .pp-h2h-table td {
+      padding: 7px 0; font-size: 0.82rem; color: var(--grey-lt);
+      border-bottom: 1px solid rgba(201,168,76,0.05);
+    }
+    .pp-h2h-table tr:last-child td { border-bottom: none; }
+    .pp-h2h-opp-btn {
+      background: none; border: none; color: var(--grey-lt); font-family: 'Raleway', sans-serif;
+      font-size: 0.82rem; cursor: pointer; padding: 0; text-align: left;
+      transition: color 0.15s;
+    }
+    .pp-h2h-opp-btn:hover { color: var(--gold); }
+    .pp-h2h-empty { color: var(--grey); font-size: 11px; padding: 12px 0; letter-spacing: 0.06em; }
+
+    @media (max-width: 640px) {
+      .format-h2h-wrap td, .format-h2h-wrap th { padding: 8px 10px; }
+      .format-h2h-bar { width: 48px; }
+      .pp-tab-btn { padding: 7px 10px 5px; font-size: 8px; letter-spacing: 0.25em; }
+    }
   </style>
 </head>
 <body>
@@ -1209,6 +1330,16 @@
     </div>
   </div>
 
+  <!-- Sticky anchor strip -->
+  <div class="anchor-strip">
+    <div class="anchor-strip-inner">
+      <a class="anchor-link active" href="#sec-standings" data-section="sec-standings">Standings</a>
+      <a class="anchor-link" href="#sec-rosters" data-section="sec-rosters">Rosters</a>
+      <a class="anchor-link" href="#sec-schedule" data-section="sec-schedule">Schedule</a>
+      <a class="anchor-link" href="#sec-leaderboard" data-section="sec-leaderboard">Leaderboard</a>
+    </div>
+  </div>
+
   <div class="content">
 
     <!-- Stats -->
@@ -1232,7 +1363,7 @@
     </div>
 
     <!-- Team clash -->
-    <div class="section-header">
+    <div class="section-header" id="sec-standings">
       <div class="section-label">The Teams</div>
       <div class="section-header-line"></div>
     </div>
@@ -1260,8 +1391,25 @@
       </div>
     </div>
 
+    <!-- Team H2H by format -->
+    <div class="format-h2h-wrap">
+      <div class="format-h2h-header">Head-to-Head by Format</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Format</th>
+            <th>Team D</th>
+            <th></th>
+            <th>Team R</th>
+            <th>Halved</th>
+          </tr>
+        </thead>
+        <tbody id="formatH2HBody"></tbody>
+      </table>
+    </div>
+
     <!-- Rosters -->
-    <div class="roster-section">
+    <div class="roster-section" id="sec-rosters">
       <div class="section-header">
         <div class="section-label">Team Rosters</div>
         <div class="section-header-line"></div>
@@ -1329,8 +1477,38 @@
       </div>
     </div>
 
+    <!-- Points system -->
+    <div class="points-section" id="sec-points">
+      <div class="section-header">
+        <div class="section-label">Points System</div>
+        <div class="section-header-line"></div>
+      </div>
+      <div class="points-grid">
+        <div class="points-cell">
+          <div class="points-value">1</div>
+          <div class="points-label">Win</div>
+          <div class="points-desc">Team earns 1 point for winning a match</div>
+        </div>
+        <div class="points-cell">
+          <div class="points-value">0.5</div>
+          <div class="points-label">Halve</div>
+          <div class="points-desc">Each team earns 0.5 points for a halved match</div>
+        </div>
+        <div class="points-cell">
+          <div class="points-value">0</div>
+          <div class="points-label">Loss</div>
+          <div class="points-desc">No points awarded to the losing team</div>
+        </div>
+      </div>
+      <div class="points-threshold">
+        <div class="threshold-diamond"></div>
+        <span>First team to reach <strong>20.5 points</strong> wins the Season 3 title</span>
+        <div class="threshold-diamond"></div>
+      </div>
+    </div>
+
     <!-- Match Schedule -->
-    <div class="schedule-section">
+    <div class="schedule-section" id="sec-schedule">
       <div class="section-header">
         <div class="section-label">Match Schedule</div>
         <div class="section-header-line"></div>
@@ -1399,35 +1577,32 @@
       <div class="pagination" id="paginationBar"></div>
     </div>
 
-    <!-- Points system -->
-    <div class="points-section">
-      <div class="section-header">
-        <div class="section-label">Points System</div>
-        <div class="section-header-line"></div>
-      </div>
-      <div class="points-grid">
-        <div class="points-cell">
-          <div class="points-value">1</div>
-          <div class="points-label">Win</div>
-          <div class="points-desc">Team earns 1 point for winning a match</div>
-        </div>
-        <div class="points-cell">
-          <div class="points-value">0.5</div>
-          <div class="points-label">Halve</div>
-          <div class="points-desc">Each team earns 0.5 points for a halved match</div>
-        </div>
-        <div class="points-cell">
-          <div class="points-value">0</div>
-          <div class="points-label">Loss</div>
-          <div class="points-desc">No points awarded to the losing team</div>
-        </div>
-      </div>
-      <div class="points-threshold">
-        <div class="threshold-diamond"></div>
-        <span>First team to reach <strong>20.5 points</strong> wins the Season 3 title</span>
-        <div class="threshold-diamond"></div>
-      </div>
+    <!-- Season Player Leaderboard -->
+    <div id="sec-leaderboard" style="margin-top:40px;">
+    <div class="section-header" style="margin-bottom:16px;">
+      <div class="section-label">Season Leaderboard</div>
+      <div class="section-header-line"></div>
     </div>
+    <div style="overflow-x:auto;margin-bottom:40px;">
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th class="lb-rank">#</th>
+            <th class="sort-col" data-key="name" onclick="sortLb('name')">Player</th>
+            <th class="sort-col" data-key="team" onclick="sortLb('team')">Team</th>
+            <th class="sort-col sort-active" data-key="pts" onclick="sortLb('pts')">Pts</th>
+            <th class="sort-col" data-key="played" onclick="sortLb('played')">P</th>
+            <th class="sort-col" data-key="wins" onclick="sortLb('wins')">W</th>
+            <th class="sort-col" data-key="halves" onclick="sortLb('halves')">H</th>
+            <th class="sort-col" data-key="losses" onclick="sortLb('losses')">L</th>
+            <th class="sort-col" data-key="winPct" onclick="sortLb('winPct')">Win%</th>
+            <th class="sort-col" data-key="bestFmt" onclick="sortLb('bestFmt')">Best Format</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboardBody"></tbody>
+      </table>
+    </div>
+    </div><!-- /sec-leaderboard -->
 
   </div>
 
@@ -1520,6 +1695,11 @@
        singles:  { d: 'Name', r: 'Name', netScore: null | '3&2' | '2 up' }
     ───────────────────────────────────────────── */
     let MATCHES = [];
+    let PLAYER_STATS = {};   // id → { pts, wins, halves, losses, played, formatPts:{} }
+    let H2H_PAIRS   = {};    // { [idA]: { [idB]: { played, wins, halves, losses } } }
+    let TEAM_FORMAT_STATS = {}; // format → { d, r, h }
+    let LEADERBOARD = [];
+    let lbSortKey = 'pts', lbSortDir = -1;
 
     /* ── Player roster — defaults; overridden by KV if admin has saved edits ── */
     const DEFAULT_PLAYERS = [
@@ -1551,6 +1731,173 @@
       TEAM_R_PLAYERS = PLAYERS.filter(p => p.team === 'R').map(p => p.name);
     }
     syncPlayerNameArrays();
+
+    /* ── H2H & Leaderboard stats ── */
+
+    function getPlayerIdByName(name) {
+      const p = PLAYERS.find(p => p.name === name);
+      return p ? p.id : null;
+    }
+
+    function fmtLabel(key) {
+      return { fourballs: 'Four Balls', scramble: 'Scramble', alternate: 'Alt. Shot', singles: 'Singles' }[key] || key;
+    }
+
+    function computeAllH2HStats() {
+      PLAYER_STATS = {};
+      PLAYERS.forEach(p => {
+        PLAYER_STATS[p.id] = {
+          id: p.id, name: p.name, team: p.team,
+          pts: 0, wins: 0, halves: 0, losses: 0, played: 0,
+          formatPts: { fourballs: 0, scramble: 0, alternate: 0, singles: 0 }
+        };
+      });
+      TEAM_FORMAT_STATS = {
+        fourballs: { d: 0, r: 0, h: 0 }, scramble: { d: 0, r: 0, h: 0 },
+        alternate: { d: 0, r: 0, h: 0 }, singles:   { d: 0, r: 0, h: 0 }
+      };
+      H2H_PAIRS = {};
+      PLAYERS.forEach(p => { H2H_PAIRS[p.id] = {}; });
+
+      MATCHES.filter(m => m.status === 'played' && m.points).forEach(m => {
+        const fmt = m.format;
+        const dpts = m.points.d, rpts = m.points.r;
+        if (TEAM_FORMAT_STATS[fmt]) {
+          if (dpts > rpts)       TEAM_FORMAT_STATS[fmt].d++;
+          else if (rpts > dpts)  TEAM_FORMAT_STATS[fmt].r++;
+          else                   TEAM_FORMAT_STATS[fmt].h++;
+        }
+        let dIds = [], rIds = [];
+        if (m.singles) {
+          const dId = getPlayerIdByName(m.singles.d);
+          const rId = getPlayerIdByName(m.singles.r);
+          if (dId) dIds = [dId];
+          if (rId) rIds = [rId];
+        } else if (m.foursome) {
+          dIds = m.foursome.d.map(getPlayerIdByName).filter(Boolean);
+          rIds = m.foursome.r.map(getPlayerIdByName).filter(Boolean);
+        }
+        [...dIds, ...rIds].forEach(id => {
+          const ps = PLAYER_STATS[id];
+          if (!ps) return;
+          const isD   = dIds.includes(id);
+          const myPts = isD ? dpts : rpts;
+          const opPts = isD ? rpts : dpts;
+          ps.played++; ps.pts += myPts;
+          if (fmt && ps.formatPts[fmt] !== undefined) ps.formatPts[fmt] += myPts;
+          if (myPts > opPts) ps.wins++;
+          else if (myPts === opPts) ps.halves++;
+          else ps.losses++;
+        });
+        dIds.forEach(dId => {
+          rIds.forEach(rId => {
+            if (!H2H_PAIRS[dId]) H2H_PAIRS[dId] = {};
+            if (!H2H_PAIRS[rId]) H2H_PAIRS[rId] = {};
+            if (!H2H_PAIRS[dId][rId]) H2H_PAIRS[dId][rId] = { played: 0, wins: 0, halves: 0, losses: 0 };
+            if (!H2H_PAIRS[rId][dId]) H2H_PAIRS[rId][dId] = { played: 0, wins: 0, halves: 0, losses: 0 };
+            const pd = H2H_PAIRS[dId][rId], pr = H2H_PAIRS[rId][dId];
+            pd.played++; pr.played++;
+            if (dpts > rpts)       { pd.wins++; pr.losses++; }
+            else if (rpts > dpts)  { pd.losses++; pr.wins++; }
+            else                   { pd.halves++; pr.halves++; }
+          });
+        });
+      });
+
+      LEADERBOARD = PLAYERS.map(p => {
+        const s = PLAYER_STATS[p.id];
+        const bestFmtEntry = Object.entries(s.formatPts).sort((a, b) => b[1] - a[1])[0];
+        const bestFmt = bestFmtEntry[1] > 0 ? fmtLabel(bestFmtEntry[0]) : '—';
+        const winPct = s.played > 0 ? Math.round((s.wins + s.halves * 0.5) / s.played * 100) : 0;
+        return { ...s, bestFmt, winPct };
+      });
+      sortLeaderboard();
+    }
+
+    function sortLeaderboard() {
+      LEADERBOARD.sort((a, b) => {
+        const va = a[lbSortKey], vb = b[lbSortKey];
+        if (typeof va === 'string') return lbSortDir * va.localeCompare(vb);
+        return lbSortDir * (va - vb);
+      });
+    }
+
+    function renderLeaderboard() {
+      const el = document.getElementById('leaderboardBody');
+      if (!el) return;
+      el.innerHTML = LEADERBOARD.map((s, i) => `
+        <tr>
+          <td class="lb-rank">${i + 1}</td>
+          <td><button class="lb-name-btn" onclick="openPlayerProfile('${s.id}')">${s.name}</button></td>
+          <td class="${s.team === 'D' ? 'lb-team-d' : 'lb-team-r'}">${s.team === 'D' ? 'D' : 'R'}</td>
+          <td class="lb-pts">${s.pts}</td>
+          <td>${s.played}</td>
+          <td>${s.wins}</td>
+          <td>${s.halves}</td>
+          <td>${s.losses}</td>
+          <td class="lb-pct">${s.winPct}%</td>
+          <td>${s.bestFmt}</td>
+        </tr>
+      `).join('');
+    }
+
+    function sortLb(key) {
+      if (lbSortKey === key) { lbSortDir *= -1; } else { lbSortKey = key; lbSortDir = -1; }
+      sortLeaderboard();
+      renderLeaderboard();
+      document.querySelectorAll('.leaderboard-table .sort-col').forEach(th => {
+        th.classList.toggle('sort-active', th.dataset.key === key);
+      });
+    }
+
+    function renderTeamFormatStats() {
+      const el = document.getElementById('formatH2HBody');
+      if (!el) return;
+      const formats = ['fourballs', 'scramble', 'alternate', 'singles'];
+      el.innerHTML = formats.map(fmt => {
+        const s = TEAM_FORMAT_STATS[fmt] || { d: 0, r: 0, h: 0 };
+        const total = s.d + s.r + s.h;
+        const dPct = total > 0 ? Math.round(s.d / total * 100) : 50;
+        const rPct = total > 0 ? Math.round(s.r / total * 100) : 50;
+        return `<tr>
+          <td>${fmtLabel(fmt)}</td>
+          <td class="lb-team-d">${s.d}W</td>
+          <td><div class="format-h2h-bar"><div class="format-h2h-bar-d" style="width:${dPct}%"></div><div class="format-h2h-bar-r" style="width:${rPct}%"></div></div></td>
+          <td class="lb-team-r">${s.r}W</td>
+          <td class="format-h2h-empty">${s.h > 0 ? s.h + ' H' : ''}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function renderPlayerH2H(playerId) {
+      const me = PLAYERS.find(p => p.id === playerId);
+      if (!me) return '<div class="pp-h2h-empty">No data</div>';
+      const opponents = PLAYERS.filter(p => p.id !== playerId && p.team !== me.team);
+      const pairs = H2H_PAIRS[playerId] || {};
+      const faced = opponents.filter(p => pairs[p.id] && pairs[p.id].played > 0);
+      if (faced.length === 0) {
+        return '<div class="pp-h2h-empty">No head-to-head data yet</div>';
+      }
+      return `
+        <table class="pp-h2h-table">
+          <thead><tr><th>Opponent</th><th>P</th><th>W</th><th>H</th><th>L</th></tr></thead>
+          <tbody>${faced.map(p => {
+            const r = pairs[p.id];
+            return `<tr>
+              <td><button class="pp-h2h-opp-btn" onclick="closeModal();setTimeout(()=>openPlayerProfile('${p.id}'),50)">${p.name}</button></td>
+              <td>${r.played}</td><td>${r.wins}</td><td>${r.halves}</td><td>${r.losses}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>`;
+    }
+
+    function switchPpTab(btn, paneId) {
+      document.querySelectorAll('.pp-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.pp-tab-pane').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      const pane = document.getElementById(paneId);
+      if (pane) pane.classList.add('active');
+    }
 
     /* ── KV API — result persistence ── */
 
@@ -1604,6 +1951,9 @@
         if (!res.ok) return;
         const stored = await res.json();
         applyStoredResults(stored);
+        computeAllH2HStats();
+        renderLeaderboard();
+        renderTeamFormatStats();
         renderTable();
         updateAdminBarBadge();
         renderCaptainDashboard();
@@ -1687,43 +2037,46 @@
         </div>
       `;
 
-      if (playerMatches.length > 0) {
-        body += `<div class="pp-history-label">Match History</div>`;
-        body += playerMatches.map(m => {
-          const isD = player.team === 'D';
-          let result = '—', resultClass = 'pp-hist-tbd';
-          if (m.status === 'played' && m.points) {
-            const myPts  = isD ? m.points.d : m.points.r;
-            const oppPts = isD ? m.points.r : m.points.d;
-            if      (myPts > oppPts) { result = 'W'; resultClass = 'pp-hist-win';  }
-            else if (myPts < oppPts) { result = 'L'; resultClass = 'pp-hist-loss'; }
-            else                     { result = 'H'; resultClass = 'pp-hist-half'; }
-          } else if (m.status === 'pending')  { result = 'P'; resultClass = 'pp-hist-pending';  }
-          else if (m.status === 'disputed') { result = 'D'; resultClass = 'pp-hist-disputed'; }
+      const historyRows = playerMatches.length > 0
+        ? playerMatches.map(m => {
+            const isD = player.team === 'D';
+            let result = '—', resultClass = 'pp-hist-tbd';
+            if (m.status === 'played' && m.points) {
+              const myPts  = isD ? m.points.d : m.points.r;
+              const oppPts = isD ? m.points.r : m.points.d;
+              if      (myPts > oppPts) { result = 'W'; resultClass = 'pp-hist-win';  }
+              else if (myPts < oppPts) { result = 'L'; resultClass = 'pp-hist-loss'; }
+              else                     { result = 'H'; resultClass = 'pp-hist-half'; }
+            } else if (m.status === 'pending')  { result = 'P'; resultClass = 'pp-hist-pending';  }
+            else if (m.status === 'disputed') { result = 'D'; resultClass = 'pp-hist-disputed'; }
+            let opp = '', partner = '';
+            if (m.singles) {
+              opp = isD ? m.singles.r : m.singles.d;
+            } else if (m.foursome) {
+              const oppSide = isD ? m.foursome.r : m.foursome.d;
+              opp = oppSide.join(' & ');
+              const mySide = isD ? m.foursome.d : m.foursome.r;
+              partner = mySide.find(n => n !== player.name) || '';
+            }
+            const oppText = partner ? `w/ ${partner} vs ${opp}` : `vs ${opp}`;
+            return `
+              <div class="pp-hist-row" onclick="closeModal(); setTimeout(() => openModal(${m.id}), 50)">
+                <span class="pp-hist-num">${m.num}</span>
+                <span class="pp-hist-opp">${oppText}</span>
+                <span class="pp-hist-course">${m.course || '—'}</span>
+                <span class="pp-hist-result ${resultClass}">${result}</span>
+              </div>`;
+          }).join('')
+        : `<div class="pp-no-matches">No matches scheduled yet</div>`;
 
-          let opp = '', partner = '';
-          if (m.singles) {
-            opp = isD ? m.singles.r : m.singles.d;
-          } else if (m.foursome) {
-            const oppSide = isD ? m.foursome.r : m.foursome.d;
-            opp = oppSide.join(' & ');
-            const mySide = isD ? m.foursome.d : m.foursome.r;
-            partner = mySide.find(n => n !== player.name) || '';
-          }
-          const oppText = partner ? `w/ ${partner} vs ${opp}` : `vs ${opp}`;
-
-          return `
-            <div class="pp-hist-row" onclick="closeModal(); setTimeout(() => openModal(${m.id}), 50)">
-              <span class="pp-hist-num">${m.num}</span>
-              <span class="pp-hist-opp">${oppText}</span>
-              <span class="pp-hist-course">${m.course || '—'}</span>
-              <span class="pp-hist-result ${resultClass}">${result}</span>
-            </div>
-          `;
-        }).join('');
-      } else {
-        body += `<div class="pp-no-matches">No matches scheduled yet</div>`;
-      }
+      body += `
+        <div class="pp-tabs">
+          <button class="pp-tab-btn active" onclick="switchPpTab(this,'pp-pane-hist')">Match History</button>
+          <button class="pp-tab-btn" onclick="switchPpTab(this,'pp-pane-h2h')">vs Opponents</button>
+        </div>
+        <div class="pp-tab-pane active" id="pp-pane-hist">${historyRows}</div>
+        <div class="pp-tab-pane" id="pp-pane-h2h">${renderPlayerH2H(playerId)}</div>
+      `;
 
       document.getElementById('modalMatchNum').textContent = player.id;
       document.getElementById('modalMatchTitle').textContent = 'Player Profile';
@@ -2802,6 +3155,40 @@
     renderRosters();    // render roster immediately with defaults; KV fetch may update later
     trackEvent('page_view');
     fetchSchedule();    // loads schedule + results from KV, then renders
+
+    /* ── Sticky anchor strip — IntersectionObserver ── */
+    (function() {
+      const sectionIds = ['sec-standings','sec-rosters','sec-schedule','sec-leaderboard'];
+      const links = document.querySelectorAll('.anchor-link');
+
+      function setActive(id) {
+        links.forEach(l => l.classList.toggle('active', l.dataset.section === id));
+      }
+
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) setActive(entry.target.id);
+        });
+      }, { rootMargin: '-10% 0px -75% 0px' });
+
+      sectionIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) observer.observe(el);
+      });
+
+      links.forEach(link => {
+        link.addEventListener('click', e => {
+          e.preventDefault();
+          const target = document.getElementById(link.dataset.section);
+          if (!target) return;
+          const stripH = document.querySelector('.anchor-strip').offsetHeight;
+          const navH   = 75; // fixed nav height
+          const y = target.getBoundingClientRect().top + window.scrollY - navH - stripH;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+          setActive(link.dataset.section);
+        });
+      });
+    })();
   </script>
 
   <!-- Profile info modal -->
@@ -2835,7 +3222,7 @@
     <input type="email" class="login-field" id="helpEmail"
            placeholder="Email address (optional — for a reply)" autocomplete="email" maxlength="200" />
     <div class="login-error" id="helpError"></div>
-    <button class="login-btn" id="helpSubmitBtn" onclick="submitHelp()">Send Message</button>
+    <button class="help-submit-btn" id="helpSubmitBtn" onclick="submitHelp()">Send Message</button>
     <div class="help-modal-success" id="helpSuccess" style="display:none;">
       Message sent — thank you!
     </div>
