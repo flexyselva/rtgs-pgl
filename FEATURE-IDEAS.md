@@ -99,10 +99,10 @@ A scrollable gallery of match-day photos, accessible from the main navigation. P
 - Scrolling: simple CSS column/masonry layout, no JS library needed
 - Mobile: single-column scroll; desktop: 2–3 column grid
 
-**Open decisions before building:**
-1. Separate `/gallery.html` page or a section inside `season3.html`?
-2. R2 for image storage or a hosted image service (Cloudinary/Imgbb)?
-3. Should fans be able to "like" or react to photos, or strictly read-only?
+**Decisions (2026-03-24):**
+1. ✅ Separate `/gallery.html` page (linked from season3 nav)
+2. ✅ Cloudflare R2 for image storage (native to the stack)
+3. ✅ Fans can Like and Comment on photos
 
 ---
 
