@@ -30,7 +30,8 @@ const ENDPOINTS = [
 const { execSync } = require('child_process');
 let html;
 try {
-  html = execSync('git show main:templates/pages/season3.page.html', { cwd: path.join(__dirname, '..') }).toString();
+  // Use the last commit before Fix 2 removed the static data
+  html = execSync('git show 55ff6b4:templates/pages/season3.page.html', { cwd: path.join(__dirname, '..') }).toString();
 } catch(e) {
   // Fallback: try reading the current file (in case branch hasn't diverged yet)
   const htmlPath = path.join(__dirname, '..', 'templates', 'pages', 'season3.page.html');
