@@ -27,7 +27,8 @@ Feature development follows a staging-first flow. **All work goes through stagin
 | User says | Claude does |
 |---|---|
 | "commit it" | Create feature branch (if not already on one) → git add → commit → push to GitHub → `wrangler deploy --env staging` |
-| "looks good, merge to main" | Squash merge feature branch → main → `wrangler deploy` (prod) → sync local main |
+| "looks good, merge to main" | Squash merge feature branch → main → push to GitHub → `wrangler deploy --env staging` → **stop and wait for prod approval** |
+| "deploy to prod" / "looks good on staging" | `wrangler deploy` (prod only) |
 
 ### Testing rules
 - **E2E tests (`npm run test:e2e`)** — always run against staging URL. Never local, never prod (unless explicitly requested for a production issue).

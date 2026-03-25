@@ -249,6 +249,87 @@
       font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
       color: var(--grey); font-weight: 400;
     }
+    .roster-name-btn {
+      background: none; border: none; padding: 0; margin: 0;
+      font-size: 0.9rem; font-weight: 500; color: var(--grey-lt);
+      cursor: pointer; text-align: left; flex: 1;
+      text-underline-offset: 3px;
+      transition: color 0.15s;
+      font-family: 'Raleway', sans-serif;
+    }
+    .roster-name-btn:hover { color: var(--gold); text-decoration: underline; text-decoration-color: var(--gold); }
+
+    /* ── Player Profile (inside #modalBody) ── */
+    .pp-header {
+      display: flex; align-items: center; gap: 16px;
+      padding-bottom: 16px; border-bottom: 1px solid rgba(201,168,76,0.12);
+      margin-bottom: 16px;
+    }
+    .pp-avatar {
+      width: 52px; height: 52px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem; font-weight: 600; flex-shrink: 0;
+    }
+    .pp-avatar-d { background: rgba(74,144,196,0.18); color: var(--td-accent); border: 1px solid rgba(74,144,196,0.35); }
+    .pp-avatar-r { background: rgba(196,74,74,0.18);  color: var(--tr-accent); border: 1px solid rgba(196,74,74,0.35); }
+    .pp-meta { flex: 1; min-width: 0; }
+    .pp-name { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 500; color: var(--white); margin-bottom: 6px; }
+    .pp-name-input {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(201,168,76,0.3);
+      color: var(--white); font-size: 1rem; font-weight: 500; font-family: 'Playfair Display', serif;
+      padding: 4px 8px; width: 100%; box-sizing: border-box; margin-bottom: 6px;
+    }
+    .pp-badges { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .pp-id  { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--grey); }
+    .pp-hcp { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--grey); }
+    .pp-hcp-wrap { display: flex; align-items: center; gap: 6px; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--grey); }
+    .pp-hcp-input {
+      width: 46px; background: rgba(255,255,255,0.06); border: 1px solid rgba(201,168,76,0.3);
+      color: var(--white); font-size: 0.85rem; padding: 2px 6px; text-align: center;
+    }
+    .pp-save-btn {
+      margin-top: 10px; background: var(--gold); color: var(--navy);
+      border: none; padding: 5px 18px; cursor: pointer;
+      font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600;
+      font-family: 'Raleway', sans-serif; transition: background 0.15s;
+    }
+    .pp-save-btn:hover { background: var(--gold-lt); }
+    .pp-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .pp-stats {
+      display: flex; border: 1px solid rgba(201,168,76,0.12); margin-bottom: 20px;
+    }
+    .pp-stat {
+      flex: 1; text-align: center; padding: 10px 4px;
+      border-right: 1px solid rgba(201,168,76,0.12);
+    }
+    .pp-stat:last-child { border-right: none; }
+    .pp-stat-val   { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 500; color: var(--white); }
+    .pp-stat-label { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--grey); margin-top: 2px; }
+    .pp-history-label { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+    .pp-hist-row {
+      display: grid; grid-template-columns: 38px 1fr auto auto;
+      align-items: center; gap: 8px;
+      padding: 8px 0; border-bottom: 1px solid rgba(201,168,76,0.06);
+      cursor: pointer; transition: background 0.12s;
+    }
+    .pp-hist-row:last-child { border-bottom: none; }
+    .pp-hist-row:hover { background: rgba(201,168,76,0.05); margin: 0 -4px; padding-left: 4px; padding-right: 4px; }
+    .pp-hist-num    { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold-dk); font-family: 'Playfair Display', serif; }
+    .pp-hist-opp    { font-size: 0.82rem; color: var(--grey-lt); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pp-hist-course { font-size: 11px; color: var(--grey); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
+    .pp-hist-result { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; width: 18px; text-align: center; flex-shrink: 0; }
+    .pp-hist-win      { color: #4ade80; }
+    .pp-hist-loss     { color: var(--tr-accent); }
+    .pp-hist-half     { color: var(--gold); }
+    .pp-hist-pending  { color: #f59e0b; }
+    .pp-hist-disputed { color: #ef4444; }
+    .pp-hist-tbd      { color: var(--grey); }
+    .pp-no-matches { font-size: 0.85rem; color: var(--grey); text-align: center; padding: 20px 0; }
+    @media (max-width: 640px) {
+      .pp-hist-row    { grid-template-columns: 38px 1fr auto; }
+      .pp-hist-course { display: none; }
+    }
 
     /* ── Format section ── */
     .format-section { margin-bottom: 40px; }
@@ -1094,16 +1175,7 @@
             <span class="roster-header-name">Team Dhurandhar</span>
             <span class="roster-header-count">8 Players</span>
           </div>
-          <ul class="roster-list">
-            <li><span class="roster-num">D1</span><span class="roster-name">Vikrant Patil</span><span class="roster-hcp">HCP 16</span></li>
-            <li><span class="roster-num">D2</span><span class="roster-name">Anuj Pandey</span><span class="roster-hcp">HCP 14</span></li>
-            <li><span class="roster-num">D3</span><span class="roster-name">Anirudha</span><span class="roster-hcp">HCP 16</span></li>
-            <li><span class="roster-num">D4</span><span class="roster-name">Selva S Sundaram</span><span class="roster-hcp">HCP 16</span></li>
-            <li><span class="roster-num">D5</span><span class="roster-name">Raghu Sundaram</span><span class="roster-hcp">HCP 20</span></li>
-            <li><span class="roster-num">D6</span><span class="roster-name">Hemang C</span><span class="roster-hcp">HCP 20</span></li>
-            <li><span class="roster-num">D7</span><span class="roster-name">Nimesh Dave</span><span class="roster-hcp">HCP 20</span></li>
-            <li><span class="roster-num">D8</span><span class="roster-name">Bala Sankaran</span><span class="roster-hcp">HCP 22</span></li>
-          </ul>
+          <ul class="roster-list" id="roster-list-D"></ul>
         </div>
 
         <!-- Team Rushabh -->
@@ -1113,16 +1185,7 @@
             <span class="roster-header-name">Team Rushabh</span>
             <span class="roster-header-count">8 Players</span>
           </div>
-          <ul class="roster-list">
-            <li><span class="roster-num">R1</span><span class="roster-name">Shailendra Singh</span><span class="roster-hcp">HCP 14</span></li>
-            <li><span class="roster-num">R2</span><span class="roster-name">Satyapal P</span><span class="roster-hcp">HCP 16</span></li>
-            <li><span class="roster-num">R3</span><span class="roster-name">John C</span><span class="roster-hcp">HCP 16</span></li>
-            <li><span class="roster-num">R4</span><span class="roster-name">Rahul R</span><span class="roster-hcp">HCP 16</span></li>
-            <li><span class="roster-num">R5</span><span class="roster-name">Mazz</span><span class="roster-hcp">HCP 20</span></li>
-            <li><span class="roster-num">R6</span><span class="roster-name">Rushabh L</span><span class="roster-hcp">HCP 20</span></li>
-            <li><span class="roster-num">R7</span><span class="roster-name">Srikant N</span><span class="roster-hcp">HCP 22</span></li>
-            <li><span class="roster-num">R8</span><span class="roster-name">DZ</span><span class="roster-hcp">HCP 16</span></li>
-          </ul>
+          <ul class="roster-list" id="roster-list-R"></ul>
         </div>
 
       </div>
@@ -1358,9 +1421,36 @@
     ───────────────────────────────────────────── */
     let MATCHES = [];
 
-    /* ── Persona constants — populated from KV rosters ── */
+    /* ── Player roster — defaults; overridden by KV if admin has saved edits ── */
+    const DEFAULT_PLAYERS = [
+      { id: 'D1', name: 'Vikrant Patil',    team: 'D', hcp: 16 },
+      { id: 'D2', name: 'Anuj Pandey',      team: 'D', hcp: 14 },
+      { id: 'D3', name: 'Anirudha',         team: 'D', hcp: 16 },
+      { id: 'D4', name: 'Selva S Sundaram', team: 'D', hcp: 16 },
+      { id: 'D5', name: 'Raghu Sundaram',   team: 'D', hcp: 20 },
+      { id: 'D6', name: 'Hemang C',         team: 'D', hcp: 20 },
+      { id: 'D7', name: 'Nimesh Dave',      team: 'D', hcp: 20 },
+      { id: 'D8', name: 'Bala Sankaran',    team: 'D', hcp: 22 },
+      { id: 'R1', name: 'Shailendra Singh', team: 'R', hcp: 14 },
+      { id: 'R2', name: 'Satyapal P',       team: 'R', hcp: 16 },
+      { id: 'R3', name: 'John C',           team: 'R', hcp: 16 },
+      { id: 'R4', name: 'Rahul R',          team: 'R', hcp: 16 },
+      { id: 'R5', name: 'Mazz',             team: 'R', hcp: 20 },
+      { id: 'R6', name: 'Rushabh L',        team: 'R', hcp: 20 },
+      { id: 'R7', name: 'Srikant N',        team: 'R', hcp: 22 },
+      { id: 'R8', name: 'DZ',               team: 'R', hcp: 16 },
+    ];
+    let PLAYERS = DEFAULT_PLAYERS.map(p => ({ ...p }));
+
+    /* ── Persona constants — name arrays for isMyTeamMatch; kept in sync with PLAYERS ── */
     let TEAM_D_PLAYERS = [];
     let TEAM_R_PLAYERS = [];
+
+    function syncPlayerNameArrays() {
+      TEAM_D_PLAYERS = PLAYERS.filter(p => p.team === 'D').map(p => p.name);
+      TEAM_R_PLAYERS = PLAYERS.filter(p => p.team === 'R').map(p => p.name);
+    }
+    syncPlayerNameArrays();
 
     /* ── KV API — result persistence ── */
 
@@ -1386,15 +1476,24 @@
         const res = await fetch('/api/schedule');
         if (!res.ok) throw new Error('Schedule fetch failed: ' + res.status);
         const data = await res.json();
-        MATCHES        = data.matches  || [];
-        TEAM_D_PLAYERS = (data.rosters && data.rosters.teamD) || [];
-        TEAM_R_PLAYERS = (data.rosters && data.rosters.teamR) || [];
+        MATCHES = data.matches || [];
+        // If KV rosters contain rich objects (id/name/hcp), use them; else keep defaults
+        const kvD = (data.rosters && data.rosters.teamD) || [];
+        const kvR = (data.rosters && data.rosters.teamR) || [];
+        if (kvD.length > 0 && typeof kvD[0] === 'object' && kvD[0].id) {
+          PLAYERS = [
+            ...kvD.map(p => ({ ...p, team: 'D' })),
+            ...kvR.map(p => ({ ...p, team: 'R' })),
+          ];
+        }
+        syncPlayerNameArrays();
         filteredMatches = [...MATCHES]; // reset after load — was [] at declaration time
       } catch(e) {
         console.warn('Could not load schedule from KV:', e);
         logError('fetchSchedule', e);
       }
       // Always continue to render and load results, even if schedule fetch failed
+      renderRosters();
       renderTable();
       await fetchResults();
     }
@@ -1411,6 +1510,171 @@
       } catch(e) {
         console.warn('Could not load results from KV:', e);
         logError('fetchResults', e);
+      }
+    }
+
+    /* ── Player roster rendering ── */
+    function renderRosters() {
+      ['D', 'R'].forEach(team => {
+        const ul = document.getElementById('roster-list-' + team);
+        if (!ul) return;
+        ul.innerHTML = PLAYERS.filter(p => p.team === team).map(p => `
+          <li>
+            <span class="roster-num">${p.id}</span>
+            <button class="roster-name-btn" onclick="openPlayerProfile('${p.id}')">${p.name}</button>
+            <span class="roster-hcp">HCP ${p.hcp}</span>
+          </li>
+        `).join('');
+      });
+    }
+
+    /* ── Player profile modal ── */
+    function openPlayerProfile(playerId) {
+      const player = PLAYERS.find(p => p.id === playerId);
+      if (!player) return;
+
+      const isAdmin = SESSION && SESSION.role === 'admin';
+      const teamName = player.team === 'D' ? 'Team Dhurandhar' : 'Team Rushabh';
+      const badgeClass = player.team === 'D' ? 'modal-badge-d' : 'modal-badge-r';
+
+      // Compute stats from MATCHES
+      const playerMatches = MATCHES.filter(m => {
+        if (m.singles)  return m.singles.d === player.name || m.singles.r === player.name;
+        if (m.foursome) return m.foursome.d.includes(player.name) || m.foursome.r.includes(player.name);
+        return false;
+      });
+      const played = playerMatches.filter(m => m.status === 'played');
+      let wins = 0, halves = 0, losses = 0, pts = 0;
+      played.forEach(m => {
+        const myPts  = player.team === 'D' ? m.points.d : m.points.r;
+        const oppPts = player.team === 'D' ? m.points.r : m.points.d;
+        pts += myPts;
+        if (myPts > oppPts) wins++;
+        else if (myPts === oppPts) halves++;
+        else losses++;
+      });
+
+      // Header — admin gets editable inputs
+      const headerFields = isAdmin ? `
+        <input class="pp-name-input" id="ppNameInput" value="${player.name}" />
+        <div class="pp-badges">
+          <span class="modal-team-badge ${badgeClass}">${teamName}</span>
+          <span class="pp-id">${player.id}</span>
+          <span class="pp-hcp-wrap">HCP&nbsp;<input type="number" class="pp-hcp-input" id="ppHcpInput" value="${player.hcp}" min="0" max="54" /></span>
+        </div>
+        <button class="pp-save-btn" id="ppSaveBtn" onclick="savePlayerProfile('${playerId}')">Save</button>
+      ` : `
+        <div class="pp-name">${player.name}</div>
+        <div class="pp-badges">
+          <span class="modal-team-badge ${badgeClass}">${teamName}</span>
+          <span class="pp-id">${player.id}</span>
+          <span class="pp-hcp">HCP ${player.hcp}</span>
+        </div>
+      `;
+
+      let body = `
+        <div class="pp-header">
+          <div class="pp-avatar pp-avatar-${player.team.toLowerCase()}">${getInitials(player.name)}</div>
+          <div class="pp-meta">${headerFields}</div>
+        </div>
+        <div class="pp-stats">
+          <div class="pp-stat"><div class="pp-stat-val">${playerMatches.length}</div><div class="pp-stat-label">Scheduled</div></div>
+          <div class="pp-stat"><div class="pp-stat-val">${played.length}</div><div class="pp-stat-label">Played</div></div>
+          <div class="pp-stat"><div class="pp-stat-val">${wins}</div><div class="pp-stat-label">Won</div></div>
+          <div class="pp-stat"><div class="pp-stat-val">${halves}</div><div class="pp-stat-label">Halved</div></div>
+          <div class="pp-stat"><div class="pp-stat-val">${losses}</div><div class="pp-stat-label">Lost</div></div>
+          <div class="pp-stat"><div class="pp-stat-val">${pts}</div><div class="pp-stat-label">Points</div></div>
+        </div>
+      `;
+
+      if (playerMatches.length > 0) {
+        body += `<div class="pp-history-label">Match History</div>`;
+        body += playerMatches.map(m => {
+          const isD = player.team === 'D';
+          let result = '—', resultClass = 'pp-hist-tbd';
+          if (m.status === 'played' && m.points) {
+            const myPts  = isD ? m.points.d : m.points.r;
+            const oppPts = isD ? m.points.r : m.points.d;
+            if      (myPts > oppPts) { result = 'W'; resultClass = 'pp-hist-win';  }
+            else if (myPts < oppPts) { result = 'L'; resultClass = 'pp-hist-loss'; }
+            else                     { result = 'H'; resultClass = 'pp-hist-half'; }
+          } else if (m.status === 'pending')  { result = 'P'; resultClass = 'pp-hist-pending';  }
+          else if (m.status === 'disputed') { result = 'D'; resultClass = 'pp-hist-disputed'; }
+
+          let opp = '', partner = '';
+          if (m.singles) {
+            opp = isD ? m.singles.r : m.singles.d;
+          } else if (m.foursome) {
+            const oppSide = isD ? m.foursome.r : m.foursome.d;
+            opp = oppSide.join(' & ');
+            const mySide = isD ? m.foursome.d : m.foursome.r;
+            partner = mySide.find(n => n !== player.name) || '';
+          }
+          const oppText = partner ? `w/ ${partner} vs ${opp}` : `vs ${opp}`;
+
+          return `
+            <div class="pp-hist-row" onclick="closeModal(); setTimeout(() => openModal(${m.id}), 50)">
+              <span class="pp-hist-num">${m.num}</span>
+              <span class="pp-hist-opp">${oppText}</span>
+              <span class="pp-hist-course">${m.course || '—'}</span>
+              <span class="pp-hist-result ${resultClass}">${result}</span>
+            </div>
+          `;
+        }).join('');
+      } else {
+        body += `<div class="pp-no-matches">No matches scheduled yet</div>`;
+      }
+
+      document.getElementById('modalMatchNum').textContent = player.id;
+      document.getElementById('modalMatchTitle').textContent = 'Player Profile';
+      document.getElementById('modalBody').innerHTML = body;
+
+      document.getElementById('matchModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    async function savePlayerProfile(playerId) {
+      const player = PLAYERS.find(p => p.id === playerId);
+      if (!player) return;
+
+      const nameInput = document.getElementById('ppNameInput');
+      const hcpInput  = document.getElementById('ppHcpInput');
+      const saveBtn   = document.getElementById('ppSaveBtn');
+      if (!nameInput || !hcpInput) return;
+
+      const newName = nameInput.value.trim();
+      const newHcp  = parseInt(hcpInput.value, 10);
+      if (!newName || isNaN(newHcp) || newHcp < 0 || newHcp > 54) return;
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving…';
+
+      const oldName = player.name;
+      const oldHcp  = player.hcp;
+      player.name = newName;
+      player.hcp  = newHcp;
+      syncPlayerNameArrays();
+
+      const teamD = PLAYERS.filter(p => p.team === 'D').map(({ id, name, hcp }) => ({ id, name, hcp }));
+      const teamR = PLAYERS.filter(p => p.team === 'R').map(({ id, name, hcp }) => ({ id, name, hcp }));
+
+      try {
+        const res = await fetch('/api/schedule', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (SESSION.token || '') },
+          body: JSON.stringify({ rosters: { teamD, teamR } }),
+        });
+        if (!res.ok) throw new Error('Save failed');
+        renderRosters();
+        closeModal();
+      } catch (e) {
+        // Revert on failure
+        player.name = oldName;
+        player.hcp  = oldHcp;
+        syncPlayerNameArrays();
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save';
+        alert('Failed to save: ' + e.message);
       }
     }
 
@@ -2336,6 +2600,7 @@
     }
 
     initPersona();
+    renderRosters();    // render roster immediately with defaults; KV fetch may update later
     trackEvent('page_view');
     fetchSchedule();    // loads schedule + results from KV, then renders
   </script>
