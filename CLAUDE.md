@@ -90,7 +90,7 @@ Matches are named **Match 1, Match 2, ... Match N** (no fancy event names).
 
 ## Teams
 
-### Team Dhurandhar
+### Team Europe
 | # | Player | Handicap |
 |---|--------|----------|
 | D1 | Vikrant Patil | 16 |
@@ -102,7 +102,7 @@ Matches are named **Match 1, Match 2, ... Match N** (no fancy event names).
 | D7 | Nimesh Dave | 20 |
 | D8 | Bala Sankaran | 22 |
 
-### Team Rushabh
+### Team USA
 | # | Player | Handicap |
 |---|--------|----------|
 | R1 | Shailendra Singh | 14 |
@@ -112,11 +112,11 @@ Matches are named **Match 1, Match 2, ... Match N** (no fancy event names).
 | R5 | Mazz | 20 |
 | R6 | Rushabh L | 20 |
 | R7 | Srikant N | 22 |
-| R8 | DZ | 16 |
+| R8 | DZ | 20 |
 
 **Team colours:**
-- Team Dhurandhar: steel blue `#4a90c4`
-- Team Rushabh: crimson `#c44a4a`
+- Team Europe: steel blue `#4a90c4`
+- Team USA: crimson `#c44a4a`
 
 ---
 

@@ -1364,7 +1364,7 @@
     <div class="team-clash">
       <div class="team-panel team-panel-d">
         <div class="team-eyebrow">Captain's Side</div>
-        <div class="team-name"><span class="team-accent-d">Team</span><br>Dhurandhar</div>
+        <div class="team-name"><span class="team-accent-d">Team</span><br>Europe</div>
         <div class="team-sub">8 Players</div>
         <div class="team-bar team-bar-d"></div>
       </div>
@@ -1379,7 +1379,7 @@
       </div>
       <div class="team-panel team-panel-r">
         <div class="team-eyebrow">Captain's Side</div>
-        <div class="team-name"><span class="team-accent-r">Team</span><br>Rushabh</div>
+        <div class="team-name"><span class="team-accent-r">Team</span><br>USA</div>
         <div class="team-sub">8 Players</div>
         <div class="team-bar team-bar-r"></div>
       </div>
@@ -1410,21 +1410,21 @@
       </div>
       <div class="roster-grids">
 
-        <!-- Team Dhurandhar -->
+        <!-- Team Europe -->
         <div class="roster-card">
           <div class="roster-header roster-header-d">
             <div class="roster-header-dot roster-header-dot-d"></div>
-            <span class="roster-header-name">Team Dhurandhar</span>
+            <span class="roster-header-name">Team Europe</span>
             <span class="roster-header-count">8 Players</span>
           </div>
           <ul class="roster-list" id="roster-list-D"></ul>
         </div>
 
-        <!-- Team Rushabh -->
+        <!-- Team USA -->
         <div class="roster-card">
           <div class="roster-header roster-header-r">
             <div class="roster-header-dot roster-header-dot-r"></div>
-            <span class="roster-header-name">Team Rushabh</span>
+            <span class="roster-header-name">Team USA</span>
             <span class="roster-header-count">8 Players</span>
           </div>
           <ul class="roster-list" id="roster-list-R"></ul>
@@ -1712,7 +1712,7 @@
       { id: 'R5', name: 'Mazz',             team: 'R', hcp: 20 },
       { id: 'R6', name: 'Rushabh L',        team: 'R', hcp: 20 },
       { id: 'R7', name: 'Srikant N',        team: 'R', hcp: 22 },
-      { id: 'R8', name: 'DZ',               team: 'R', hcp: 16 },
+      { id: 'R8', name: 'DZ',               team: 'R', hcp: 20 },
     ];
     let PLAYERS = DEFAULT_PLAYERS.map(p => ({ ...p }));
 
@@ -1978,7 +1978,7 @@
       if (!player) return;
 
       const isAdmin = SESSION && SESSION.role === 'admin';
-      const teamName = player.team === 'D' ? 'Team Dhurandhar' : 'Team Rushabh';
+      const teamName = player.team === 'D' ? 'Team Europe' : 'Team USA';
       const badgeClass = player.team === 'D' ? 'modal-badge-d' : 'modal-badge-r';
 
       // Compute stats from MATCHES
@@ -2519,7 +2519,7 @@
 
     function roleLabel(session) {
       if (session.role === 'admin') return 'Admin';
-      return session.team === 'D' ? 'Captain · Dhurandhar' : 'Captain · Rushabh';
+      return session.team === 'D' ? 'Captain · Europe' : 'Captain · USA';
     }
 
     /* ── Nav user chip ── */
@@ -2600,7 +2600,7 @@
       document.getElementById('captainDashboardWrap').style.display = '';
 
       const team = SESSION.team;
-      const teamName = team === 'D' ? 'Team Dhurandhar' : 'Team Rushabh';
+      const teamName = team === 'D' ? 'Team Europe' : 'Team USA';
       const headerClass = team === 'D' ? 'captain-db-header-d' : 'captain-db-header-r';
       const myPts      = getTeamPoints(team);
       const oppPts     = getTeamPoints(team === 'D' ? 'R' : 'D');
