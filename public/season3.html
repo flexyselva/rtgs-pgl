@@ -106,6 +106,15 @@
       position: relative; z-index: 1;
       animation: fadeUp 0.9s 0.35s ease both;
     }
+    .courses-trigger {
+      cursor: pointer;
+      border-bottom: 1px solid rgba(201,168,76,0.4);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .courses-trigger:hover {
+      color: #e8c97a;
+      border-bottom-color: rgba(201,168,76,0.9);
+    }
     .hero-divider {
       display: flex; align-items: center; justify-content: center;
       margin: 20px auto 0; width: 280px; max-width: 90%;
@@ -703,6 +712,53 @@
       background: none; font-family: 'Raleway', sans-serif; cursor: pointer;
     }
     .nav-signin-link:hover { border-color: rgba(201,168,76,0.5); color: var(--gold-lt); }
+
+    /* ── Courses modal ── */
+    #coursesModal { z-index: 700; background: rgba(5,12,25,0.88); }
+    .courses-modal-box {
+      background: #0d1e36;
+      border: 1px solid rgba(201,168,76,0.18);
+      width: 360px;
+      max-width: 92vw;
+      padding: 36px 32px 32px;
+      position: relative;
+    }
+    .modal-close-btn {
+      position: absolute;
+      top: 14px; right: 16px;
+      background: none; border: none;
+      color: #9faec0; font-size: 14px;
+      cursor: pointer; transition: color 0.2s;
+    }
+    .modal-close-btn:hover { color: #ffffff; }
+    .courses-modal-eyebrow {
+      font-size: 8px; letter-spacing: 0.45em;
+      text-transform: uppercase; color: #9faec0;
+      font-family: 'Raleway', sans-serif;
+      margin-bottom: 10px;
+    }
+    .courses-modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; color: #ffffff;
+      font-weight: 500; margin: 0 0 16px 0;
+    }
+    .courses-modal-divider {
+      width: 40px; height: 1px;
+      background: rgba(201,168,76,0.4);
+      margin-bottom: 20px;
+    }
+    .courses-list {
+      margin: 0; padding: 0 0 0 20px;
+      list-style: decimal;
+    }
+    .courses-list li {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.85rem; color: #d0d8e4;
+      letter-spacing: 0.04em;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(201,168,76,0.08);
+    }
+    .courses-list li:last-child { border-bottom: none; }
 
     /* ── Profile info modal ── */
     .profile-modal-overlay {
@@ -1344,7 +1400,7 @@
   <div class="hero">
     <p class="hero-eyebrow">RTGS Premier Golf League &nbsp;·&nbsp; 2026</p>
     <h1>Season <em>Three</em></h1>
-    <p class="hero-sub">Ryder Cup Format &nbsp;·&nbsp; 16 Players &nbsp;·&nbsp; 2 Teams &nbsp;·&nbsp; 10+ Courses</p>
+    <p class="hero-sub">Ryder Cup Format &nbsp;·&nbsp; 16 Players &nbsp;·&nbsp; 2 Teams &nbsp;·&nbsp; <span class="courses-trigger" onclick="openCoursesModal()">10+ Courses</span></p>
 
     <!-- Sponsor strip: XDuce -->
     <div class="sponsor-strip">
@@ -2538,7 +2594,7 @@
     }
 
     document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') { closeModal(); closeHelpModal(); }
+      if (e.key === 'Escape') { closeModal(); closeHelpModal(); closeCoursesModal(); }
     });
 
     /* ── Persona helpers ── */
@@ -3136,6 +3192,13 @@
       document.body.style.overflow = '';
     }
 
+    function openCoursesModal() {
+      document.getElementById('coursesModal').classList.add('open');
+    }
+    function closeCoursesModal() {
+      document.getElementById('coursesModal').classList.remove('open');
+    }
+
     async function submitHelp() {
       const message = document.getElementById('helpMessage').value.trim();
       const email   = document.getElementById('helpEmail').value.trim();
@@ -3253,6 +3316,28 @@
       });
     })();
   </script>
+
+  <!-- Courses Modal -->
+  <div class="modal-overlay" id="coursesModal" onclick="if(event.target===this)closeCoursesModal()">
+    <div class="modal-box courses-modal-box">
+      <button class="modal-close-btn" onclick="closeCoursesModal()" aria-label="Close">&#x2715;</button>
+      <div class="courses-modal-eyebrow">Season 3 · 2026</div>
+      <h2 class="courses-modal-title">Courses</h2>
+      <div class="courses-modal-divider"></div>
+      <ol class="courses-list">
+        <li>Ashbrook</li>
+        <li>Galloping Hill</li>
+        <li>Neshanic Valley</li>
+        <li>Spook Brook</li>
+        <li>Quailbrook</li>
+        <li>Royce Brook</li>
+        <li>Fox Hollow</li>
+        <li>Tamarack East</li>
+        <li>Tamarack West</li>
+        <li>Berkshire Valley</li>
+      </ol>
+    </div>
+  </div>
 
   <!-- Profile info modal -->
   <div class="profile-modal-overlay" id="profileModal" onclick="if(event.target===this)closeProfileModal()">
