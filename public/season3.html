@@ -1268,6 +1268,57 @@
       .format-h2h-bar { width: 48px; }
       .pp-tab-btn { padding: 7px 10px 5px; font-size: 8px; letter-spacing: 0.25em; }
     }
+
+    /* Sponsor strip: XDuce */
+    .sponsor-strip {
+      border-top: 1px solid rgba(201,168,76,0.18);
+      border-bottom: 1px solid rgba(201,168,76,0.18);
+      padding: 14px 0;
+      margin: 0 0 40px 0;
+      background: rgba(201,168,76,0.03);
+    }
+    .sponsor-strip-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .sponsor-strip-label {
+      font-size: 8px;
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: #9faec0;
+      font-family: 'Raleway', sans-serif;
+      font-weight: 300;
+      white-space: nowrap;
+    }
+    .sponsor-strip-logo {
+      height: 28px;
+      width: auto;
+      opacity: 0.85;
+      filter: brightness(1.1);
+      flex-shrink: 0;
+    }
+    .sponsor-strip-link {
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #c9a84c;
+      text-decoration: none;
+      font-family: 'Raleway', sans-serif;
+      white-space: nowrap;
+      transition: color 0.2s;
+    }
+    .sponsor-strip-link:hover { color: #e8c97a; }
+    @media (max-width: 640px) {
+      .sponsor-strip-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1294,6 +1345,18 @@
     <p class="hero-eyebrow">RTGS Premier Golf League &nbsp;·&nbsp; 2026</p>
     <h1>Season <em>Three</em></h1>
     <p class="hero-sub">Ryder Cup Format &nbsp;·&nbsp; 16 Players &nbsp;·&nbsp; 2 Teams &nbsp;·&nbsp; 10+ Courses</p>
+
+    <!-- Sponsor strip: XDuce -->
+    <div class="sponsor-strip">
+      <div class="sponsor-strip-inner">
+        <span class="sponsor-strip-label">Official Sponsor</span>
+        <img src="/pics/sponsors/xduce-logo-1.svg" alt="XDuce" class="sponsor-strip-logo" />
+        <a href="https://www.xduce.com" target="_blank" rel="noopener noreferrer" class="sponsor-strip-link">
+          Visit xduce.com &#8599;
+        </a>
+      </div>
+    </div>
+
     <div class="hero-divider">
       <div class="hero-divider-line"></div>
       <div class="hero-divider-orn">
@@ -1703,22 +1766,22 @@
 
     /* ── Player roster — defaults; overridden by KV if admin has saved edits ── */
     const DEFAULT_PLAYERS = [
-      { id: 'E1', name: 'Vikrant Patil',    team: 'D', hcp: 16 },
-      { id: 'E2', name: 'Anuj Pandey',      team: 'D', hcp: 14 },
-      { id: 'E3', name: 'Anirudha',         team: 'D', hcp: 16 },
-      { id: 'E4', name: 'Selva S Sundaram', team: 'D', hcp: 16 },
-      { id: 'E5', name: 'Raghu Sundaram',   team: 'D', hcp: 20 },
-      { id: 'E6', name: 'Hemang C',         team: 'D', hcp: 20 },
-      { id: 'E7', name: 'Nimesh Dave',      team: 'D', hcp: 20 },
-      { id: 'E8', name: 'Bala Sankaran',    team: 'D', hcp: 22 },
-      { id: 'U1', name: 'Shailendra Singh', team: 'R', hcp: 14 },
-      { id: 'U2', name: 'Satyapal P',       team: 'R', hcp: 16 },
-      { id: 'U3', name: 'John C',           team: 'R', hcp: 16 },
-      { id: 'U4', name: 'Rahul R',          team: 'R', hcp: 16 },
-      { id: 'U5', name: 'Mazz',             team: 'R', hcp: 20 },
-      { id: 'U6', name: 'Rushabh L',        team: 'R', hcp: 20 },
-      { id: 'U7', name: 'Srikant N',        team: 'R', hcp: 22 },
-      { id: 'U8', name: 'DZ',               team: 'R', hcp: 20 },
+      { id: 'D1', name: 'Vikrant Patil',    team: 'D', hcp: 16 },
+      { id: 'D2', name: 'Anuj Pandey',      team: 'D', hcp: 14 },
+      { id: 'D3', name: 'Anirudha',         team: 'D', hcp: 16 },
+      { id: 'D4', name: 'Selva S Sundaram', team: 'D', hcp: 16 },
+      { id: 'D5', name: 'Raghu Sundaram',   team: 'D', hcp: 20 },
+      { id: 'D6', name: 'Hemang C',         team: 'D', hcp: 20 },
+      { id: 'D7', name: 'Nimesh Dave',      team: 'D', hcp: 20 },
+      { id: 'D8', name: 'Bala Sankaran',    team: 'D', hcp: 22 },
+      { id: 'R1', name: 'Shailendra Singh', team: 'R', hcp: 14 },
+      { id: 'R2', name: 'Satyapal P',       team: 'R', hcp: 16 },
+      { id: 'R3', name: 'John C',           team: 'R', hcp: 16 },
+      { id: 'R4', name: 'Rahul R',          team: 'R', hcp: 16 },
+      { id: 'R5', name: 'Mazz',             team: 'R', hcp: 20 },
+      { id: 'R6', name: 'Rushabh L',        team: 'R', hcp: 20 },
+      { id: 'R7', name: 'Srikant N',        team: 'R', hcp: 22 },
+      { id: 'R8', name: 'DZ',               team: 'R', hcp: 20 },
     ];
     let PLAYERS = DEFAULT_PLAYERS.map(p => ({ ...p }));
 
