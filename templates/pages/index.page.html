@@ -464,6 +464,35 @@
     }
 
     /* ── Help icon button ── */
+    /* Sponsor: XDuce */
+    .sponsor-presented {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 28px;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.6s ease forwards;
+    }
+    .sponsor-label {
+      font-size: 8px;
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: #9faec0;
+      font-family: 'Raleway', sans-serif;
+      font-weight: 300;
+    }
+    .sponsor-logo-sm {
+      height: 24px;
+      width: auto;
+      opacity: 0.85;
+      filter: brightness(1.1);
+    }
+    @media (max-width: 640px) {
+      .sponsor-presented { margin-top: 20px; }
+    }
+
+    /* ── Help icon button ── */
     .help-icon-btn {
       background: none; border: 1px solid rgba(201,168,76,0.25);
       color: var(--grey); font-family: 'Raleway', sans-serif;
@@ -577,6 +606,11 @@
       </svg>
     </a>
 
+    <!-- Sponsor: XDuce -->
+    <div class="sponsor-presented">
+      <span class="sponsor-label">Presented by</span>
+      <img src="/pics/sponsors/xduce-logo-1.svg" alt="XDuce" class="sponsor-logo-sm" />
+    </div>
 
   </div>
 
