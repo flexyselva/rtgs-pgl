@@ -93,26 +93,26 @@ Matches are named **Match 1, Match 2, ... Match N** (no fancy event names).
 ### Team Europe
 | # | Player | Handicap |
 |---|--------|----------|
-| D1 | Vikrant Patil | 16 |
-| D2 | Anuj Pandey | 14 |
-| D3 | Anirudha | 16 |
-| D4 | Selva S Sundaram | 16 |
-| D5 | Raghu Sundaram | 20 |
-| D6 | Hemang C | 20 |
-| D7 | Nimesh Dave | 20 |
-| D8 | Bala Sankaran | 22 |
+| E1 | Vikrant Patil | 16 |
+| E2 | Anuj Pandey | 14 |
+| E3 | Anirudha | 16 |
+| E4 | Selva S Sundaram | 16 |
+| E5 | Raghu Sundaram | 20 |
+| E6 | Hemang C | 20 |
+| E7 | Nimesh Dave | 20 |
+| E8 | Bala Sankaran | 22 |
 
 ### Team USA
 | # | Player | Handicap |
 |---|--------|----------|
-| R1 | Shailendra Singh | 14 |
-| R2 | Satyapal P | 16 |
-| R3 | John C | 16 |
-| R4 | Rahul R | 16 |
-| R5 | Mazz | 20 |
-| R6 | Rushabh L | 20 |
-| R7 | Srikant N | 22 |
-| R8 | DZ | 20 |
+| U1 | Shailendra Singh | 14 |
+| U2 | Satyapal P | 16 |
+| U3 | John C | 16 |
+| U4 | Rahul R | 16 |
+| U5 | Mazz | 20 |
+| U6 | Rushabh L | 20 |
+| U7 | Srikant N | 22 |
+| U8 | DZ | 20 |
 
 **Team colours:**
 - Team Europe: steel blue `#4a90c4`
