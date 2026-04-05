@@ -1326,11 +1326,8 @@
 
     /* Sponsor strip: XDuce */
     .sponsor-strip {
-      border-top: 1px solid rgba(201,168,76,0.18);
-      border-bottom: 1px solid rgba(201,168,76,0.18);
       padding: 14px 0;
       margin: 0 0 40px 0;
-      background: rgba(201,168,76,0.03);
     }
     .sponsor-strip-inner {
       max-width: 900px;
@@ -1338,6 +1335,7 @@
       padding: 0 24px;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 20px;
     }
     .sponsor-strip-label {
@@ -1370,7 +1368,7 @@
     @media (max-width: 640px) {
       .sponsor-strip-inner {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
         gap: 10px;
       }
     }
