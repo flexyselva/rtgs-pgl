@@ -548,7 +548,7 @@ export default {
 
       // Inject staging banner — staging only
       if (url.hostname.includes('staging')) {
-        const banner = `<style>nav{top:32px !important;}div.header{margin-top:29px;}</style><div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#b45309;color:#fff;text-align:center;padding:4px 12px;font-family:Raleway,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">&#9651; STAGING — not the live site</div><div style="height:29px"></div>`;
+        const banner = `<style>nav{top:32px !important;}div.header{top:32px !important;}</style><div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#b45309;color:#fff;text-align:center;padding:4px 12px;font-family:Raleway,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">&#9651; STAGING — not the live site</div><div style="height:29px"></div>`;
         html = html.replace('<body>', '<body>' + banner);
       }
 
