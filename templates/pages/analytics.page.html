@@ -94,9 +94,10 @@
       display: inline-block; padding: 2px 7px; font-size: 9px;
       letter-spacing: 0.18em; text-transform: uppercase;
     }
-    .badge-admin    { background: rgba(201,168,76,0.15); color: var(--gold); }
-    .badge-captain  { background: rgba(74,144,196,0.15); color: #7ab8e8; }
-    .badge-fan      { background: rgba(138,150,168,0.15); color: var(--grey-lt); }
+    .badge-admin     { background: rgba(201,168,76,0.15); color: var(--gold); }
+    .badge-captain   { background: rgba(74,144,196,0.15); color: #7ab8e8; }
+    .badge-organiser { background: rgba(120,180,120,0.15); color: #8ecf8e; }
+    .badge-fan       { background: rgba(138,150,168,0.15); color: var(--grey-lt); }
 
     /* ── Loading / error ── */
     .state-msg { text-align: center; padding: 48px; color: var(--grey); font-size: 13px; }
@@ -113,7 +114,7 @@
       <a href="/season3.html" class="nav-back">&#8592; Season 3</a>
       <div>
         <div class="nav-title">Usage Analytics</div>
-        <div class="nav-subtitle">Admin Only</div>
+        <div class="nav-subtitle">Admin · Captain · Organiser</div>
       </div>
     </div>
   </nav>
@@ -128,12 +129,11 @@
       try { return JSON.parse(sessionStorage.getItem('rtgs_session')) || {}; }
       catch(e) { return {}; }
     })();
-    if (SESSION.role !== 'admin') {
+    if (!['admin','captain','organiser'].includes(SESSION.role)) {
       window.location.replace('/');
       throw new Error('Not authorised'); // stop all further execution
     }
 
-    const WRITE_KEY = 'rtgs-kv-w-2026';
     let allEvents   = [];
     let currentDays = 7;
 
@@ -144,7 +144,7 @@
         '<div class="state-msg"><span class="loading-dot">&#9632;</span> Loading…</div>';
       try {
         const res = await fetch(`/api/analytics?days=${days}`, {
-          headers: { 'X-Write-Key': WRITE_KEY }
+          headers: { 'Authorization': `Bearer ${SESSION.token}` }
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const json = await res.json();
@@ -181,8 +181,9 @@
     }
 
     function badgeClass(persona) {
-      if (persona === 'admin')   return 'badge-admin';
-      if (persona === 'captain') return 'badge-captain';
+      if (persona === 'admin')     return 'badge-admin';
+      if (persona === 'captain')   return 'badge-captain';
+      if (persona === 'organiser') return 'badge-organiser';
       return 'badge-fan';
     }
 

@@ -7,7 +7,7 @@
  *   GET  /api/schedule  → read Season 3 match schedule and rosters from KV (public)
  *   POST /api/schedule  → write schedule/rosters to KV (requires X-Write-Key or admin Bearer)
  *   POST /api/track     → append analytics event to daily KV key (open)
- *   GET  /api/analytics → read analytics events for last N days (requires X-Write-Key)
+ *   GET  /api/analytics → read analytics events for last N days (requires X-Write-Key or Bearer with admin/captain/organiser)
  *   POST /api/login     → authenticate user, return signed token
  *   POST /api/log       → store client-side error log entry (open)
  *   GET  /api/log       → read error log entries for last N days (requires auth)
@@ -280,7 +280,13 @@ export default {
     // ── GET /api/analytics — read events for last N days (auth required) ──
     if (url.pathname === '/api/analytics' && request.method === 'GET') {
       const writeKey = request.headers.get('X-Write-Key') ?? '';
-      if (!env.WRITE_KEY || writeKey !== env.WRITE_KEY) {
+      const writeKeyOk = env.WRITE_KEY && writeKey === env.WRITE_KEY;
+      let bearerOk = false;
+      if (!writeKeyOk) {
+        const tokenPayload = await verifyBearer(request.clone(), env.AUTH_HMAC_SECRET ?? '');
+        bearerOk = tokenPayload !== null && (tokenPayload.role === 'admin' || tokenPayload.role === 'captain' || tokenPayload.role === 'organiser');
+      }
+      if (!writeKeyOk && !bearerOk) {
         return json({ error: 'Unauthorised' }, 401);
       }
 
