@@ -347,6 +347,8 @@
                       <th>Action</th>
                       <th>Page</th>
                       <th>Country</th>
+                      <th>City</th>
+                      <th>ISP</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -358,7 +360,9 @@
                         <td><span class="badge ${badgeClass(ev.persona)}">${ev.persona || '—'}</span></td>
                         <td>${eventLabel(ev.event)}</td>
                         <td style="color:var(--grey)">${ev.page || '/'}</td>
-                        <td style="color:var(--grey)">${ev.country || '—'}</td>
+                        <td style="color:var(--grey)">${ev.country ?? '—'}</td>
+                        <td style="color:var(--grey)">${ev.city ?? '—'}</td>
+                        <td style="color:var(--grey)">${ev.isp ?? '—'}</td>
                       </tr>`).join('')}
                   </tbody>
                 </table>`}

@@ -920,15 +920,19 @@ Full IP address is intentionally NOT stored — city + ISP is sufficient for ana
 - These fields are already available on the `request.cf` object in Cloudflare Workers — no client-side changes needed
 - Handle gracefully if either field is undefined (store as `null`)
 
-**Frontend changes:** None — city and ISP are captured server-side from the Cloudflare request, not from the client.
+**Frontend changes:** Add City and ISP columns to the event log table in `analytics.html`. For existing events that predate this feature, display `—` in those columns.
 
-**Analytics dashboard (`public/analytics.html`):** Optionally surface city and ISP columns in the event log table if useful. Not required for initial delivery — data capture is the priority.
+**Analytics dashboard (`public/analytics.html`):**
+- Add `City` and `ISP` columns to the event log table
+- Render `event.city ?? '—'` and `event.isp ?? '—'` for each row
+- Old events without these fields show `—` automatically
 
 ### Acceptance Criteria
 - New analytics events include `city` and `isp` fields
 - Both fields are `null` if Cloudflare does not provide them (no errors thrown)
 - Existing events without these fields are unaffected (backwards compatible)
 - Full IP address is never stored
+- Analytics table shows City and ISP columns; old entries display `—`
 
 ### Commits
 _Not started._

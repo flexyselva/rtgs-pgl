@@ -258,6 +258,7 @@ export default {
 
       const now = new Date();
       const dateKey = `analytics_${now.toISOString().slice(0, 10)}`;
+      const cf = (request as any).cf;
       const event = {
         event:    String(body.event    || 'unknown').slice(0, 64),
         page:     String(body.page     || '/').slice(0, 128),
@@ -265,6 +266,8 @@ export default {
         username: String(body.username || 'guest').slice(0, 64),
         ts:       now.toISOString(),
         country:  (request.headers.get('CF-IPCountry') || '').slice(0, 8),
+        city:     cf?.city     != null ? String(cf.city).slice(0, 64)    : null,
+        isp:      cf?.asOrganization != null ? String(cf.asOrganization).slice(0, 128) : null,
       };
 
       const raw = await env.RESULTS.get(dateKey);
