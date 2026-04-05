@@ -1829,7 +1829,7 @@
         <tr>
           <td class="lb-rank">${i + 1}</td>
           <td><button class="lb-name-btn" onclick="openPlayerProfile('${s.id}')">${s.name}</button></td>
-          <td class="${s.team === 'D' ? 'lb-team-d' : 'lb-team-r'}">${s.team === 'D' ? 'D' : 'R'}</td>
+          <td class="${s.team === 'D' ? 'lb-team-d' : 'lb-team-r'}">${s.team === 'D' ? 'Europe' : 'USA'}</td>
           <td class="lb-pts">${s.pts}</td>
           <td>${s.played}</td>
           <td>${s.wins}</td>
@@ -2180,9 +2180,9 @@
       const dClass = d > r ? 'status-d' : (d === r ? 'status-halved' : 'status-d');
       const rClass = r > d ? 'status-r' : (r === d ? 'status-halved' : 'status-r');
       return `<span class="status-result">
-        <span class="${dClass}">D: ${d}</span>
+        <span class="${dClass}">EUR: ${d}</span>
         <span class="status-sep">·</span>
-        <span class="${rClass}">R: ${r}</span>
+        <span class="${rClass}">USA: ${r}</span>
       </span>`;
     }
 
@@ -2744,12 +2744,12 @@
       const playersDisplay = document.getElementById('playersDisplay');
       if (m.format === 'singles' && m.singles) {
         playersDisplay.innerHTML =
-          `<div class="result-players-row"><span class="result-players-team td">D</span><span class="result-players-names">${m.singles.d}</span></div>` +
-          `<div class="result-players-row"><span class="result-players-team tr">R</span><span class="result-players-names">${m.singles.r}</span></div>`;
+          `<div class="result-players-row"><span class="result-players-team td">E</span><span class="result-players-names">${m.singles.d}</span></div>` +
+          `<div class="result-players-row"><span class="result-players-team tr">U</span><span class="result-players-names">${m.singles.r}</span></div>`;
       } else if (m.foursome) {
         playersDisplay.innerHTML =
-          `<div class="result-players-row"><span class="result-players-team td">D</span><span class="result-players-names">${m.foursome.d.join(' &amp; ')}</span></div>` +
-          `<div class="result-players-row"><span class="result-players-team tr">R</span><span class="result-players-names">${m.foursome.r.join(' &amp; ')}</span></div>`;
+          `<div class="result-players-row"><span class="result-players-team td">E</span><span class="result-players-names">${m.foursome.d.join(' &amp; ')}</span></div>` +
+          `<div class="result-players-row"><span class="result-players-team tr">U</span><span class="result-players-names">${m.foursome.r.join(' &amp; ')}</span></div>`;
       } else {
         playersDisplay.innerHTML = '<span style="color:var(--grey);font-size:0.82rem;">TBD</span>';
       }
