@@ -609,7 +609,7 @@ One-time rename of both team names across the entire codebase. Team colours rema
 | Priority | P2 |
 | Status | Done |
 | Created | 2026-04-04 |
-| Completed | 2026-04-04 |
+| Completed | 2026-04-05 |
 
 ### Description
 Add XDuce as the official title sponsor across the landing page and season3 page. Hardcoded for now; designed to accommodate additional sponsors in future.
@@ -621,12 +621,12 @@ Add XDuce as the official title sponsor across the landing page and season3 page
 - Logo: `pics/sponsors/xduce-logo-1.svg`
 
 **index.html — below the Season 3 badge:**
-A slim "PRESENTED BY [xduce-logo]" line. No company details here — clean and unobtrusive.
+A "SPONSORED BY [xduce-logo]" line, separate from the Season 3 badge. Logo links to xduce.com (opens in new tab).
 
 ```
 [ Season 3  |  View Details → ]
 
-PRESENTED BY  [xduce-logo]
+SPONSORED BY  [xduce-logo ↗]
 ```
 
 **season3.html — slim strip directly under the Ryder Cup format banner:**
@@ -639,16 +639,18 @@ OFFICIAL SPONSOR  [xduce-logo]  Visit xduce.com ↗
 **Style rules:**
 - No border (borderless, blends into hero background)
 - Content centered on desktop and mobile (single row on both)
-- Logo displayed at natural SVG size, max-height ~28px
+- Logo displayed at 24px height (1.5× the original 16px)
 - "Visit xduce.com ↗" — gold accent link, opens in new tab
 - No border-radius (matches site sharp-edge convention)
 - Mobile: single row, centered
 
 ### Acceptance Criteria
-- Sponsor strip visible on index.html below the Season 3 badge
+- Sponsor strip visible on index.html below the Season 3 badge (not inside it)
 - Sponsor strip visible on season3.html directly under the Ryder Cup format section
 - Logo renders correctly from `pics/sponsors/xduce-logo-1.svg`
-- Link opens xduce.com in a new tab
+- Logo links to xduce.com in a new tab
+- Label reads "Sponsored by" (not "Presented by")
+- Logo is 24px tall (1.5× original)
 - Mobile layout single row, centered at 375px
 - No changes to existing colour scheme or layout elsewhere
 
@@ -656,6 +658,7 @@ OFFICIAL SPONSOR  [xduce-logo]  Visit xduce.com ↗
 | SHA | Date | Message |
 |-----|------|---------|
 | `90e7877` | 2026-04-04 | feat: PGL-023 sponsor badge — new line on landing page, centered + borderless strip on season3 |
+| *(this PR)* | 2026-04-05 | fix: PGL-023 sponsor improvements — move outside badge, "Sponsored by", logo 1.5× size, xduce link |
 
 ---
 
