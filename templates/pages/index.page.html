@@ -412,6 +412,32 @@
     }
     .login-guest-btn:hover { color: var(--grey-lt); }
 
+    /* ── Nav overflow menu (mobile) ── */
+    .nav-overflow-btn {
+      display: none;
+      background: none; border: none;
+      color: var(--grey); font-size: 18px;
+      cursor: pointer; padding: 4px 6px;
+      line-height: 1; transition: color 0.2s;
+      flex-shrink: 0;
+    }
+    .nav-overflow-btn:hover { color: var(--gold); }
+    .nav-overflow-wrap { position: relative; }
+    .nav-overflow-menu {
+      display: none;
+      position: absolute; top: calc(100% + 8px); right: 0;
+      background: var(--navy-mid); border: 1px solid var(--border);
+      min-width: 140px; z-index: 600;
+    }
+    .nav-overflow-menu.open { display: block; }
+    .nav-overflow-menu a {
+      display: block; padding: 10px 14px;
+      font-size: 10px; letter-spacing: 0.35em; text-transform: uppercase;
+      color: var(--grey); text-decoration: none; font-weight: 300;
+      transition: color 0.2s;
+    }
+    .nav-overflow-menu a:hover { color: var(--gold); }
+
     /* ── Mobile ── */
     @media (max-width: 640px) {
       html, body { overflow: auto; height: auto; min-height: 100dvh; }
@@ -425,6 +451,10 @@
       .corner-br { bottom: 16px; right: 16px; }
 
       .header { padding: 14px 24px; }
+
+      #headerAnalyticsLink,
+      .nav-gallery-link { display: none !important; }
+      .nav-overflow-btn { display: block; }
 
       .card { padding: 80px 24px 80px; }
 
@@ -552,8 +582,16 @@
   <div class="header">
     <span class="header-label">Est. &nbsp;2020</span>
     <div style="display:flex;align-items:center;gap:10px;">
+      <a href="/analytics.html" class="nav-gallery-link" id="headerAnalyticsLink" style="display:none">Analytics</a>
       <a href="/gallery.html" class="nav-gallery-link">Gallery</a>
       <button class="help-icon-btn" onclick="openHelpModal()" title="Questions &amp; Feedback" aria-label="Help">?</button>
+      <div class="nav-overflow-wrap" id="navOverflowWrap">
+        <button class="nav-overflow-btn" id="navOverflowBtn" onclick="toggleNavOverflow()" aria-label="More navigation">&#8942;</button>
+        <div class="nav-overflow-menu" id="navOverflowMenu">
+          <a href="/analytics.html" id="navOverflowAnalytics" style="display:none">Analytics</a>
+          <a href="/gallery.html">Gallery</a>
+        </div>
+      </div>
       <div id="headerAuth"></div>
     </div>
   </div>
@@ -652,6 +690,30 @@
     // Start overlay hidden — only opens on demand
     document.getElementById('loginOverlay').classList.add('hidden');
     renderHeaderAuth();
+
+    /* ── Show Analytics link for non-fan roles ── */
+    (function() {
+      const session = getSession();
+      if (session && (session.role === 'admin' || session.role === 'captain' || session.role === 'organiser')) {
+        const headerLink = document.getElementById('headerAnalyticsLink');
+        if (headerLink) headerLink.style.display = '';
+        const overflowLink = document.getElementById('navOverflowAnalytics');
+        if (overflowLink) overflowLink.style.display = '';
+      }
+    })();
+
+    /* ── Nav overflow menu ── */
+    function toggleNavOverflow() {
+      document.getElementById('navOverflowMenu').classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+      const wrap = document.getElementById('navOverflowWrap');
+      if (wrap && !wrap.contains(e.target)) {
+        const menu = document.getElementById('navOverflowMenu');
+        if (menu) menu.classList.remove('open');
+      }
+    });
+
     trackEvent('page_view');
 
     /* ── Profile avatar helpers ── */

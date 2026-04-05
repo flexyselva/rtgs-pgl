@@ -1049,6 +1049,9 @@
       .nav-back { font-size: 10px; letter-spacing: 0.2em; }
       .nav-brand { font-size: 0.95rem; }
       .nav-right { display: none; }
+      #navAnalyticsLink,
+      .nav-actions > .nav-gallery-link { display: none !important; }
+      .nav-overflow-btn { display: block; }
 
       .hero { padding: 76px 20px 32px; }
       .hero-eyebrow { font-size: 9px; letter-spacing: 0.28em; margin-bottom: 8px; }
@@ -1176,6 +1179,32 @@
 
     /* ── Nav actions wrapper ── */
     .nav-actions { display: flex; align-items: center; gap: 10px; }
+
+    /* ── Nav overflow menu (mobile) ── */
+    .nav-overflow-btn {
+      display: none;
+      background: none; border: none;
+      color: var(--grey); font-size: 18px;
+      cursor: pointer; padding: 4px 6px;
+      line-height: 1; transition: color 0.2s;
+      flex-shrink: 0;
+    }
+    .nav-overflow-btn:hover { color: var(--gold); }
+    .nav-overflow-wrap { position: relative; }
+    .nav-overflow-menu {
+      display: none;
+      position: absolute; top: calc(100% + 8px); right: 0;
+      background: var(--navy-mid); border: 1px solid var(--border);
+      min-width: 140px; z-index: 600;
+    }
+    .nav-overflow-menu.open { display: block; }
+    .nav-overflow-menu a {
+      display: block; padding: 10px 14px;
+      font-size: 10px; letter-spacing: 0.35em; text-transform: uppercase;
+      color: var(--grey); text-decoration: none; font-weight: 300;
+      transition: color 0.2s;
+    }
+    .nav-overflow-menu a:hover { color: var(--gold); }
 
     /* ── Help Inbox (admin) ── */
     .help-inbox-item {
@@ -1385,8 +1414,16 @@
     </a>
     <div class="nav-brand">RT<span>G</span>S</div>
     <div class="nav-actions">
+      <a href="/analytics.html" class="nav-gallery-link" id="navAnalyticsLink" style="display:none">Analytics</a>
       <a href="/gallery.html" class="nav-gallery-link">Gallery</a>
       <button class="help-icon-btn" onclick="openHelpModal()" title="Questions &amp; Feedback" aria-label="Help">?</button>
+      <div class="nav-overflow-wrap" id="navOverflowWrap">
+        <button class="nav-overflow-btn" id="navOverflowBtn" onclick="toggleNavOverflow()" aria-label="More navigation">&#8942;</button>
+        <div class="nav-overflow-menu" id="navOverflowMenu">
+          <a href="/analytics.html" id="navOverflowAnalytics" style="display:none">Analytics</a>
+          <a href="/gallery.html">Gallery</a>
+        </div>
+      </div>
       <div class="nav-right" id="navRight"></div>
     </div>
   </nav>
@@ -1429,11 +1466,6 @@
       Admin Mode &nbsp;·&nbsp; Click any match row to record a result
       &nbsp;&nbsp;<a href="/analytics.html" style="color:var(--gold);font-size:10px;letter-spacing:0.2em;text-decoration:none;opacity:0.8;">&#9656; Analytics</a>
     </div>
-  </div>
-
-  <!-- Analytics link (shown for captain and organiser roles) -->
-  <div class="content" id="analyticsLinkWrap" style="display:none; padding-bottom:0; padding-top:8px;">
-    <a href="/analytics.html" style="color:var(--gold);font-size:10px;letter-spacing:0.2em;text-decoration:none;opacity:0.8;">&#9656; Analytics</a>
   </div>
 
   <!-- Help Inbox (admin only) -->
@@ -2647,9 +2679,30 @@
       return session.team === 'D' ? 'Captain · Europe' : 'Captain · USA';
     }
 
+    /* ── Nav overflow menu ── */
+    function toggleNavOverflow() {
+      document.getElementById('navOverflowMenu').classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+      const wrap = document.getElementById('navOverflowWrap');
+      if (wrap && !wrap.contains(e.target)) {
+        const menu = document.getElementById('navOverflowMenu');
+        if (menu) menu.classList.remove('open');
+      }
+    });
+
     /* ── Nav user chip ── */
     function renderUserChip() {
       const navRight = document.getElementById('navRight');
+
+      /* Show Analytics link for privileged roles */
+      if (SESSION.role === 'admin' || SESSION.role === 'captain' || SESSION.role === 'organiser') {
+        const navLink = document.getElementById('navAnalyticsLink');
+        if (navLink) navLink.style.display = '';
+        const overflowLink = document.getElementById('navOverflowAnalytics');
+        if (overflowLink) overflowLink.style.display = '';
+      }
+
       if (SESSION.role === 'fan') {
         navRight.innerHTML = `<button class="nav-signin-link" onclick="openLoginOverlay()">Sign In</button>`;
         return;
@@ -3170,9 +3223,6 @@
         document.getElementById('adminBarWrap').style.display = '';
         document.getElementById('helpInboxWrap').style.display = '';
         loadHelpInbox();
-      }
-      if (SESSION && (SESSION.role === 'captain' || SESSION.role === 'organiser')) {
-        document.getElementById('analyticsLinkWrap').style.display = '';
       }
     }
 
