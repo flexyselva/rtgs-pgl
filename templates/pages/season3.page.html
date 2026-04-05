@@ -1392,9 +1392,9 @@
         <thead>
           <tr>
             <th>Format</th>
-            <th>Team D</th>
+            <th>Team Europe</th>
             <th></th>
-            <th>Team R</th>
+            <th>Team USA</th>
             <th>Halved</th>
           </tr>
         </thead>
@@ -1624,7 +1624,7 @@
           <div class="result-radio-group">
             <label class="result-radio-opt">
               <input type="radio" name="outcome" value="d" id="outcomeD" />
-              <span class="result-radio-label win-d" id="outcomeDLabel">Team D Wins</span>
+              <span class="result-radio-label win-d" id="outcomeDLabel">Team Europe Wins</span>
             </label>
             <label class="result-radio-opt">
               <input type="radio" name="outcome" value="halve" id="outcomeH" />
@@ -1632,7 +1632,7 @@
             </label>
             <label class="result-radio-opt">
               <input type="radio" name="outcome" value="r" id="outcomeR" />
-              <span class="result-radio-label win-r" id="outcomeRLabel">Team R Wins</span>
+              <span class="result-radio-label win-r" id="outcomeRLabel">Team USA Wins</span>
             </label>
           </div>
         </div>
@@ -1697,22 +1697,22 @@
 
     /* ── Player roster — defaults; overridden by KV if admin has saved edits ── */
     const DEFAULT_PLAYERS = [
-      { id: 'D1', name: 'Vikrant Patil',    team: 'D', hcp: 16 },
-      { id: 'D2', name: 'Anuj Pandey',      team: 'D', hcp: 14 },
-      { id: 'D3', name: 'Anirudha',         team: 'D', hcp: 16 },
-      { id: 'D4', name: 'Selva S Sundaram', team: 'D', hcp: 16 },
-      { id: 'D5', name: 'Raghu Sundaram',   team: 'D', hcp: 20 },
-      { id: 'D6', name: 'Hemang C',         team: 'D', hcp: 20 },
-      { id: 'D7', name: 'Nimesh Dave',      team: 'D', hcp: 20 },
-      { id: 'D8', name: 'Bala Sankaran',    team: 'D', hcp: 22 },
-      { id: 'R1', name: 'Shailendra Singh', team: 'R', hcp: 14 },
-      { id: 'R2', name: 'Satyapal P',       team: 'R', hcp: 16 },
-      { id: 'R3', name: 'John C',           team: 'R', hcp: 16 },
-      { id: 'R4', name: 'Rahul R',          team: 'R', hcp: 16 },
-      { id: 'R5', name: 'Mazz',             team: 'R', hcp: 20 },
-      { id: 'R6', name: 'Rushabh L',        team: 'R', hcp: 20 },
-      { id: 'R7', name: 'Srikant N',        team: 'R', hcp: 22 },
-      { id: 'R8', name: 'DZ',               team: 'R', hcp: 20 },
+      { id: 'E1', name: 'Vikrant Patil',    team: 'D', hcp: 16 },
+      { id: 'E2', name: 'Anuj Pandey',      team: 'D', hcp: 14 },
+      { id: 'E3', name: 'Anirudha',         team: 'D', hcp: 16 },
+      { id: 'E4', name: 'Selva S Sundaram', team: 'D', hcp: 16 },
+      { id: 'E5', name: 'Raghu Sundaram',   team: 'D', hcp: 20 },
+      { id: 'E6', name: 'Hemang C',         team: 'D', hcp: 20 },
+      { id: 'E7', name: 'Nimesh Dave',      team: 'D', hcp: 20 },
+      { id: 'E8', name: 'Bala Sankaran',    team: 'D', hcp: 22 },
+      { id: 'U1', name: 'Shailendra Singh', team: 'R', hcp: 14 },
+      { id: 'U2', name: 'Satyapal P',       team: 'R', hcp: 16 },
+      { id: 'U3', name: 'John C',           team: 'R', hcp: 16 },
+      { id: 'U4', name: 'Rahul R',          team: 'R', hcp: 16 },
+      { id: 'U5', name: 'Mazz',             team: 'R', hcp: 20 },
+      { id: 'U6', name: 'Rushabh L',        team: 'R', hcp: 20 },
+      { id: 'U7', name: 'Srikant N',        team: 'R', hcp: 22 },
+      { id: 'U8', name: 'DZ',               team: 'R', hcp: 20 },
     ];
     let PLAYERS = DEFAULT_PLAYERS.map(p => ({ ...p }));
 
@@ -2389,14 +2389,14 @@
         body += `<div class="modal-players-label">Head-to-Head</div>`;
         body += `
           <div class="modal-team-row">
-            <span class="modal-team-badge modal-badge-d">Team D</span>
+            <span class="modal-team-badge modal-badge-d">Team Europe</span>
             <span class="modal-team-players">${s.d}</span>
             ${dPts !== null
               ? `<span class="modal-team-score ${isUnconfirmed ? 'modal-score-unconfirmed' : dPts > rPts ? 'modal-score-d' : dPts === rPts ? 'modal-score-half' : 'modal-score-r'}">${dPts}</span>`
               : `<span class="modal-team-score modal-score-pending">—</span>`}
           </div>
           <div class="modal-team-row">
-            <span class="modal-team-badge modal-badge-r">Team R</span>
+            <span class="modal-team-badge modal-badge-r">Team USA</span>
             <span class="modal-team-players">${s.r}</span>
             ${rPts !== null
               ? `<span class="modal-team-score ${isUnconfirmed ? 'modal-score-unconfirmed' : rPts > dPts ? 'modal-score-r' : rPts === dPts ? 'modal-score-half' : 'modal-score-d'}">${rPts}</span>`
@@ -2435,14 +2435,14 @@
         body += `<div class="modal-players-label">Foursome</div>`;
         body += `
           <div class="modal-team-row">
-            <span class="modal-team-badge modal-badge-d">Team D</span>
+            <span class="modal-team-badge modal-badge-d">Team Europe</span>
             <span class="modal-team-players">${f.d[0]}<br>${f.d[1]}</span>
             ${dPts !== null
               ? `<span class="modal-team-score ${isUnconfirmed ? 'modal-score-unconfirmed' : dPts > rPts ? 'modal-score-d' : dPts === rPts ? 'modal-score-half' : 'modal-score-r'}">${dPts}</span>`
               : `<span class="modal-team-score modal-score-pending">—</span>`}
           </div>
           <div class="modal-team-row">
-            <span class="modal-team-badge modal-badge-r">Team R</span>
+            <span class="modal-team-badge modal-badge-r">Team USA</span>
             <span class="modal-team-players">${f.r[0]}<br>${f.r[1]}</span>
             ${rPts !== null
               ? `<span class="modal-team-score ${isUnconfirmed ? 'modal-score-unconfirmed' : rPts > dPts ? 'modal-score-r' : rPts === dPts ? 'modal-score-half' : 'modal-score-d'}">${rPts}</span>`
@@ -2858,7 +2858,7 @@
       // ── Form validation ──
       const outcome = document.querySelector('input[name="outcome"]:checked');
       if (!outcome) {
-        showFormError('Please select an outcome (Team D Wins / Halved / Team R Wins).');
+        showFormError('Please select an outcome (Team Europe Wins / Halved / Team USA Wins).');
         return;
       }
       const courseVal = document.getElementById('courseInput').value.trim();
