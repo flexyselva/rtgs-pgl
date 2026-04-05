@@ -102,12 +102,11 @@
     }
     .courses-trigger {
       cursor: pointer;
-      border-bottom: 1px solid rgba(201,168,76,0.4);
-      transition: border-color 0.2s, color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
     .courses-trigger:hover {
-      color: #e8c97a;
-      border-bottom-color: rgba(201,168,76,0.9);
+      border-color: rgba(201,168,76,0.5);
+      box-shadow: 0 0 0 1px rgba(201,168,76,0.25);
     }
     .hero-divider {
       display: flex; align-items: center; justify-content: center;
@@ -1394,7 +1393,7 @@
   <div class="hero">
     <p class="hero-eyebrow">RTGS Premier Golf League &nbsp;·&nbsp; 2026</p>
     <h1>Season <em>Three</em></h1>
-    <p class="hero-sub">Ryder Cup Format &nbsp;·&nbsp; 16 Players &nbsp;·&nbsp; 2 Teams &nbsp;·&nbsp; <span class="courses-trigger" onclick="openCoursesModal()">10+ Courses</span></p>
+    <p class="hero-sub">Ryder Cup Format &nbsp;·&nbsp; 16 Players &nbsp;·&nbsp; 2 Teams &nbsp;·&nbsp; 10+ Courses</p>
 
     <!-- Sponsor strip: XDuce -->
     <div class="sponsor-strip">
@@ -1465,7 +1464,7 @@
         <div class="stat-value">2</div>
         <div class="stat-label">Teams</div>
       </div>
-      <div class="stat-cell">
+      <div class="stat-cell courses-trigger" onclick="openCoursesModal()">
         <div class="stat-value">10+</div>
         <div class="stat-label">Courses</div>
       </div>
