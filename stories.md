@@ -38,7 +38,7 @@ _JIRA-ready format. Each story maps 1:1 to a JIRA issue when migrated._
 | [PGL-027](#pgl-027) | Extend Analytics Access to Captains and Organisers | Feature | P2 | Done |
 | [PGL-026](#pgl-026) | Gallery Audit Log — Upload & Delete Tracking | Feature | P3 | Planned |
 | [PGL-025](#pgl-025) | Course Names Popup — "10+ Courses" hero click | Feature | P2 | Done |
-| [PGL-024](#pgl-024) | Score Update Audit Log | Feature | P1 | Planned |
+| [PGL-024](#pgl-024) | Score Update Audit Log | Feature | P1 | Done |
 | [PGL-022](#pgl-022) | Team Name Rename — Dhurandhar → Europe, Rushabh → USA | Data | P1 | Done |
 | [PGL-023](#pgl-023) | Add Sponsor — XDuce (index + season3 pages) | Feature | P2 | Done |
 
@@ -670,9 +670,9 @@ OFFICIAL SPONSOR  [xduce-logo]  Visit xduce.com ↗
 |-------|-------|
 | Type | Feature |
 | Priority | P1 |
-| Status | Planned |
+| Status | Done |
 | Created | 2026-04-04 |
-| Completed | — |
+| Completed | 2026-04-05 |
 
 ### Description
 Every change to a match result must be recorded in an immutable audit trail. The audit log is displayed inline at the bottom of the match detail modal, visible to Admin and Captains.
@@ -728,7 +728,9 @@ Every change to a match result must be recorded in an immutable audit trail. The
 - Works on mobile at 375px
 
 ### Commits
-_Not started._
+| SHA | Date | Message |
+|-----|------|---------|
+| `c200c1e` | 2026-04-05 | feat: PGL-024 score update audit log |
 
 ---
 
