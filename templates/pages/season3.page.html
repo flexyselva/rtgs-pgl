@@ -3026,6 +3026,12 @@
               disputed:       { icon: '\u21ba', iconColor: '#e8a020', label: 'Disputed' },
               admin_override: { icon: '\u2699', iconColor: 'var(--grey)', label: 'Admin Override' },
             };
+            const resultLabel = r => {
+              if (!r || !r.points) return '&mdash;';
+              if (r.points.d > r.points.r)   return '<span style="color:#7ab8e8">Europe wins</span>';
+              if (r.points.r > r.points.d)   return '<span style="color:#e87a7a">USA wins</span>';
+              return '<span style="color:var(--grey-lt)">Halved</span>';
+            };
             histList.innerHTML = entries.map(e => {
               const meta = actionMeta[e.action] || { icon: '?', iconColor: 'var(--grey)', label: e.action };
               const d = new Date(e.ts);
@@ -3035,6 +3041,7 @@
               return '<div class="match-history-entry">' +
                 '<span class="history-icon" style="color:' + meta.iconColor + '">' + meta.icon + '</span>' +
                 '<span class="history-action">' + meta.label + ' &mdash; ' + e.username + ' <span style="color:var(--grey);font-size:10px;">(' + e.role + ')</span></span>' +
+                '<span class="history-result" style="font-size:10px;padding:0 10px;white-space:nowrap;">' + resultLabel(e.newResult) + '</span>' +
                 '<span class="history-meta">' + ts + '</span>' +
                 '</div>';
             }).join('');
