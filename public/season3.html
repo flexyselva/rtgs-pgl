@@ -1058,6 +1058,12 @@
     .captain-edit-btn:hover { border-color: rgba(74,144,196,0.7); color: #4a90c4; }
     .captain-edit-btn.review-btn { border-color: rgba(232,160,32,0.4); color: #e8a020; }
     .captain-edit-btn.review-btn:hover { border-color: rgba(232,160,32,0.8); color: var(--gold); }
+    .captain-history-btn {
+      background: transparent; border: 1px solid rgba(138,150,168,0.25);
+      color: var(--grey); font-size: 11px; cursor: pointer;
+      padding: 1px 6px; margin-left: 6px; transition: border-color 0.15s, color 0.15s;
+    }
+    .captain-history-btn:hover { border-color: rgba(138,150,168,0.6); color: var(--grey-lt); }
 
     /* ── Mobile ── */
     @media (max-width: 640px) {
@@ -2426,11 +2432,15 @@
             if (SESSION.role === 'captain' && isMyTeamMatch(m, SESSION.team)) {
               const isPending = m.status === 'pending' || m.status === 'disputed';
               const isOpen    = m.status === 'tbd' || m.status === 'upcoming';
+              const isPlayed  = m.status === 'played';
               if (isOpen || isPending) {
                 const isReview = isPending && m.submittedBy !== SESSION.username;
                 const cls   = isReview ? 'captain-edit-btn review-btn' : 'captain-edit-btn';
                 const title = isReview ? 'Review result' : (isPending ? 'Awaiting approval' : 'Submit result');
                 return `<button class="${cls}" onclick="event.stopPropagation();openResultModal(${m.id})" title="${title}">✎</button>`;
+              }
+              if (isPlayed) {
+                return `<button class="captain-history-btn" onclick="event.stopPropagation();openResultModal(${m.id},'history')" title="Match history">⧗</button>`;
               }
             }
             return '';
@@ -2871,13 +2881,15 @@
     let resultEditId   = null;
     let resultModalMode = 'edit'; // 'edit' | 'await' | 'review' | 'admin-review'
 
-    function openResultModal(id) {
+    function openResultModal(id, forceMode) {
       const m = MATCHES.find(x => x.id === id);
       if (!m) return;
       resultEditId = id;
 
       // Determine mode
-      if (SESSION.role === 'captain') {
+      if (forceMode === 'history') {
+        resultModalMode = 'history';
+      } else if (SESSION.role === 'captain') {
         const isPending = m.status === 'pending' || m.status === 'disputed';
         if (isPending && m.submittedBy === SESSION.username) {
           resultModalMode = 'await';
@@ -2978,6 +2990,11 @@
         saveBtn.style.display = 'none';
         approveBtn.style.display = '';
         disputeBtn.style.display = '';
+      } else if (resultModalMode === 'history') {
+        clearBtn.style.display = 'none';
+        saveBtn.style.display = 'none';
+        approveBtn.style.display = 'none';
+        disputeBtn.style.display = 'none';
       } else { // admin-review
         saveBtn.style.display = ''; saveBtn.textContent = 'Override & Save';
         approveBtn.style.display = ''; approveBtn.textContent = 'Approve As-Is';
@@ -2992,9 +3009,10 @@
       const histCount   = document.getElementById('matchHistoryCount');
       const histArrow   = document.getElementById('matchHistoryArrow');
       if (SESSION.role === 'admin' || SESSION.role === 'captain') {
+        const autoExpand = resultModalMode === 'history';
         histSection.style.display = '';
-        histList.style.display = 'none';
-        histArrow.innerHTML = '&#9654;';
+        histList.style.display = autoExpand ? '' : 'none';
+        histArrow.innerHTML = autoExpand ? '&#9660;' : '&#9654;';
         histCount.textContent = '';
         histList.innerHTML = '<div style="padding:6px 0;font-size:10px;color:var(--grey);">Loading\u2026</div>';
         fetch('/api/audit?match=' + id, {
