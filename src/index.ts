@@ -206,8 +206,8 @@ export default {
             } else if (newResult === null) {
               action = 'admin_override';
             } else if (
-              (newResult as Record<string, unknown>).status === 'approved' &&
-              (prevResult as Record<string, unknown>).status !== 'approved'
+              (newResult as Record<string, unknown>).status === 'confirmed' &&
+              (prevResult as Record<string, unknown>).status !== 'confirmed'
             ) {
               action = 'approved';
             } else if ((newResult as Record<string, unknown>).status === 'disputed') {
