@@ -11,6 +11,7 @@
  *   POST /api/login     → authenticate user, return signed token
  *   POST /api/log       → store client-side error log entry (open)
  *   GET  /api/log       → read error log entries for last N days (requires auth)
+ *   GET  /api/audit     → read audit log for a match (requires Bearer admin or captain)
  *   *                   → forward to static assets (public/)
  */
 
@@ -30,6 +31,7 @@ const KV_SCHEDULE_KEY  = 'season3_schedule';
 const KV_ROSTERS_KEY   = 'season3_rosters';
 const KV_HELP_KEY      = 'help_submissions';
 const KV_GALLERY_KEY   = 'season3_gallery'; // photo metadata list
+const KV_AUDIT_PREFIX  = 'season3_audit_match_';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -159,14 +161,18 @@ export default {
       if (request.method === 'POST') {
         const writeKey = request.headers.get('X-Write-Key') ?? '';
         const writeKeyOk = env.WRITE_KEY && writeKey === env.WRITE_KEY;
+        let bearerPayload: { username: string; role: string; team: string | null; display: string } | null = null;
         let bearerOk = false;
         if (!writeKeyOk) {
-          const tokenPayload = await verifyBearer(request.clone(), env.AUTH_HMAC_SECRET ?? '');
-          bearerOk = tokenPayload !== null && (tokenPayload.role === 'admin' || tokenPayload.role === 'captain');
+          bearerPayload = await verifyBearer(request.clone(), env.AUTH_HMAC_SECRET ?? '');
+          bearerOk = bearerPayload !== null && (bearerPayload.role === 'admin' || bearerPayload.role === 'captain');
         }
         if (!writeKeyOk && !bearerOk) {
           return json({ error: 'Unauthorised' }, 401);
         }
+
+        const actorUsername = bearerPayload ? bearerPayload.username : 'system';
+        const actorRole     = bearerPayload ? bearerPayload.role     : 'admin';
 
         let body: Record<string, unknown>;
         try {
@@ -185,6 +191,46 @@ export default {
         }
 
         await env.RESULTS.put(kvKey, JSON.stringify(merged));
+
+        // Append audit entries for each match being updated (skip test mode)
+        if (!isTestMode) {
+          const now = new Date().toISOString();
+          const auditWrites: Promise<void>[] = [];
+          for (const matchId of Object.keys(body)) {
+            const prevResult = (existing[matchId] ?? null) as object | null;
+            const newResult  = (body[matchId]     ?? null) as object | null;
+
+            let action: 'submitted' | 'approved' | 'disputed' | 'admin_override';
+            if (prevResult === null) {
+              action = 'submitted';
+            } else if (newResult === null) {
+              action = 'admin_override';
+            } else if (
+              (newResult as Record<string, unknown>).status === 'approved' &&
+              (prevResult as Record<string, unknown>).status !== 'approved'
+            ) {
+              action = 'approved';
+            } else if ((newResult as Record<string, unknown>).status === 'disputed') {
+              action = 'disputed';
+            } else if (actorRole === 'admin') {
+              action = 'admin_override';
+            } else {
+              action = 'submitted';
+            }
+
+            const entry = { action, prevResult, newResult, username: actorUsername, role: actorRole, ts: now };
+            const auditKey = `${KV_AUDIT_PREFIX}${matchId}`;
+            auditWrites.push(
+              env.RESULTS.get(auditKey).then(auditRaw => {
+                const entries: unknown[] = auditRaw ? JSON.parse(auditRaw) : [];
+                entries.push(entry);
+                return env.RESULTS.put(auditKey, JSON.stringify(entries));
+              })
+            );
+          }
+          await Promise.all(auditWrites);
+        }
+
         return json({ ok: true });
       }
 
@@ -357,6 +403,19 @@ export default {
       raws.forEach(raw => { if (raw) allErrors.push(...JSON.parse(raw)); });
 
       return json({ errors: allErrors });
+    }
+
+    // ── GET /api/audit — read audit log for a match (requires Bearer admin or captain) ──
+    if (url.pathname === '/api/audit' && request.method === 'GET') {
+      const tokenPayload = await verifyBearer(request.clone(), env.AUTH_HMAC_SECRET ?? '');
+      if (!tokenPayload || (tokenPayload.role !== 'admin' && tokenPayload.role !== 'captain')) {
+        return json({ error: 'Unauthorised' }, 401);
+      }
+      const matchId = url.searchParams.get('match');
+      if (!matchId) return json({ error: 'Missing match param' }, 400);
+      const auditRaw = await env.RESULTS.get(`${KV_AUDIT_PREFIX}${matchId}`);
+      const entries: unknown[] = auditRaw ? JSON.parse(auditRaw) : [];
+      return json({ entries });
     }
 
     if (url.pathname === '/api/help' && request.method === 'POST') {
