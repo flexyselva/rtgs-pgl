@@ -33,6 +33,7 @@ _JIRA-ready format. Each story maps 1:1 to a JIRA issue when migrated._
 | [PGL-019](#pgl-019) | SaaS / Multi-League Platform | Feature | P3 | Deferred |
 | [PGL-020](#pgl-020) | Auth Security Audit — Credentials Compliance | Chore | P1 | Done |
 | [PGL-021](#pgl-021) | Application Architecture SVG Diagram | Chore | P1 | Done |
+| [PGL-030](#pgl-030) | CI/CD — GitHub Actions for Staging & Production Deploy | Chore | P1 | Done |
 | [PGL-029](#pgl-029) | Custom Domain for Staging — staging.rtgsgolf.org | Chore | P1 | Planned |
 | [PGL-028](#pgl-028) | Capture City & ISP in Analytics Events | Feature | P2 | Done |
 | [PGL-027](#pgl-027) | Extend Analytics Access to Captains and Organisers | Feature | P2 | Done |
@@ -984,3 +985,63 @@ Full IP address is intentionally NOT stored — city + ISP is sufficient for ana
 
 ### Commits
 _Not started._
+
+---
+
+## PGL-030
+
+**CI/CD — GitHub Actions for Staging & Production Deploy**
+
+| Field | Value |
+|-------|-------|
+| Type | Chore |
+| Priority | P1 |
+| Status | Done |
+| Created | 2026-04-06 |
+| Completed | 2026-04-06 |
+
+### Description
+Set up a GitHub Actions CI/CD pipeline to automate deploys to Cloudflare Workers. Any push to a `feature/**` branch deploys to staging; any push to `main` deploys to production.
+
+**Workflow file:** `.github/workflows/deploy.yml`
+
+**Pipeline per environment:**
+1. `actions/checkout@v4` — checkout code
+2. `actions/setup-node@v4` (Node.js 20) — set up Node with npm cache
+3. `npm ci` — install dependencies
+4. `npm test` — run unit tests (Vitest) as deploy gate
+5. `cloudflare/wrangler-action@v3` — build (`npm run build`) then deploy via Wrangler
+
+**Branch → environment mapping:**
+| Branch pattern | Job | Wrangler command | Worker |
+|---|---|---|---|
+| `feature/**` | `deploy-staging` | `deploy --env staging` | `rtgs-pgl-staging` |
+| `main` | `deploy-production` | `deploy --env=""` | `rtgs-pgl` (prod) |
+
+**GitHub Secrets required:**
+- `CLOUDFLARE_API_TOKEN` — Cloudflare API token with Workers edit permissions
+- `CLOUDFLARE_ACCOUNT_ID` — Cloudflare account ID
+
+**Repo:** `selvashanmuga/rtgs-pgl` (Actions was disabled on original `flexyselva` account due to account restriction — migrated to `selvashanmuga` on 2026-04-06)
+
+### Issues encountered & resolved
+- `flexyselva` GitHub account had Actions disabled at account level — could not be unblocked quickly
+- Repo migrated to `selvashanmuga` account; `origin` remote updated locally
+- Workflow must be on `main` before feature branch push triggers fire (GitHub requirement)
+- Wrangler warning `--env` not specified — fixed with `--env=""` for production job
+- Node.js 20 deprecation warning — fixed with `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true` env var
+
+### Acceptance Criteria
+- Push to `feature/**` triggers staging deploy automatically ✅
+- Push/merge to `main` triggers production deploy automatically ✅
+- Unit tests run before every deploy ✅
+- Build step runs before every deploy ✅
+- No warnings in workflow run ✅
+
+### Commits
+
+| SHA | Date | Message |
+|-----|------|---------|
+| `382b483` | 2026-04-06 | Add GitHub Actions CI/CD workflow for staging and production deploys |
+| `90924a5` | 2026-04-06 | fix: explicitly target top-level env in production deploy to suppress wrangler warning |
+| `ba64d6c` | 2026-04-06 | ci: opt into Node.js 24 for GitHub Actions runners |
