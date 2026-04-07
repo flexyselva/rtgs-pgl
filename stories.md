@@ -32,7 +32,7 @@ _JIRA-ready format. Each story maps 1:1 to a JIRA issue when migrated._
 | [PGL-018](#pgl-018) | Season Archive | Feature | P3 | Deferred |
 | [PGL-019](#pgl-019) | SaaS / Multi-League Platform | Feature | P3 | Deferred |
 | [PGL-020](#pgl-020) | Auth Security Audit — Credentials Compliance | Chore | P1 | Done |
-| [PGL-021](#pgl-021) | Application Architecture SVG Diagram | Chore | P1 | Planned |
+| [PGL-021](#pgl-021) | Application Architecture SVG Diagram | Chore | P1 | Done |
 | [PGL-029](#pgl-029) | Custom Domain for Staging — staging.rtgsgolf.org | Chore | P1 | Planned |
 | [PGL-028](#pgl-028) | Capture City & ISP in Analytics Events | Feature | P2 | Done |
 | [PGL-027](#pgl-027) | Extend Analytics Access to Captains and Organisers | Feature | P2 | Done |
@@ -515,9 +515,9 @@ _Audit only — no code changes made._
 |-------|-------|
 | Type | Chore |
 | Priority | P1 |
-| Status | Planned |
+| Status | Done |
 | Created | 2026-04-04 |
-| Completed | 2026-04-04 |
+| Completed | 2026-04-06 |
 
 ### Description
 Create a detailed SVG architecture diagram for the RTGS PGL application, targeting new developers onboarding to the codebase. The diagram should give a developer a full mental model of the system before touching any code.
@@ -562,7 +562,10 @@ _Auth layer:_
 - README updated with a link and one-line description of the diagram.
 
 ### Commits
-_Not started._
+
+| SHA | Date | Message |
+|-----|------|---------|
+| `d18e48c` | 2026-04-06 | feat: PGL-021 application architecture SVG diagram |
 
 ---
 
