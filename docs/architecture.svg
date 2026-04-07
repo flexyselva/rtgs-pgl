@@ -1,0 +1,271 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1000" width="1400" height="1000" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+
+  <!-- Background -->
+  <rect width="1400" height="1000" fill="#0a1628"/>
+
+  <!-- ─── Title ─── -->
+  <text x="700" y="42" text-anchor="middle" font-size="22" font-weight="700" fill="#c9a84c" letter-spacing="1">RTGS PGL — Application Architecture</text>
+  <text x="700" y="64" text-anchor="middle" font-size="13" fill="#9faec0">Cloudflare Workers · KV · R2 · GitHub Actions</text>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SWIM LANE 1 — CLIENT
+  ═══════════════════════════════════════════════════════════ -->
+  <rect x="20" y="82" width="300" height="860" rx="10" fill="none" stroke="rgba(201,168,76,0.25)" stroke-width="1.5"/>
+  <text x="170" y="103" text-anchor="middle" font-size="11" font-weight="600" fill="#9faec0" letter-spacing="1.5">BROWSER CLIENT</text>
+
+  <!-- Browser box -->
+  <rect x="40" y="116" width="260" height="100" rx="8" fill="#0f2040" stroke="rgba(201,168,76,0.4)" stroke-width="1.5"/>
+  <text x="170" y="140" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">Browser</text>
+  <text x="170" y="158" text-anchor="middle" font-size="11" fill="#9faec0">HTML / CSS / JS</text>
+  <text x="170" y="174" text-anchor="middle" font-size="11" fill="#9faec0">Served as static assets</text>
+  <text x="170" y="190" text-anchor="middle" font-size="11" fill="#9faec0">from ./public directory</text>
+  <text x="170" y="206" text-anchor="middle" font-size="10" fill="#c9a84c">rtgsgolf.org · staging.rtgsgolf.org</text>
+
+  <!-- Auth roles box -->
+  <rect x="40" y="234" width="260" height="130" rx="8" fill="#0f2040" stroke="rgba(201,168,76,0.4)" stroke-width="1.5"/>
+  <text x="170" y="254" text-anchor="middle" font-size="12" font-weight="700" fill="#c9a84c">Auth Roles</text>
+  <!-- fan -->
+  <rect x="54" y="262" width="232" height="26" rx="4" fill="#112035"/>
+  <text x="70" y="279" font-size="11" font-weight="600" fill="#9faec0">fan</text>
+  <text x="130" y="279" font-size="11" fill="#9faec0">read-only public data</text>
+  <!-- captain -->
+  <rect x="54" y="292" width="232" height="26" rx="4" fill="#112035"/>
+  <text x="70" y="309" font-size="11" font-weight="600" fill="#9faec0">captain</text>
+  <text x="130" y="309" font-size="11" fill="#9faec0">submit &amp; approve scores</text>
+  <!-- organiser -->
+  <rect x="54" y="322" width="232" height="26" rx="4" fill="#112035"/>
+  <text x="70" y="339" font-size="11" font-weight="600" fill="#9faec0">organiser</text>
+  <text x="130" y="339" font-size="11" fill="#9faec0">gallery upload, full read</text>
+  <!-- admin -->
+  <rect x="54" y="352" width="232" height="26" rx="4" fill="#112035"/>
+  <text x="70" y="369" font-size="11" font-weight="600" fill="#c9a84c">admin</text>
+  <text x="130" y="369" font-size="11" fill="#9faec0">full access, delete</text>
+
+  <!-- Auth mechanism box -->
+  <rect x="40" y="382" width="260" height="120" rx="8" fill="#0f2040" stroke="rgba(201,168,76,0.4)" stroke-width="1.5"/>
+  <text x="170" y="402" text-anchor="middle" font-size="12" font-weight="700" fill="#c9a84c">Auth Mechanism</text>
+  <text x="58" y="422" font-size="11" font-weight="600" fill="#ffffff">Bearer Token</text>
+  <text x="58" y="438" font-size="10" fill="#9faec0">HMAC-SHA256 signed JWT-style</text>
+  <text x="58" y="452" font-size="10" fill="#9faec0">30-minute expiry · user login via</text>
+  <text x="58" y="466" font-size="10" fill="#9faec0">POST /api/login</text>
+  <line x1="54" y1="474" x2="286" y2="474" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+  <text x="58" y="490" font-size="11" font-weight="600" fill="#ffffff">X-Write-Key</text>
+  <text x="58" y="495" font-size="10" fill="#9faec0"> server-to-server / CI scripts</text>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SWIM LANE 2 — WORKER
+  ═══════════════════════════════════════════════════════════ -->
+  <rect x="340" y="82" width="540" height="860" rx="10" fill="none" stroke="rgba(201,168,76,0.25)" stroke-width="1.5"/>
+  <text x="610" y="103" text-anchor="middle" font-size="11" font-weight="600" fill="#9faec0" letter-spacing="1.5">CLOUDFLARE WORKER  —  src/index.ts</text>
+
+  <!-- Worker entry point box -->
+  <rect x="360" y="116" width="500" height="58" rx="8" fill="#132540" stroke="rgba(201,168,76,0.5)" stroke-width="2"/>
+  <text x="610" y="140" text-anchor="middle" font-size="14" font-weight="700" fill="#c9a84c">fetch() handler</text>
+  <text x="610" y="158" text-anchor="middle" font-size="11" fill="#9faec0">Single entry point · CORS preflight · route dispatch</text>
+
+  <!-- ── Auth group ── -->
+  <rect x="360" y="190" width="237" height="56" rx="6" fill="#0d1e35" stroke="rgba(201,168,76,0.35)" stroke-width="1.2"/>
+  <text x="370" y="208" font-size="10" font-weight="600" fill="#c9a84c">AUTH</text>
+  <text x="370" y="226" font-size="10.5" fill="#9faec0">POST /api/login</text>
+  <text x="370" y="240" font-size="9.5" fill="#6a7f94">SHA-256 password · sign HMAC token</text>
+
+  <!-- ── Schedule group ── -->
+  <rect x="613" y="190" width="237" height="56" rx="6" fill="#0d1e35" stroke="rgba(201,168,76,0.35)" stroke-width="1.2"/>
+  <text x="623" y="208" font-size="10" font-weight="600" fill="#c9a84c">SCHEDULE</text>
+  <text x="623" y="224" font-size="10.5" fill="#9faec0">GET  /api/schedule  (public)</text>
+  <text x="623" y="238" font-size="10.5" fill="#9faec0">POST /api/schedule  (admin)</text>
+
+  <!-- ── Results group ── -->
+  <rect x="360" y="262" width="237" height="70" rx="6" fill="#0d1e35" stroke="rgba(201,168,76,0.35)" stroke-width="1.2"/>
+  <text x="370" y="280" font-size="10" font-weight="600" fill="#c9a84c">RESULTS</text>
+  <text x="370" y="296" font-size="10.5" fill="#9faec0">GET  /api/results   (public)</text>
+  <text x="370" y="310" font-size="10.5" fill="#9faec0">POST /api/results   (captain/admin)</text>
+  <text x="370" y="324" font-size="10.5" fill="#9faec0">GET  /api/audit     (captain/admin)</text>
+
+  <!-- ── Analytics group ── -->
+  <rect x="613" y="262" width="237" height="70" rx="6" fill="#0d1e35" stroke="rgba(201,168,76,0.35)" stroke-width="1.2"/>
+  <text x="623" y="280" font-size="10" font-weight="600" fill="#c9a84c">ANALYTICS</text>
+  <text x="623" y="296" font-size="10.5" fill="#9faec0">POST /api/track    (open)</text>
+  <text x="623" y="310" font-size="10.5" fill="#9faec0">GET  /api/analytics</text>
+  <text x="623" y="324" font-size="9.5" fill="#6a7f94">captain / organiser / admin</text>
+
+  <!-- ── Gallery group ── -->
+  <rect x="360" y="348" width="237" height="118" rx="6" fill="#0d1e35" stroke="rgba(201,168,76,0.35)" stroke-width="1.2"/>
+  <text x="370" y="366" font-size="10" font-weight="600" fill="#c9a84c">GALLERY</text>
+  <text x="370" y="382" font-size="10.5" fill="#9faec0">POST /api/gallery/upload  (organiser)</text>
+  <text x="370" y="396" font-size="10.5" fill="#9faec0">GET  /api/gallery         (public)</text>
+  <text x="370" y="410" font-size="10.5" fill="#9faec0">GET  /api/gallery/image/* (public)</text>
+  <text x="370" y="424" font-size="10.5" fill="#9faec0">POST /api/gallery/like    (auth)</text>
+  <text x="370" y="438" font-size="10.5" fill="#9faec0">POST /api/gallery/comment (auth)</text>
+  <text x="370" y="452" font-size="10.5" fill="#9faec0">DELETE /api/gallery/:id   (admin)</text>
+
+  <!-- ── Ops / Logging group ── -->
+  <rect x="613" y="348" width="237" height="118" rx="6" fill="#0d1e35" stroke="rgba(201,168,76,0.35)" stroke-width="1.2"/>
+  <text x="623" y="366" font-size="10" font-weight="600" fill="#c9a84c">OPS / LOGGING</text>
+  <text x="623" y="382" font-size="10.5" fill="#9faec0">POST /api/log   (open)</text>
+  <text x="623" y="396" font-size="10.5" fill="#9faec0">GET  /api/log   (admin)</text>
+  <text x="623" y="424" font-size="10.5" fill="#9faec0">POST /api/help  (open)</text>
+  <text x="623" y="438" font-size="10.5" fill="#9faec0">GET  /api/help  (admin)</text>
+
+  <!-- ── Static assets fallthrough ── -->
+  <rect x="360" y="482" width="490" height="46" rx="6" fill="#0d1e35" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+  <text x="605" y="501" text-anchor="middle" font-size="11" fill="#9faec0">* → ASSETS binding</text>
+  <text x="605" y="517" text-anchor="middle" font-size="10" fill="#6a7f94">Serves ./public HTML/CSS/JS · injects version + staging banner into HTML</text>
+
+  <!-- Env secrets note -->
+  <rect x="360" y="544" width="490" height="52" rx="6" fill="#0d1e35" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+  <text x="370" y="562" font-size="10" font-weight="600" fill="#c9a84c">Env / Secrets (wrangler secret put)</text>
+  <text x="370" y="577" font-size="10" fill="#9faec0">AUTH_HMAC_SECRET  AUTH_USERS  WRITE_KEY  VERSION</text>
+  <text x="370" y="589" font-size="10" fill="#6a7f94">prod: rtgsgolf.org · staging: staging.rtgsgolf.org (separate KV + R2 buckets)</text>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SWIM LANE 3 — DATA STORES
+  ═══════════════════════════════════════════════════════════ -->
+  <rect x="900" y="82" width="320" height="560" rx="10" fill="none" stroke="rgba(201,168,76,0.25)" stroke-width="1.5"/>
+  <text x="1060" y="103" text-anchor="middle" font-size="11" font-weight="600" fill="#9faec0" letter-spacing="1.5">CLOUDFLARE DATA STORES</text>
+
+  <!-- KV Namespace -->
+  <rect x="920" y="116" width="280" height="320" rx="8" fill="#0f2040" stroke="rgba(201,168,76,0.4)" stroke-width="1.5"/>
+  <text x="1060" y="140" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">KV Namespace</text>
+  <text x="1060" y="157" text-anchor="middle" font-size="10" fill="#9faec0">Binding: RESULTS</text>
+
+  <!-- KV keys list -->
+  <rect x="934" y="164" width="252" height="24" rx="3" fill="#112035"/>
+  <text x="944" y="181" font-size="10.5" font-weight="600" fill="#c9a84c">season3_results</text>
+  <text x="1120" y="181" font-size="10" fill="#6a7f94">results data</text>
+
+  <rect x="934" y="192" width="252" height="24" rx="3" fill="#112035"/>
+  <text x="944" y="209" font-size="10.5" fill="#9faec0">season3_schedule</text>
+  <text x="1095" y="209" font-size="10" fill="#6a7f94">match list</text>
+
+  <rect x="934" y="220" width="252" height="24" rx="3" fill="#112035"/>
+  <text x="944" y="237" font-size="10.5" fill="#9faec0">season3_rosters</text>
+  <text x="1095" y="237" font-size="10" fill="#6a7f94">player rosters</text>
+
+  <rect x="934" y="248" width="252" height="24" rx="3" fill="#112035"/>
+  <text x="944" y="265" font-size="10.5" fill="#9faec0">season3_gallery</text>
+  <text x="1095" y="265" font-size="10" fill="#6a7f94">photo metadata</text>
+
+  <rect x="934" y="276" width="252" height="24" rx="3" fill="#112035"/>
+  <text x="944" y="293" font-size="10.5" fill="#9faec0">analytics_YYYY-MM-DD</text>
+  <text x="1095" y="293" font-size="10" fill="#6a7f94">daily events</text>
+
+  <rect x="934" y="304" width="252" height="24" rx="3" fill="#112035"/>
+  <text x="944" y="321" font-size="10.5" fill="#9faec0">errors_YYYY-MM-DD</text>
+  <text x="1095" y="321" font-size="10" fill="#6a7f94">error logs</text>
+
+  <rect x="934" y="332" width="252" height="24" rx="3" fill="#112035"/>
+  <text x="944" y="349" font-size="10.5" fill="#9faec0">help_submissions</text>
+  <text x="1095" y="349" font-size="10" fill="#6a7f94">help inbox</text>
+
+  <rect x="934" y="360" width="252" height="24" rx="3" fill="#112035"/>
+  <text x="944" y="377" font-size="10.5" fill="#9faec0">season3_audit_match_*</text>
+  <text x="1095" y="377" font-size="10" fill="#6a7f94">audit trail</text>
+
+  <rect x="934" y="388" width="252" height="24" rx="3" fill="#112035"/>
+  <text x="944" y="405" font-size="10.5" fill="#9faec0">season3_results_test</text>
+  <text x="1095" y="405" font-size="10" fill="#6a7f94">E2E isolation</text>
+
+  <!-- R2 Bucket -->
+  <rect x="920" y="452" width="280" height="80" rx="8" fill="#0f2040" stroke="rgba(201,168,76,0.4)" stroke-width="1.5"/>
+  <text x="1060" y="476" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">R2 Bucket</text>
+  <text x="1060" y="493" text-anchor="middle" font-size="10" fill="#9faec0">Binding: GALLERY · Bucket: rtgs-gallery</text>
+  <text x="1060" y="510" text-anchor="middle" font-size="10.5" fill="#9faec0">photos/{uuid}/{filename}</text>
+  <text x="1060" y="524" text-anchor="middle" font-size="10" fill="#6a7f94">Binary image storage · max 10 MB · 1-year cache</text>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SWIM LANE 4 — CI/CD
+  ═══════════════════════════════════════════════════════════ -->
+  <rect x="900" y="660" width="480" height="282" rx="10" fill="none" stroke="rgba(201,168,76,0.25)" stroke-width="1.5"/>
+  <text x="1140" y="681" text-anchor="middle" font-size="11" font-weight="600" fill="#9faec0" letter-spacing="1.5">CI / CD PIPELINE</text>
+
+  <!-- GitHub repo box -->
+  <rect x="920" y="694" width="200" height="80" rx="8" fill="#0f2040" stroke="rgba(201,168,76,0.4)" stroke-width="1.5"/>
+  <text x="1020" y="718" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">GitHub Repo</text>
+  <text x="1020" y="734" text-anchor="middle" font-size="10" fill="#9faec0">Source of truth</text>
+  <text x="1020" y="748" text-anchor="middle" font-size="10" fill="#9faec0">src/index.ts  wrangler.jsonc</text>
+  <text x="1020" y="762" text-anchor="middle" font-size="10" fill="#9faec0">public/  tests/</text>
+
+  <!-- GitHub Actions box -->
+  <rect x="1160" y="694" width="200" height="80" rx="8" fill="#0f2040" stroke="rgba(201,168,76,0.4)" stroke-width="1.5"/>
+  <text x="1260" y="718" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">GitHub Actions</text>
+  <text x="1260" y="734" text-anchor="middle" font-size="10" fill="#9faec0">on: push to main</text>
+  <text x="1260" y="748" text-anchor="middle" font-size="10" fill="#9faec0">npm ci · vitest · playwright</text>
+  <text x="1260" y="762" text-anchor="middle" font-size="10" fill="#9faec0">npx wrangler deploy</text>
+
+  <!-- Arrow: GitHub → Actions -->
+  <line x1="1120" y1="734" x2="1158" y2="734" stroke="#c9a84c" stroke-width="1.5" marker-end="url(#arrow-gold)"/>
+  <text x="1139" y="728" text-anchor="middle" font-size="9" fill="#c9a84c">push</text>
+
+  <!-- Deploy note -->
+  <rect x="920" y="792" width="440" height="56" rx="6" fill="#0d1e35" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+  <text x="1140" y="812" text-anchor="middle" font-size="10.5" fill="#9faec0">npx wrangler deploy  →  Worker code replaced atomically on Cloudflare edge</text>
+  <text x="1140" y="828" text-anchor="middle" font-size="10" fill="#6a7f94">Staging deploy: wrangler deploy --env staging  →  staging.rtgsgolf.org  (separate KV + R2)</text>
+  <text x="1140" y="844" text-anchor="middle" font-size="10" fill="#6a7f94">Developer pushes feature branch → PR review → merge to main → auto-deploy</text>
+
+  <!-- ══════════════════════════════════════════════════════════
+       DATA FLOW ARROWS
+  ═══════════════════════════════════════════════════════════ -->
+
+  <!-- Arrow defs -->
+  <defs>
+    <marker id="arrow-gold" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#c9a84c"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4a9eff"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4ade80"/>
+    </marker>
+    <marker id="arrow-white" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#9faec0"/>
+    </marker>
+  </defs>
+
+  <!-- Browser → Worker: HTTP request -->
+  <line x1="300" y1="230" x2="338" y2="230" stroke="#4a9eff" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#arrow-blue)"/>
+  <text x="319" y="222" text-anchor="middle" font-size="9" fill="#4a9eff">HTTP</text>
+  <text x="319" y="244" text-anchor="middle" font-size="9" fill="#4a9eff">Bearer /</text>
+  <text x="319" y="256" text-anchor="middle" font-size="9" fill="#4a9eff">X-Write-Key</text>
+
+  <!-- Worker → Browser: JSON / HTML response (return arrow above) -->
+  <line x1="338" y1="210" x2="302" y2="210" stroke="#4ade80" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-green)"/>
+  <text x="319" y="204" text-anchor="middle" font-size="9" fill="#4ade80">JSON /</text>
+  <text x="319" y="215" text-anchor="middle" font-size="9" fill="#4ade80">assets</text>
+
+  <!-- Worker → KV -->
+  <line x1="858" y1="310" x2="918" y2="290" stroke="#c9a84c" stroke-width="1.5" marker-end="url(#arrow-gold)"/>
+  <text x="888" y="295" text-anchor="middle" font-size="9" fill="#c9a84c">KV</text>
+  <text x="888" y="307" text-anchor="middle" font-size="9" fill="#c9a84c">read/write</text>
+
+  <!-- Worker → R2 -->
+  <line x1="858" y1="480" x2="918" y2="490" stroke="#c9a84c" stroke-width="1.5" marker-end="url(#arrow-gold)"/>
+  <text x="888" y="480" text-anchor="middle" font-size="9" fill="#c9a84c">R2 binary</text>
+  <text x="888" y="492" text-anchor="middle" font-size="9" fill="#c9a84c">upload/stream</text>
+
+  <!-- GitHub Actions → Worker (wrangler deploy) -->
+  <line x1="1260" y1="774" x2="1260" y2="800" stroke="#9faec0" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-white)"/>
+
+  <!-- ══════════════════════════════════════════════════════════
+       LEGEND
+  ═══════════════════════════════════════════════════════════ -->
+  <rect x="20" y="926" width="860" height="54" rx="8" fill="#0d1e35" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+  <text x="36" y="944" font-size="10" font-weight="600" fill="#c9a84c">Legend</text>
+  <!-- HTTP request -->
+  <line x1="100" y1="944" x2="130" y2="944" stroke="#4a9eff" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow-blue)"/>
+  <text x="135" y="948" font-size="10" fill="#9faec0">HTTP request (Bearer / X-Write-Key)</text>
+  <!-- JSON response -->
+  <line x1="100" y1="966" x2="130" y2="966" stroke="#4ade80" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-green)"/>
+  <text x="135" y="970" font-size="10" fill="#9faec0">JSON response / static asset</text>
+  <!-- KV/R2 -->
+  <line x1="380" y1="944" x2="410" y2="944" stroke="#c9a84c" stroke-width="2" marker-end="url(#arrow-gold)"/>
+  <text x="415" y="948" font-size="10" fill="#9faec0">KV / R2 read-write</text>
+  <!-- Deploy -->
+  <line x1="380" y1="966" x2="410" y2="966" stroke="#9faec0" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-white)"/>
+  <text x="415" y="970" font-size="10" fill="#9faec0">wrangler deploy (GitHub Actions → Worker updated)</text>
+
+  <!-- version stamp -->
+  <text x="1380" y="994" text-anchor="end" font-size="9" fill="#3a4f64">PGL-021 · v1.1.0</text>
+
+</svg>

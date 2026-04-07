@@ -33,7 +33,7 @@ _JIRA-ready format. Each story maps 1:1 to a JIRA issue when migrated._
 | [PGL-019](#pgl-019) | SaaS / Multi-League Platform | Feature | P3 | Deferred |
 | [PGL-020](#pgl-020) | Auth Security Audit — Credentials Compliance | Chore | P1 | Done |
 | [PGL-021](#pgl-021) | Application Architecture SVG Diagram | Chore | P1 | Planned |
-| [PGL-029](#pgl-029) | Custom Domain for Staging — staging.rtgspgl.org | Chore | P1 | Planned |
+| [PGL-029](#pgl-029) | Custom Domain for Staging — staging.rtgsgolf.org | Chore | P1 | Planned |
 | [PGL-028](#pgl-028) | Capture City & ISP in Analytics Events | Feature | P2 | Done |
 | [PGL-027](#pgl-027) | Extend Analytics Access to Captains and Organisers | Feature | P2 | Done |
 | [PGL-026](#pgl-026) | Gallery Audit Log — Upload & Delete Tracking | Feature | P3 | Planned |
@@ -930,7 +930,7 @@ Full IP address is intentionally NOT stored — city + ISP is sufficient for ana
 
 ## PGL-029
 
-**Custom Domain for Staging — staging.rtgspgl.org**
+**Custom Domain for Staging — staging.rtgsgolf.org**
 
 | Field | Value |
 |-------|-------|
@@ -941,42 +941,42 @@ Full IP address is intentionally NOT stored — city + ISP is sufficient for ana
 | Completed | — |
 
 ### Description
-`rtgspgl.org` is already registered and pointed to prod in Cloudflare. Add `staging.rtgspgl.org` as the custom domain for the staging Worker environment, replacing the default `rtgs-pgl-staging.selvaraj-s.workers.dev` URL.
+`rtgsgolf.org` is already registered and pointed to prod in Cloudflare. Add `staging.rtgsgolf.org` as the custom domain for the staging Worker environment, replacing the default `rtgs-pgl-staging.selvaraj-s.workers.dev` URL.
 
 **Current state:**
 | Environment | URL |
 |-------------|-----|
-| Production | `rtgspgl.org` (custom domain, already configured) |
+| Production | `rtgsgolf.org` (custom domain, already configured) |
 | Staging | `rtgs-pgl-staging.selvaraj-s.workers.dev` (workers.dev default) |
 
 **Target state:**
 | Environment | URL |
 |-------------|-----|
-| Production | `rtgspgl.org` |
-| Staging | `staging.rtgspgl.org` |
+| Production | `rtgsgolf.org` |
+| Staging | `staging.rtgsgolf.org` |
 
 **Steps:**
 
-1. **Cloudflare DNS** — Add a CNAME record in the `rtgspgl.org` zone:
+1. **Cloudflare DNS** — Add a CNAME record in the `rtgsgolf.org` zone:
    - Name: `staging`
    - Target: `rtgs-pgl-staging.selvaraj-s.workers.dev`
    - Proxied: Yes (orange cloud)
 
 2. **`wrangler.jsonc`** — Add a `routes` entry to the staging environment block:
    ```jsonc
-   "routes": [{ "pattern": "staging.rtgspgl.org/*", "zone_name": "rtgspgl.org" }]
+   "routes": [{ "pattern": "staging.rtgsgolf.org/*", "zone_name": "rtgsgolf.org" }]
    ```
 
-3. **`CLAUDE.md`** — Update the staging URL reference from `rtgs-pgl-staging.selvaraj-s.workers.dev` to `staging.rtgspgl.org`
+3. **`CLAUDE.md`** — Update the staging URL reference from `rtgs-pgl-staging.selvaraj-s.workers.dev` to `staging.rtgsgolf.org`
 
 4. **E2E test config** — Update any hardcoded staging URLs in test files or scripts
 
 **Note:** The Cloudflare DNS step must be done manually in the Cloudflare dashboard (cannot be done via Wrangler CLI alone). The `wrangler.jsonc` change can be committed and deployed normally.
 
 ### Acceptance Criteria
-- `https://staging.rtgspgl.org` serves the staging Worker
-- `https://rtgspgl.org` continues to serve prod unchanged
-- `npx wrangler deploy --env staging` deploys to `staging.rtgspgl.org`
+- `https://staging.rtgsgolf.org` serves the staging Worker
+- `https://rtgsgolf.org` continues to serve prod unchanged
+- `npx wrangler deploy --env staging` deploys to `staging.rtgsgolf.org`
 - CLAUDE.md and any test configs updated with the new staging URL
 
 ### Commits
