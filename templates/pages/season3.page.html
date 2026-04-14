@@ -223,18 +223,21 @@
     .score-sep { font-size: 0.7rem; color: var(--grey); letter-spacing: 0.1em; }
 
     /* ── Season progress bar ── */
-    .season-progress-wrap {
-      margin-bottom: 40px;
-    }
     .season-progress-bar {
-      display: flex; height: 24px;
+      display: flex; align-items: center; height: 12px;
       border: 1px solid var(--border);
       overflow: hidden;
       background: var(--navy-mid);
+      grid-column: 1 / -1;
+      order: -1;
     }
     .progress-left {
       height: 100%; background: var(--td-accent);
       flex-shrink: 0; transition: width 0.4s ease;
+    }
+    .progress-divider {
+      width: 1px; height: 100%; background: var(--border);
+      flex-shrink: 0;
     }
     .progress-right {
       height: 100%; background: var(--tr-accent);
@@ -1105,13 +1108,14 @@
       .stat-value { font-size: 1.6rem; }
       .stat-label { font-size: 10px; letter-spacing: 0.2em; }
 
-      .team-clash { grid-template-columns: 1fr; margin-bottom: 24px; }
+      .team-clash { grid-template-columns: 1fr; margin-bottom: 24px; position: relative; }
       .team-panel { padding: 20px 20px; }
       .team-name { font-size: 1.4rem; }
+      .season-progress-bar { position: absolute; top: 0; left: 0; right: 0; grid-column: auto; order: auto; }
       .clash-vs {
         border-left: none; border-right: none;
         border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-        padding: 16px 20px; flex-direction: column; gap: 4px;
+        padding: 16px 20px; flex-direction: column; gap: 4px; padding-top: 28px;
       }
       .vs-label { font-size: 1.2rem; }
       .vs-sub { margin-top: 0; }
@@ -1498,15 +1502,14 @@
       <div class="section-header-line"></div>
     </div>
 
-    <!-- Season progress bar -->
-    <div class="season-progress-wrap">
+    <div class="team-clash">
+      <!-- Season progress bar -->
       <div class="season-progress-bar">
         <div class="progress-left" id="progressLeft"></div>
+        <div class="progress-divider"></div>
         <div class="progress-right" id="progressRight"></div>
       </div>
-    </div>
 
-    <div class="team-clash">
       <div class="team-panel team-panel-d">
         <div class="team-eyebrow">Captain's Side</div>
         <div class="team-name"><span class="team-accent-d">Team</span><br>Europe</div>
