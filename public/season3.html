@@ -2119,7 +2119,7 @@
       const player = PLAYERS.find(p => p.id === playerId);
       if (!player) return;
 
-      const monthLabels = ['Mar 2026','Apr 2026','May 2026','Jun 2026','Jul 2026','Aug 2026','Sep 2026','Oct 2026','Nov 2026'];
+      const monthLabels = ['Mar 2026','Apr 2026','May 2026','Jun 2026','Jul 2026','Aug 2026','Sep 2026','Oct 2026','Nov 2026','Dec 2026'];
       const playerMatches = MATCHES.filter(m => {
         if (m.singles)  return m.singles.d === player.name || m.singles.r === player.name;
         if (m.foursome) return m.foursome.d.includes(player.name) || m.foursome.r.includes(player.name);
@@ -2127,7 +2127,7 @@
       });
 
       const playedMatches = playerMatches.filter(m => m.status === 'played' && (m.format === 'fourballs' || m.format === 'singles'));
-      const scoreData = new Array(9).fill(null);
+      const scoreData = new Array(10).fill(null);
 
       playedMatches.forEach(m => {
         const monthIndex = monthLabels.indexOf(m.date);
@@ -2166,7 +2166,7 @@
 
       const monthShortLabels = monthLabels.map(m => m.slice(0, 3));
       const hcpRefValue = 72 + hcp; // Y-axis value for HCP reference
-      const hcpData = new Array(9).fill(hcpRefValue);
+      const hcpData = new Array(10).fill(hcpRefValue);
 
       // Register HCP label plugin
       const hcpLabelPlugin = {
@@ -2178,15 +2178,39 @@
           if (!xScale || !yScale) return;
 
           // Position label at the last month (right end)
-          const lastMonthIndex = 8; // Nov (0-indexed)
-          const xPos = xScale.getPixelForValue(lastMonthIndex) + 12;
-          const yPos = yScale.getPixelForValue(hcpRefValue) - 8;
+          const lastMonthIndex = 9; // Dec (0-indexed)
+          const xPos = xScale.getPixelForValue(lastMonthIndex) - 20;
+          const yPos = yScale.getPixelForValue(hcpRefValue) - 10;
 
           ctx.fillStyle = '#c9a84c';
           ctx.font = '11px Raleway';
           ctx.textAlign = 'left';
           ctx.textBaseline = 'bottom';
           ctx.fillText(`HCP: ${hcp}`, xPos, yPos);
+        }
+      };
+
+      // Plugin to label score data points
+      const scoreLabelsPlugin = {
+        id: 'scoreLabels',
+        afterDatasetsDraw(chart) {
+          const ctx = chart.ctx;
+          const xScale = chart.scales.x;
+          const yScale = chart.scales.y;
+          const scoreDataset = chart.data.datasets[1]; // Gross Score is second dataset
+          if (!scoreDataset || !xScale || !yScale) return;
+
+          scoreDataset.data.forEach((value, index) => {
+            if (value === null) return; // Skip missing data points
+            const xPos = xScale.getPixelForValue(index);
+            const yPos = yScale.getPixelForValue(value) - 10;
+
+            ctx.fillStyle = '#e8c97a';
+            ctx.font = '10px Raleway';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(value, xPos, yPos);
+          });
         }
       };
 
@@ -2263,7 +2287,7 @@
             }
           }
         },
-        plugins: [hcpLabelPlugin]
+        plugins: [hcpLabelPlugin, scoreLabelsPlugin]
       });
     }
 
