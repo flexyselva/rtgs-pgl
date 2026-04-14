@@ -1084,4 +1084,13 @@ Data source: PLAYER_SCORES KV, filtered to fourballs & singles matches only. Pla
 
 | SHA | Date | Message |
 |-----|------|---------|
-| (pending) | 2026-04-14 | PGL-031: Add Score Trend chart to player profile modal |
+| `1f01e33` | 2026-04-14 | PGL-031: Add Score Trend chart to player profile modal |
+| `e7b5769` | 2026-04-14 | PGL-031: Improve Score Trend chart visibility |
+| `18cc727` | 2026-04-14 | PGL-031: Dynamic Y-axis and fix HCP dotted line visibility |
+| `925f1d9` | 2026-04-14 | PGL-031: Fix HCP reference line calculation (72 + HCP) |
+| `e0950a1` | 2026-04-14 | PGL-031: Add dynamic version system (1.5.0) |
+| `a720bee` | 2026-04-14 | PGL-031: Refine Score Trend chart appearance |
+| `66c8112` | 2026-04-14 | PGL-031: Position HCP label directly on chart over dotted line |
+| `26df85f` | 2026-04-14 | PGL-031: Include March in Score Trend X-axis |
+| `63dc8c5` | 2026-04-14 | PGL-031: Add December to X-axis, label score dots, fix HCP label |
+| `e2dc0ef` | 2026-04-14 | PGL-031: Fix HCP label text cutoff at canvas edge |
