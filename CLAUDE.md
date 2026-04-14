@@ -13,22 +13,22 @@ A static website for the **RTGS Premier Golf League (RTGS PGL)**, hosted on **Cl
 
 ---
 
-## Workflow (until CI/CD is set up)
+## Workflow (with CI/CD automation)
 
-Feature development follows a staging-first flow. **All work goes through staging before prod.**
+Feature development follows a staging-first flow with GitHub Actions auto-deployment.
 
-### Environments
-| Environment | URL | KV Namespace | When to deploy |
+### Environments & Auto-Deploy
+| Environment | URL | KV Namespace | Deployment |
 |---|---|---|---|
-| Staging | https://rtgs-pgl-staging.selvaraj-s.workers.dev | Isolated (staging KV) | On every feature commit |
-| Production | https://rtgs-pgl.selvaraj-s.workers.dev | Production KV | Only after explicit approval |
+| Staging | https://rtgs-pgl-staging.selvaraj-s.workers.dev | Isolated (staging KV) | Auto-deploy on feature/* branch push (GitHub Actions) |
+| Production | https://rtgs-pgl.selvaraj-s.workers.dev | Production KV | **Auto-deploy on main merge** (GitHub Actions) |
 
-### Trigger words
+### Trigger words & Actions
 | User says | Claude does |
 |---|---|
-| "commit it" | Create feature branch (if not already on one) → git add → commit → push to GitHub → `wrangler deploy --env staging` |
-| "looks good, merge to main" | Squash merge feature branch → main → push to GitHub → `wrangler deploy --env staging` → **stop and wait for prod approval** |
-| "deploy to prod" / "looks good on staging" | `wrangler deploy` (prod only) |
+| "commit it" | Create feature branch → git add → commit → push to feature/* → GitHub Actions auto-deploys to staging |
+| "looks good, merge to main" | Squash merge to main → push to main → **GitHub Actions auto-deploys to PRODUCTION** ⚠️ |
+| (Manual staging deploy only) | `npx wrangler deploy --env staging` (if needed without committing) |
 
 ### Testing rules
 - **E2E tests (`npm run test:e2e`)** — **NEVER run automatically.** Only run when the user explicitly says so (e.g. "run E2E", "run the tests"). Reason: E2E tests hit the staging KV heavily and KV usage is limited. Do not run E2E as a routine step after every deploy.
