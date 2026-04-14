@@ -86,6 +86,34 @@ Matches are named **Match 1, Match 2, ... Match N** (no fancy event names).
 
 **Winning threshold: 14.5 points** — first team to reach 14.5 wins the Season 3 title.
 
+### Player Gross Scores
+
+**What:** Individual player scores recorded for Four Balls and Singles matches.
+
+**Formats:**
+- **Four Balls & Singles:** Mandatory gross score (integer 50–150) captured for each player
+- **Alternate Shot & Scramble:** Marked as N/A (no individual scores)
+
+**Workflow:**
+1. Captain enters scores in EDIT modal alongside match result → submitted as `pending`
+2. Other captain reviews (read-only display) → approves → scores confirmed
+3. If disputed, scores remain in KV; admin can override via Override & Save
+4. On match clear, scores deleted from KV
+
+**Storage:** Separate KV key `season3_player_scores`
+```
+{ "1": { "E1": 82, "E4": 79, "U2": 85, "U5": 77 }, ... }
+```
+
+**Display:**
+- **Edit modal:** 4 input fields for Four Balls, 2 for Singles, hidden for other formats
+- **Match detail modal (fan view):** Shows gross scores for all players (gold text, below match result)
+- **Player profile history:** 5-column table with gross score column (gold, visible on mobile with scroll)
+
+**API:**
+- `GET /api/scores` — public, returns all player scores
+- `POST /api/scores` — auth: captain/admin, merge semantics (null = delete)
+
 ---
 
 ## Teams
