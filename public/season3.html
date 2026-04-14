@@ -2143,15 +2143,22 @@
         return;
       }
 
+      // Calculate Y-axis bounds from actual scores
+      const validScores = scoreData.filter(s => s !== null);
+      const minScore = Math.min(...validScores);
+      const maxScore = Math.max(...validScores);
+      const yAxisMin = Math.max(50, minScore - 10); // floor at 50
+      const yAxisMax = Math.min(150, maxScore + 10); // ceiling at 150
+
       const pane = document.getElementById('pp-pane-trend');
       if (pane) pane.innerHTML = '<canvas id="pp-trend-canvas"></canvas>';
 
       loadChartJs(() => {
-        initTrendChart(scoreData, player.hcp, playerId, monthLabels);
+        initTrendChart(scoreData, player.hcp, playerId, monthLabels, yAxisMin, yAxisMax);
       });
     }
 
-    function initTrendChart(scores, hcp, playerId, monthLabels) {
+    function initTrendChart(scores, hcp, playerId, monthLabels, yAxisMin, yAxisMax) {
       const canvas = document.getElementById('pp-trend-canvas');
       if (!canvas) return;
 
@@ -2167,26 +2174,29 @@
           labels: monthShortLabels,
           datasets: [
             {
-              label: 'Gross Score',
-              data: scores,
-              borderColor: '#c9a84c',
-              backgroundColor: 'rgba(201, 168, 76, 0.05)',
-              borderWidth: 1.5,
-              spanGaps: true,
-              pointRadius: 5,
-              pointBackgroundColor: '#c9a84c',
-              pointBorderColor: '#c9a84c',
-              tension: 0.3
-            },
-            {
-              label: `Handicap (HCP ${hcp})`,
+              label: `HCP ${hcp}`,
               data: hcpData,
-              borderColor: '#e8c97a',
-              borderWidth: 2.5,
-              borderDash: [5, 5],
+              borderColor: '#c9a84c',
+              borderWidth: 3,
+              borderDash: [8, 6],
               pointRadius: 0,
               spanGaps: true,
-              fill: false
+              fill: false,
+              order: 1
+            },
+            {
+              label: 'Gross Score',
+              data: scores,
+              borderColor: '#e8c97a',
+              backgroundColor: 'rgba(232, 201, 122, 0.05)',
+              borderWidth: 2,
+              spanGaps: true,
+              pointRadius: 5,
+              pointBackgroundColor: '#e8c97a',
+              pointBorderColor: '#ffffff',
+              pointBorderWidth: 1,
+              tension: 0.3,
+              order: 0
             }
           ]
         },
@@ -2223,8 +2233,8 @@
             },
             y: {
               beginAtZero: false,
-              min: 70,
-              max: 120,
+              min: yAxisMin,
+              max: yAxisMax,
               grid: { color: 'rgba(201, 168, 76, 0.1)', drawBorder: false },
               ticks: { color: '#9faec0', font: { size: 11 } }
             }
