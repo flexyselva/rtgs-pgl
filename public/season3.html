@@ -2151,7 +2151,12 @@
       const yAxisMax = Math.min(150, maxScore + 10); // ceiling at 150
 
       const pane = document.getElementById('pp-pane-trend');
-      if (pane) pane.innerHTML = '<canvas id="pp-trend-canvas"></canvas>';
+      if (pane) pane.innerHTML = `
+        <div style="position: relative;">
+          <canvas id="pp-trend-canvas"></canvas>
+          <div style="position: absolute; top: 6px; right: 12px; font-size: 11px; color: #c9a84c; font-family: 'Raleway', sans-serif; font-weight: 500; letter-spacing: 0.05em; background: rgba(10, 22, 40, 0.8); padding: 3px 6px; border-radius: 2px;">HCP: ${player.hcp}</div>
+        </div>
+      `;
 
       loadChartJs(() => {
         initTrendChart(scoreData, player.hcp, playerId, monthLabels, yAxisMin, yAxisMax);
@@ -2177,9 +2182,9 @@
             {
               label: `HCP ${hcp} (Score: ${hcpRefValue})`,
               data: hcpData,
-              borderColor: '#c9a84c',
-              borderWidth: 3,
-              borderDash: [8, 6],
+              borderColor: 'rgba(201, 168, 76, 0.5)',
+              borderWidth: 1.5,
+              borderDash: [6, 4],
               pointRadius: 0,
               spanGaps: true,
               fill: false,
