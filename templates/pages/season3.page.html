@@ -234,6 +234,7 @@
     .progress-left {
       height: 100%; background: var(--td-accent);
       flex-shrink: 0; transition: width 0.4s ease;
+      max-width: 50%;
     }
     .progress-divider {
       width: 1px; height: 100%; background: var(--border);
@@ -243,6 +244,7 @@
       height: 100%; background: var(--tr-accent);
       flex-shrink: 0; transition: width 0.4s ease;
       margin-left: auto;
+      max-width: 50%;
     }
 
     /* ── Roster grids ── */
@@ -1111,7 +1113,7 @@
       .team-clash { grid-template-columns: 1fr; margin-bottom: 24px; position: relative; }
       .team-panel { padding: 20px 20px; }
       .team-name { font-size: 1.4rem; }
-      .season-progress-bar { position: absolute; top: 0; left: 0; right: 0; grid-column: auto; order: auto; }
+      .season-progress-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 10; grid-column: auto; order: auto; }
       .clash-vs {
         border-left: none; border-right: none;
         border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
