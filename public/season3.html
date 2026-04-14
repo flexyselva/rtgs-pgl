@@ -2179,12 +2179,12 @@
 
           // Position label at the last month (right end)
           const lastMonthIndex = 9; // Dec (0-indexed)
-          const xPos = xScale.getPixelForValue(lastMonthIndex) - 20;
+          const xPos = xScale.getPixelForValue(lastMonthIndex) - 8;
           const yPos = yScale.getPixelForValue(hcpRefValue) - 10;
 
           ctx.fillStyle = '#c9a84c';
           ctx.font = '11px Raleway';
-          ctx.textAlign = 'left';
+          ctx.textAlign = 'right';
           ctx.textBaseline = 'bottom';
           ctx.fillText(`HCP: ${hcp}`, xPos, yPos);
         }
