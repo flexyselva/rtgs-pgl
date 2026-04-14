@@ -2509,7 +2509,7 @@
           return `
             <tr class="${rowClass}" onclick="openModal(${m.id})" title="View match details">
               <td>${m.num}</td>
-              <td class="match-name">${myDot}${m.name}</td>
+              <td class="match-name">${myDot}${m.status === 'played' ? '✓ ' : ''}${m.name}</td>
               <td>${formatPill(m.format)}</td>
               <td>${m.course}</td>
               <td>${m.date}</td>
