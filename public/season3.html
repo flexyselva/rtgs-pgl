@@ -228,6 +228,26 @@
     }
     .score-sep { font-size: 0.7rem; color: var(--grey); letter-spacing: 0.1em; }
 
+    /* ── Season progress bar ── */
+    .season-progress-wrap {
+      margin-bottom: 40px;
+    }
+    .season-progress-bar {
+      display: flex; height: 24px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: var(--navy-mid);
+    }
+    .progress-left {
+      height: 100%; background: var(--td-accent);
+      flex-shrink: 0; transition: width 0.4s ease;
+    }
+    .progress-right {
+      height: 100%; background: var(--tr-accent);
+      flex-shrink: 0; transition: width 0.4s ease;
+      margin-left: auto;
+    }
+
     /* ── Roster grids ── */
     .roster-section { margin-bottom: 40px; }
     .roster-grids { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -1483,6 +1503,15 @@
       <div class="section-label">The Teams</div>
       <div class="section-header-line"></div>
     </div>
+
+    <!-- Season progress bar -->
+    <div class="season-progress-wrap">
+      <div class="season-progress-bar">
+        <div class="progress-left" id="progressLeft"></div>
+        <div class="progress-right" id="progressRight"></div>
+      </div>
+    </div>
+
     <div class="team-clash">
       <div class="team-panel team-panel-d">
         <div class="team-eyebrow">Captain's Side</div>
@@ -2475,6 +2504,13 @@
       const hasScores = MATCHES.some(m => m.status === 'played');
       document.getElementById('scoreD').textContent = hasScores ? dTotal  : '–';
       document.getElementById('scoreR').textContent = hasScores ? rTotal  : '–';
+
+      // Update progress bar
+      const MAX_POINTS = 40;
+      const dPercent = (dTotal / MAX_POINTS) * 100;
+      const rPercent = (rTotal / MAX_POINTS) * 100;
+      document.getElementById('progressLeft').style.width = dPercent + '%';
+      document.getElementById('progressRight').style.width = rPercent + '%';
     }
 
     /* ── Modal ── */
