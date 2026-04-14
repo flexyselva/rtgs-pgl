@@ -2644,45 +2644,30 @@
         const rPts = m.points ? m.points.r : null;
         const isUnconfirmed = m.status === 'pending' || m.status === 'disputed';
 
+        // Get gross scores for singles
+        const dPlayerId = getPlayerIdByName(s.d);
+        const rPlayerId = getPlayerIdByName(s.r);
+        const dGross = PLAYER_SCORES[m.id] && PLAYER_SCORES[m.id][dPlayerId] ? PLAYER_SCORES[m.id][dPlayerId] : null;
+        const rGross = PLAYER_SCORES[m.id] && PLAYER_SCORES[m.id][rPlayerId] ? PLAYER_SCORES[m.id][rPlayerId] : null;
+
         body += `<div class="modal-players-label">Head-to-Head</div>`;
         body += `
           <div class="modal-team-row">
             <span class="modal-team-badge modal-badge-d">Team Europe</span>
-            <span class="modal-team-players">${s.d}</span>
+            <span class="modal-team-players">${s.d}${dGross !== null ? ` <span style="color:var(--gold);">(${dGross})</span>` : ''}</span>
             ${dPts !== null
               ? `<span class="modal-team-score ${isUnconfirmed ? 'modal-score-unconfirmed' : dPts > rPts ? 'modal-score-d' : dPts === rPts ? 'modal-score-half' : 'modal-score-r'}">${dPts}</span>`
               : `<span class="modal-team-score modal-score-pending">—</span>`}
           </div>
           <div class="modal-team-row">
             <span class="modal-team-badge modal-badge-r">Team USA</span>
-            <span class="modal-team-players">${s.r}</span>
+            <span class="modal-team-players">${s.r}${rGross !== null ? ` <span style="color:var(--gold);">(${rGross})</span>` : ''}</span>
             ${rPts !== null
               ? `<span class="modal-team-score ${isUnconfirmed ? 'modal-score-unconfirmed' : rPts > dPts ? 'modal-score-r' : rPts === dPts ? 'modal-score-half' : 'modal-score-d'}">${rPts}</span>`
               : `<span class="modal-team-score modal-score-pending">—</span>`}
           </div>
           ${isUnconfirmed ? `<div class="${m.status === 'disputed' ? 'modal-disputed-note' : 'modal-pending-note'}">${m.status === 'disputed' ? 'Result disputed — admin review required' : 'Pending other captain\u2019s approval'}</div>` : ''}
         `;
-
-        // Add gross scores for singles
-        const dPlayerId = getPlayerIdByName(s.d);
-        const rPlayerId = getPlayerIdByName(s.r);
-        const dGross = PLAYER_SCORES[m.id] && PLAYER_SCORES[m.id][dPlayerId] ? PLAYER_SCORES[m.id][dPlayerId] : null;
-        const rGross = PLAYER_SCORES[m.id] && PLAYER_SCORES[m.id][rPlayerId] ? PLAYER_SCORES[m.id][rPlayerId] : null;
-        if (dGross !== null || rGross !== null) {
-          body += `
-            <div class="modal-players-label">Gross Scores</div>
-            <div class="modal-team-row">
-              <span class="modal-team-badge modal-badge-d">Team Europe</span>
-              <span class="modal-team-players">${s.d}</span>
-              <span class="modal-team-score" style="color:var(--gold);">${dGross !== null ? dGross : '—'}</span>
-            </div>
-            <div class="modal-team-row">
-              <span class="modal-team-badge modal-badge-r">Team USA</span>
-              <span class="modal-team-players">${s.r}</span>
-              <span class="modal-team-score" style="color:var(--gold);">${rGross !== null ? rGross : '—'}</span>
-            </div>
-          `;
-        }
 
         if (s.netScore) {
           body += `
@@ -2711,26 +2696,7 @@
         const rPts = m.points ? m.points.r : null;
         const isUnconfirmed = m.status === 'pending' || m.status === 'disputed';
 
-        body += `<div class="modal-players-label">Foursome</div>`;
-        body += `
-          <div class="modal-team-row">
-            <span class="modal-team-badge modal-badge-d">Team Europe</span>
-            <span class="modal-team-players">${f.d[0]}<br>${f.d[1]}</span>
-            ${dPts !== null
-              ? `<span class="modal-team-score ${isUnconfirmed ? 'modal-score-unconfirmed' : dPts > rPts ? 'modal-score-d' : dPts === rPts ? 'modal-score-half' : 'modal-score-r'}">${dPts}</span>`
-              : `<span class="modal-team-score modal-score-pending">—</span>`}
-          </div>
-          <div class="modal-team-row">
-            <span class="modal-team-badge modal-badge-r">Team USA</span>
-            <span class="modal-team-players">${f.r[0]}<br>${f.r[1]}</span>
-            ${rPts !== null
-              ? `<span class="modal-team-score ${isUnconfirmed ? 'modal-score-unconfirmed' : rPts > dPts ? 'modal-score-r' : rPts === dPts ? 'modal-score-half' : 'modal-score-d'}">${rPts}</span>`
-              : `<span class="modal-team-score modal-score-pending">—</span>`}
-          </div>
-          ${isUnconfirmed ? `<div class="${m.status === 'disputed' ? 'modal-disputed-note' : 'modal-pending-note'}">${m.status === 'disputed' ? 'Result disputed — admin review required' : 'Pending other captain\u2019s approval'}</div>` : ''}
-        `;
-
-        // Add gross scores for fourballs
+        // Get gross scores for fourballs
         const d1Id = getPlayerIdByName(f.d[0]);
         const d2Id = getPlayerIdByName(f.d[1]);
         const r1Id = getPlayerIdByName(f.r[0]);
@@ -2740,19 +2706,25 @@
         const d2Gross = matchScores[d2Id] || null;
         const r1Gross = matchScores[r1Id] || null;
         const r2Gross = matchScores[r2Id] || null;
-        if (d1Gross !== null || d2Gross !== null || r1Gross !== null || r2Gross !== null) {
-          body += `
-            <div class="modal-players-label">Gross Scores</div>
-            <div class="modal-team-row">
-              <span class="modal-team-badge modal-badge-d">Team Europe</span>
-              <span class="modal-team-players">${f.d[0]} <span style="color:var(--gold);">${d1Gross !== null ? d1Gross : '—'}</span><br>${f.d[1]} <span style="color:var(--gold);">${d2Gross !== null ? d2Gross : '—'}</span></span>
-            </div>
-            <div class="modal-team-row">
-              <span class="modal-team-badge modal-badge-r">Team USA</span>
-              <span class="modal-team-players">${f.r[0]} <span style="color:var(--gold);">${r1Gross !== null ? r1Gross : '—'}</span><br>${f.r[1]} <span style="color:var(--gold);">${r2Gross !== null ? r2Gross : '—'}</span></span>
-            </div>
-          `;
-        }
+
+        body += `<div class="modal-players-label">Foursome</div>`;
+        body += `
+          <div class="modal-team-row">
+            <span class="modal-team-badge modal-badge-d">Team Europe</span>
+            <span class="modal-team-players">${f.d[0]}${d1Gross !== null ? ` <span style="color:var(--gold);">(${d1Gross})</span>` : ''}<br>${f.d[1]}${d2Gross !== null ? ` <span style="color:var(--gold);">(${d2Gross})</span>` : ''}</span>
+            ${dPts !== null
+              ? `<span class="modal-team-score ${isUnconfirmed ? 'modal-score-unconfirmed' : dPts > rPts ? 'modal-score-d' : dPts === rPts ? 'modal-score-half' : 'modal-score-r'}">${dPts}</span>`
+              : `<span class="modal-team-score modal-score-pending">—</span>`}
+          </div>
+          <div class="modal-team-row">
+            <span class="modal-team-badge modal-badge-r">Team USA</span>
+            <span class="modal-team-players">${f.r[0]}${r1Gross !== null ? ` <span style="color:var(--gold);">(${r1Gross})</span>` : ''}<br>${f.r[1]}${r2Gross !== null ? ` <span style="color:var(--gold);">(${r2Gross})</span>` : ''}</span>
+            ${rPts !== null
+              ? `<span class="modal-team-score ${isUnconfirmed ? 'modal-score-unconfirmed' : rPts > dPts ? 'modal-score-r' : rPts === dPts ? 'modal-score-half' : 'modal-score-d'}">${rPts}</span>`
+              : `<span class="modal-team-score modal-score-pending">—</span>`}
+          </div>
+          ${isUnconfirmed ? `<div class="${m.status === 'disputed' ? 'modal-disputed-note' : 'modal-pending-note'}">${m.status === 'disputed' ? 'Result disputed — admin review required' : 'Pending other captain\u2019s approval'}</div>` : ''}
+        `;
       }
 
       document.getElementById('modalBody').innerHTML = body;
