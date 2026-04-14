@@ -1418,6 +1418,9 @@
     .pp-tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
     .pp-tab-pane { display: none; }
     .pp-tab-pane.active { display: block; }
+    #pp-pane-trend { padding: 8px 0; }
+    #pp-trend-canvas { max-width: 100%; }
+    .pp-trend-empty { color: var(--grey); font-size: 12px; text-align: center; padding: 24px 0; }
 
     .pp-h2h-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
     .pp-h2h-table th {
@@ -2096,6 +2099,192 @@
         </table>`;
     }
 
+    /* ── Score Trend Chart — Chart.js lazy load ── */
+    function loadChartJs(callback) {
+      if (window.Chart) { callback(); return; }
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js';
+      s.onload = callback;
+      s.onerror = () => { console.error('Failed to load Chart.js'); };
+      document.head.appendChild(s);
+    }
+
+    function renderScoreTrend(playerId) {
+      const player = PLAYERS.find(p => p.id === playerId);
+      if (!player) return;
+
+      const monthLabels = ['Mar 2026','Apr 2026','May 2026','Jun 2026','Jul 2026','Aug 2026','Sep 2026','Oct 2026','Nov 2026','Dec 2026'];
+      const playerMatches = MATCHES.filter(m => {
+        if (m.singles)  return m.singles.d === player.name || m.singles.r === player.name;
+        if (m.foursome) return m.foursome.d.includes(player.name) || m.foursome.r.includes(player.name);
+        return false;
+      });
+
+      const playedMatches = playerMatches.filter(m => m.status === 'played' && (m.format === 'fourballs' || m.format === 'singles'));
+      const scoreData = new Array(10).fill(null);
+
+      playedMatches.forEach(m => {
+        const monthIndex = monthLabels.indexOf(m.date);
+        if (monthIndex >= 0 && PLAYER_SCORES[m.id] && PLAYER_SCORES[m.id][player.id] !== undefined) {
+          scoreData[monthIndex] = PLAYER_SCORES[m.id][player.id];
+        }
+      });
+
+      const hasScores = scoreData.some(s => s !== null);
+      if (!hasScores) {
+        const pane = document.getElementById('pp-pane-trend');
+        if (pane) pane.innerHTML = '<div class="pp-trend-empty">No scored matches yet</div>';
+        return;
+      }
+
+      // Calculate Y-axis bounds from actual scores
+      const validScores = scoreData.filter(s => s !== null);
+      const minScore = Math.min(...validScores);
+      const maxScore = Math.max(...validScores);
+      const yAxisMin = Math.max(50, minScore - 10); // floor at 50
+      const yAxisMax = Math.min(150, maxScore + 10); // ceiling at 150
+
+      const pane = document.getElementById('pp-pane-trend');
+      if (pane) pane.innerHTML = '<canvas id="pp-trend-canvas"></canvas>';
+
+      loadChartJs(() => {
+        initTrendChart(scoreData, player.hcp, playerId, monthLabels, yAxisMin, yAxisMax);
+      });
+    }
+
+    function initTrendChart(scores, hcp, playerId, monthLabels, yAxisMin, yAxisMax) {
+      const canvas = document.getElementById('pp-trend-canvas');
+      if (!canvas) return;
+
+      if (window.trendChartInstance) window.trendChartInstance.destroy();
+
+      const monthShortLabels = monthLabels.map(m => m.slice(0, 3));
+      const hcpRefValue = 72 + hcp; // Y-axis value for HCP reference
+      const hcpData = new Array(10).fill(hcpRefValue);
+
+      // Register HCP label plugin
+      const hcpLabelPlugin = {
+        id: 'hcpLabel',
+        afterDatasetsDraw(chart) {
+          const ctx = chart.ctx;
+          const xScale = chart.scales.x;
+          const yScale = chart.scales.y;
+          if (!xScale || !yScale) return;
+
+          // Position label at the last month (right end)
+          const lastMonthIndex = 9; // Dec (0-indexed)
+          const xPos = xScale.getPixelForValue(lastMonthIndex) - 8;
+          const yPos = yScale.getPixelForValue(hcpRefValue) - 10;
+
+          ctx.fillStyle = '#c9a84c';
+          ctx.font = '11px Raleway';
+          ctx.textAlign = 'right';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(`HCP: ${hcp}`, xPos, yPos);
+        }
+      };
+
+      // Plugin to label score data points
+      const scoreLabelsPlugin = {
+        id: 'scoreLabels',
+        afterDatasetsDraw(chart) {
+          const ctx = chart.ctx;
+          const xScale = chart.scales.x;
+          const yScale = chart.scales.y;
+          const scoreDataset = chart.data.datasets[1]; // Gross Score is second dataset
+          if (!scoreDataset || !xScale || !yScale) return;
+
+          scoreDataset.data.forEach((value, index) => {
+            if (value === null) return; // Skip missing data points
+            const xPos = xScale.getPixelForValue(index);
+            const yPos = yScale.getPixelForValue(value) - 10;
+
+            ctx.fillStyle = '#e8c97a';
+            ctx.font = '10px Raleway';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(value, xPos, yPos);
+          });
+        }
+      };
+
+      const ctx = canvas.getContext('2d');
+      window.trendChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: monthShortLabels,
+          datasets: [
+            {
+              label: `HCP ${hcp} (Score: ${hcpRefValue})`,
+              data: hcpData,
+              borderColor: 'rgba(201, 168, 76, 0.5)',
+              borderWidth: 1.5,
+              borderDash: [6, 4],
+              pointRadius: 0,
+              spanGaps: true,
+              fill: false,
+              order: 1
+            },
+            {
+              label: 'Gross Score',
+              data: scores,
+              borderColor: '#e8c97a',
+              backgroundColor: 'rgba(232, 201, 122, 0.05)',
+              borderWidth: 2,
+              spanGaps: true,
+              pointRadius: 5,
+              pointBackgroundColor: '#e8c97a',
+              pointBorderColor: '#ffffff',
+              pointBorderWidth: 1,
+              tension: 0.3,
+              order: 0
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 1.6,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: 'rgba(10, 22, 40, 0.9)',
+              titleColor: '#c9a84c',
+              bodyColor: '#d0d8e4',
+              borderColor: 'rgba(201, 168, 76, 0.3)',
+              borderWidth: 1,
+              padding: 10,
+              displayColors: true,
+              callbacks: {
+                label: function(context) {
+                  if (context.dataset.label.includes('Handicap')) {
+                    return context.dataset.label;
+                  }
+                  return 'Score: ' + (context.parsed.y !== null ? context.parsed.y : 'N/A');
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(201, 168, 76, 0.1)', drawBorder: false },
+              ticks: { color: '#9faec0', font: { size: 11 } }
+            },
+            y: {
+              beginAtZero: false,
+              min: yAxisMin,
+              max: yAxisMax,
+              grid: { color: 'rgba(201, 168, 76, 0.1)', drawBorder: false },
+              ticks: { color: '#9faec0', font: { size: 11 } }
+            }
+          }
+        },
+        plugins: [hcpLabelPlugin, scoreLabelsPlugin]
+      });
+    }
+
     function switchPpTab(btn, paneId) {
       document.querySelectorAll('.pp-tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.pp-tab-pane').forEach(p => p.classList.remove('active'));
@@ -2314,9 +2503,11 @@
         <div class="pp-tabs">
           <button class="pp-tab-btn active" onclick="switchPpTab(this,'pp-pane-hist')">Match History</button>
           <button class="pp-tab-btn" onclick="switchPpTab(this,'pp-pane-h2h')">vs Opponents</button>
+          <button class="pp-tab-btn" onclick="switchPpTab(this,'pp-pane-trend');renderScoreTrend('${playerId}')">Score Trend</button>
         </div>
         <div class="pp-tab-pane active" id="pp-pane-hist">${historyRows}</div>
         <div class="pp-tab-pane" id="pp-pane-h2h">${renderPlayerH2H(playerId)}</div>
+        <div class="pp-tab-pane" id="pp-pane-trend"></div>
       `;
 
       document.getElementById('modalMatchNum').textContent = player.id;

@@ -36,6 +36,13 @@ Feature development follows a staging-first flow. **All work goes through stagin
 - **E2E target** — always staging URL. Never local, never prod (unless explicitly requested for a production issue).
 - **Production testing** — only if the user explicitly asks (e.g. investigating a prod bug).
 
+### Story tracking rules
+- **When feature is complete:** Automatically update `stories.md` with all commits for that feature
+  - Add commit SHAs to the story's "Commits" table
+  - Include the commit message from each related commit
+  - Do not wait for user reminder — proactively update before finishing the feature work
+  - This keeps stories.md as accurate, up-to-date documentation of feature implementations
+
 ---
 
 ## Pages

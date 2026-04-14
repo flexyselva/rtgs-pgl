@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreToolCall": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const fs=require('fs');let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const j=JSON.parse(d);const cmd=j.input&&j.input.command||'';if(!cmd.includes('git commit')){process.stdout.write(JSON.stringify({decision:'approve'}));return;}const m=cmd.match(/PGL-\\d{3}/);if(!m){process.stdout.write(JSON.stringify({decision:'block',reason:'Commit message must include a story ID (e.g. PGL-031). Create the story in stories.md before committing.'}));return;}const id=m[0];try{const stories=fs.readFileSync('./stories.md','utf8');if(!stories.includes('## '+id)){process.stdout.write(JSON.stringify({decision:'block',reason:id+' not found in stories.md. Create the story (## '+id+') before committing.'}));return;}process.stdout.write(JSON.stringify({decision:'approve'}));}catch(e){process.stdout.write(JSON.stringify({decision:'block',reason:'Could not read stories.md: '+e.message}));}}catch(e){process.stdout.write(JSON.stringify({decision:'block',reason:'Hook error: '+e.message}));}});\""
+          }
+        ]
+      }
+    ]
+  }
+}
