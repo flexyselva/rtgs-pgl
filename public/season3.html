@@ -228,6 +228,32 @@
     }
     .score-sep { font-size: 0.7rem; color: var(--grey); letter-spacing: 0.1em; }
 
+    /* ── Season progress bar ── */
+    .season-progress-bar {
+      display: flex; align-items: center; height: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: var(--navy-mid);
+      grid-column: 1 / -1;
+      order: -1;
+      position: relative;
+    }
+    .progress-left {
+      height: 100%; background: var(--td-accent);
+      flex-shrink: 0; transition: width 0.4s ease;
+    }
+    .progress-divider {
+      position: absolute; left: 50%; top: 0; bottom: 0;
+      width: 1px; background: var(--border);
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+    .progress-right {
+      height: 100%; background: var(--tr-accent);
+      flex-shrink: 0; transition: width 0.4s ease;
+      margin-left: auto;
+    }
+
     /* ── Roster grids ── */
     .roster-section { margin-bottom: 40px; }
     .roster-grids { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -1091,14 +1117,18 @@
       .stat-value { font-size: 1.6rem; }
       .stat-label { font-size: 10px; letter-spacing: 0.2em; }
 
-      .team-clash { grid-template-columns: 1fr; margin-bottom: 24px; }
+      .team-clash { grid-template-columns: 1fr; margin-bottom: 24px; position: relative; display: flex; flex-direction: column; }
       .team-panel { padding: 20px 20px; }
+      .team-panel-d { order: 1; }
       .team-name { font-size: 1.4rem; }
+      .season-progress-bar { position: relative; z-index: auto; grid-column: auto; order: 2; margin-bottom: 0; }
       .clash-vs {
+        order: 3;
         border-left: none; border-right: none;
         border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
         padding: 16px 20px; flex-direction: column; gap: 4px;
       }
+      .team-panel-r { order: 4; }
       .vs-label { font-size: 1.2rem; }
       .vs-sub { margin-top: 0; }
       .clash-score { margin-top: 8px; }
@@ -1483,7 +1513,15 @@
       <div class="section-label">The Teams</div>
       <div class="section-header-line"></div>
     </div>
+
     <div class="team-clash">
+      <!-- Season progress bar -->
+      <div class="season-progress-bar">
+        <div class="progress-left" id="progressLeft"></div>
+        <div class="progress-divider"></div>
+        <div class="progress-right" id="progressRight"></div>
+      </div>
+
       <div class="team-panel team-panel-d">
         <div class="team-eyebrow">Captain's Side</div>
         <div class="team-name"><span class="team-accent-d">Team</span><br>Europe</div>
@@ -2475,6 +2513,13 @@
       const hasScores = MATCHES.some(m => m.status === 'played');
       document.getElementById('scoreD').textContent = hasScores ? dTotal  : '–';
       document.getElementById('scoreR').textContent = hasScores ? rTotal  : '–';
+
+      // Update progress bar
+      const MAX_POINTS = 40;
+      const dPercent = (dTotal / MAX_POINTS) * 100;
+      const rPercent = (rTotal / MAX_POINTS) * 100;
+      document.getElementById('progressLeft').style.width = dPercent + '%';
+      document.getElementById('progressRight').style.width = rPercent + '%';
     }
 
     /* ── Modal ── */
