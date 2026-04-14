@@ -236,21 +236,22 @@
       background: var(--navy-mid);
       grid-column: 1 / -1;
       order: -1;
+      position: relative;
     }
     .progress-left {
       height: 100%; background: var(--td-accent);
       flex-shrink: 0; transition: width 0.4s ease;
-      max-width: 50%;
     }
     .progress-divider {
-      width: 1px; height: 100%; background: var(--border);
-      flex-shrink: 0;
+      position: absolute; left: 50%; top: 0; bottom: 0;
+      width: 1px; background: var(--border);
+      transform: translateX(-50%);
+      pointer-events: none;
     }
     .progress-right {
       height: 100%; background: var(--tr-accent);
       flex-shrink: 0; transition: width 0.4s ease;
       margin-left: auto;
-      max-width: 50%;
     }
 
     /* ── Roster grids ── */
