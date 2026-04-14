@@ -2159,7 +2159,8 @@
       if (window.trendChartInstance) window.trendChartInstance.destroy();
 
       const monthShortLabels = monthLabels.map(m => m.slice(0, 3));
-      const hcpData = new Array(8).fill(hcp);
+      const hcpRefValue = 72 + hcp; // Y-axis value for HCP reference
+      const hcpData = new Array(8).fill(hcpRefValue);
 
       const ctx = canvas.getContext('2d');
       window.trendChartInstance = new Chart(ctx, {
@@ -2168,7 +2169,7 @@
           labels: monthShortLabels,
           datasets: [
             {
-              label: `HCP ${hcp}`,
+              label: `HCP ${hcp} (Score: ${hcpRefValue})`,
               data: hcpData,
               borderColor: '#c9a84c',
               borderWidth: 3,
