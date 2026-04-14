@@ -348,7 +348,7 @@
     .pp-stat-label { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--grey); margin-top: 2px; }
     .pp-history-label { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
     .pp-hist-row {
-      display: grid; grid-template-columns: 38px 1fr auto auto;
+      display: grid; grid-template-columns: 38px 1fr auto auto auto;
       align-items: center; gap: 8px;
       padding: 8px 0; border-bottom: 1px solid rgba(201,168,76,0.06);
       cursor: pointer; transition: background 0.12s;
@@ -358,6 +358,7 @@
     .pp-hist-num    { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold-dk); font-family: 'Playfair Display', serif; }
     .pp-hist-opp    { font-size: 0.82rem; color: var(--grey-lt); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .pp-hist-course { font-size: 11px; color: var(--grey); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
+    .pp-hist-gross  { font-size: 11px; color: var(--grey-lt); text-align: right; white-space: nowrap; min-width: 28px; }
     .pp-hist-result { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; width: 18px; text-align: center; flex-shrink: 0; }
     .pp-hist-win      { color: #4ade80; }
     .pp-hist-loss     { color: var(--tr-accent); }
@@ -369,6 +370,7 @@
     @media (max-width: 640px) {
       .pp-hist-row    { grid-template-columns: 38px 1fr auto; }
       .pp-hist-course { display: none; }
+      .pp-hist-gross  { display: none; }
     }
 
     /* ── Format section ── */
@@ -1005,6 +1007,50 @@
     .result-players-team.td { color: var(--td-accent); }
     .result-players-team.tr { color: var(--tr-accent); }
     .result-players-names { color: var(--white); }
+
+    /* ── Gross scores inputs ── */
+    .gross-scores-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 16px;
+      margin-top: 6px;
+    }
+    .gross-score-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .gross-score-name {
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--grey);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .gross-score-input {
+      width: 100%;
+      background: rgba(10,22,40,0.8);
+      border: 1px solid var(--border);
+      color: var(--white);
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.9rem;
+      padding: 8px 10px;
+      outline: none;
+      transition: border-color 0.2s;
+      -moz-appearance: textfield;
+    }
+    .gross-score-input::-webkit-outer-spin-button,
+    .gross-score-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .gross-score-input:focus { border-color: rgba(201,168,76,0.5); }
+    .gross-score-input::placeholder { color: var(--grey); }
+    @media (max-width: 480px) {
+      .gross-scores-grid { grid-template-columns: 1fr; }
+    }
 
     /* ── Approval status badges ── */
     .status-pending {
@@ -1794,6 +1840,10 @@
           <label class="result-field-label" for="netScoreInput">Net Score (e.g. 3&amp;2, 2 Up, A/S)</label>
           <input type="text" class="result-input" id="netScoreInput" placeholder="e.g. 3&2" />
         </div>
+        <div class="result-field-group" id="grossScoresGroup" style="display:none;">
+          <span class="result-field-label">Gross Scores</span>
+          <div class="gross-scores-grid" id="grossScoresGrid"></div>
+        </div>
         <div class="result-field-group">
           <label class="result-field-label" for="courseInput">Course</label>
           <input type="text" class="result-input" id="courseInput" placeholder="Course name" />
@@ -1852,6 +1902,7 @@
     let MATCHES = [];
     let PLAYER_STATS = {};   // id → { pts, wins, halves, losses, played, formatPts:{} }
     let H2H_PAIRS   = {};    // { [idA]: { [idB]: { played, wins, halves, losses } } }
+    let PLAYER_SCORES = {}; // { [matchId]: { [playerId]: score } } — loaded from /api/scores
     let TEAM_FORMAT_STATS = {}; // format → { d, r, h }
     let LEADERBOARD = [];
     let lbSortKey = 'pts', lbSortDir = -1;
@@ -2097,7 +2148,7 @@
       // Always continue to render and load results, even if schedule fetch failed
       renderRosters();
       renderTable();
-      await fetchResults();
+      await Promise.all([fetchResults(), fetchScores()]);
     }
 
     async function fetchResults() {
@@ -2115,6 +2166,32 @@
       } catch(e) {
         console.warn('Could not load results from KV:', e);
         logError('fetchResults', e);
+      }
+    }
+
+    async function fetchScores() {
+      try {
+        const res = await fetch('/api/scores');
+        if (!res.ok) return;
+        PLAYER_SCORES = await res.json();
+      } catch(e) {
+        console.warn('Could not load scores from KV:', e);
+        logError('fetchScores', e);
+      }
+    }
+
+    async function pushScores(matchId, scoresMapOrNull) {
+      const res = await fetch('/api/scores', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + (getSession().token || '')
+        },
+        body: JSON.stringify({ [matchId]: scoresMapOrNull }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Score save failed');
       }
     }
 
@@ -2214,11 +2291,21 @@
               partner = mySide.find(n => n !== player.name) || '';
             }
             const oppText = partner ? `w/ ${partner} vs ${opp}` : `vs ${opp}`;
+            let grossDisplay = '—';
+            if ((m.format === 'fourballs' || m.format === 'singles') && m.status === 'played') {
+              const matchScores = PLAYER_SCORES[m.id];
+              if (matchScores && matchScores[player.id] !== undefined) {
+                grossDisplay = matchScores[player.id];
+              }
+            } else if (m.format !== 'fourballs' && m.format !== 'singles') {
+              grossDisplay = 'N/A';
+            }
             return `
               <div class="pp-hist-row" onclick="closeModal(); setTimeout(() => openModal(${m.id}), 50)">
                 <span class="pp-hist-num">${m.num}</span>
                 <span class="pp-hist-opp">${oppText}</span>
                 <span class="pp-hist-course">${m.course || '—'}</span>
+                <span class="pp-hist-gross">${grossDisplay}</span>
                 <span class="pp-hist-result ${resultClass}">${result}</span>
               </div>`;
           }).join('')
@@ -2862,6 +2949,7 @@
     /* ── Result entry modal ── */
     let resultEditId   = null;
     let resultModalMode = 'edit'; // 'edit' | 'await' | 'review' | 'admin-review'
+    let _currentScorePlayers = []; // players needing gross scores for the open modal
 
     function openResultModal(id, forceMode) {
       const m = MATCHES.find(x => x.id === id);
@@ -2941,6 +3029,57 @@
           `<div class="result-players-row"><span class="result-players-team tr">U</span><span class="result-players-names">${m.foursome.r.join(' &amp; ')}</span></div>`;
       } else {
         playersDisplay.innerHTML = '<span style="color:var(--grey);font-size:0.82rem;">TBD</span>';
+      }
+
+      // Gross scores for fourballs and singles
+      const grossGroup = document.getElementById('grossScoresGroup');
+      const grossGrid  = document.getElementById('grossScoresGrid');
+      const needsScores = m.format === 'fourballs' || m.format === 'singles';
+      grossGroup.style.display = needsScores ? '' : 'none';
+
+      if (needsScores) {
+        // Build list of [ playerId, playerName, teamClass ] for each player
+        let scorePlayers = [];
+        if (m.format === 'singles' && m.singles) {
+          scorePlayers = [
+            { id: getPlayerIdByName(m.singles.d), name: m.singles.d, cls: 'td' },
+            { id: getPlayerIdByName(m.singles.r), name: m.singles.r, cls: 'tr' },
+          ];
+        } else if (m.format === 'fourballs' && m.foursome) {
+          scorePlayers = [
+            { id: getPlayerIdByName(m.foursome.d[0]), name: m.foursome.d[0], cls: 'td' },
+            { id: getPlayerIdByName(m.foursome.d[1]), name: m.foursome.d[1], cls: 'td' },
+            { id: getPlayerIdByName(m.foursome.r[0]), name: m.foursome.r[0], cls: 'tr' },
+            { id: getPlayerIdByName(m.foursome.r[1]), name: m.foursome.r[1], cls: 'tr' },
+          ];
+        }
+
+        // Retrieve any previously saved scores for this match
+        const savedMatchScores = PLAYER_SCORES[resultEditId] || {};
+
+        grossGrid.innerHTML = scorePlayers.map(p => {
+          const savedVal = p.id && savedMatchScores[p.id] ? savedMatchScores[p.id] : '';
+          return `
+            <div class="gross-score-item">
+              <span class="gross-score-name" style="color:var(--${p.cls === 'td' ? 'td' : 'tr'}-accent)">${p.name}</span>
+              <input
+                type="number"
+                class="gross-score-input"
+                id="grossScore_${p.id}"
+                data-player-id="${p.id}"
+                value="${savedVal}"
+                min="50" max="150"
+                placeholder="Score"
+                ${isReadOnly ? 'disabled' : ''}
+              />
+            </div>
+          `;
+        }).join('');
+
+        // Store scorePlayers for saveResult() to use
+        _currentScorePlayers = scorePlayers;
+      } else {
+        _currentScorePlayers = [];
       }
 
       // Pre-select outcome (from stored points for pending/disputed)
@@ -3101,6 +3240,15 @@
       try {
         await pushResult(resultEditId, null);
 
+        // Clear scores for this match too
+        try {
+          await pushScores(resultEditId, null);
+          delete PLAYER_SCORES[resultEditId];
+        } catch(e) {
+          // Non-fatal — log but don't block the clear
+          logError('clearScores', e);
+        }
+
         // Revert match to unplayed state in memory
         m.points = null;
         m.status = 'upcoming';
@@ -3137,6 +3285,28 @@
         return;
       }
 
+      // Gross score validation
+      const grossScoreMap = {}; // { [playerId]: number }
+      if (_currentScorePlayers.length > 0) {
+        for (const p of _currentScorePlayers) {
+          if (!p.id) {
+            showFormError('Could not resolve player ID — check roster data.');
+            return;
+          }
+          const inp = document.getElementById('grossScore_' + p.id);
+          if (!inp || inp.value.trim() === '') {
+            showFormError('Please enter a gross score for all players.');
+            return;
+          }
+          const val = parseInt(inp.value, 10);
+          if (isNaN(val) || val < 50 || val > 150) {
+            showFormError('Gross scores must be between 50 and 150.');
+            return;
+          }
+          grossScoreMap[p.id] = val;
+        }
+      }
+
       let pts;
       if (outcome.value === 'd')      pts = { d: 1,   r: 0   };
       else if (outcome.value === 'r') pts = { d: 0,   r: 1   };
@@ -3168,6 +3338,14 @@
       try {
         await pushResult(resultEditId, data);
         trackEvent('result_submit', { match: resultEditId, status: data.status });
+
+        // Save gross scores if applicable (fourballs or singles)
+        if (Object.keys(grossScoreMap).length > 0) {
+          await pushScores(resultEditId, grossScoreMap);
+          // Update in-memory PLAYER_SCORES
+          if (!PLAYER_SCORES[resultEditId]) PLAYER_SCORES[resultEditId] = {};
+          Object.assign(PLAYER_SCORES[resultEditId], grossScoreMap);
+        }
 
         const m = MATCHES.find(x => x.id === resultEditId);
         if (m) {

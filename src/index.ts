@@ -4,6 +4,8 @@
  * Routes:
  *   GET  /api/results   → read all Season 3 results from KV
  *   POST /api/results   → write results to KV (requires X-Write-Key or Bearer token)
+ *   GET  /api/scores    → read all player gross scores from KV (public)
+ *   POST /api/scores    → write player gross scores to KV (requires X-Write-Key or Bearer captain/admin)
  *   GET  /api/schedule  → read Season 3 match schedule and rosters from KV (public)
  *   POST /api/schedule  → write schedule/rosters to KV (requires X-Write-Key or admin Bearer)
  *   POST /api/track     → append analytics event to daily KV key (open)
@@ -29,6 +31,7 @@ const KV_KEY           = 'season3_results';
 const KV_TEST_KEY      = 'season3_results_test'; // isolated key used by E2E tests
 const KV_SCHEDULE_KEY  = 'season3_schedule';
 const KV_ROSTERS_KEY   = 'season3_rosters';
+const KV_SCORES_KEY    = 'season3_player_scores'; // player gross scores per match
 const KV_HELP_KEY      = 'help_submissions';
 const KV_GALLERY_KEY   = 'season3_gallery'; // photo metadata list
 const KV_AUDIT_PREFIX  = 'season3_audit_match_';
@@ -244,6 +247,66 @@ export default {
           return json({ error: 'DELETE only permitted in test mode' }, 403);
         }
         await env.RESULTS.delete(kvKey);
+        return json({ ok: true });
+      }
+
+      return json({ error: 'Method not allowed' }, 405);
+    }
+
+    // ── GET /api/scores — return player gross scores (public) ──
+    // ── POST /api/scores — write player gross scores (auth required: X-Write-Key or Bearer captain/admin) ──
+    if (url.pathname === '/api/scores') {
+
+      // GET — return all stored player scores
+      if (request.method === 'GET') {
+        const raw = await env.RESULTS.get(KV_SCORES_KEY);
+        const scores = raw ? JSON.parse(raw) : {};
+        return json(scores);
+      }
+
+      // POST — write player scores (auth required: X-Write-Key or Bearer admin/captain)
+      if (request.method === 'POST') {
+        const writeKey = request.headers.get('X-Write-Key') ?? '';
+        const writeKeyOk = env.WRITE_KEY && writeKey === env.WRITE_KEY;
+        let bearerOk = false;
+        if (!writeKeyOk) {
+          const tokenPayload = await verifyBearer(request.clone(), env.AUTH_HMAC_SECRET ?? '');
+          bearerOk = tokenPayload !== null && (tokenPayload.role === 'admin' || tokenPayload.role === 'captain');
+        }
+        if (!writeKeyOk && !bearerOk) {
+          return json({ error: 'Unauthorised' }, 401);
+        }
+
+        let body: Record<string, unknown>;
+        try {
+          body = await request.json();
+        } catch {
+          return json({ error: 'Invalid JSON' }, 400);
+        }
+
+        // Validate: each key is a matchId string, each value is either null (delete) or
+        // an object mapping playerId to integer scores (50-150)
+        for (const [matchId, entry] of Object.entries(body)) {
+          if (entry === null) continue; // null = delete, always valid
+          if (typeof entry !== 'object' || Array.isArray(entry)) {
+            return json({ error: `Invalid score entry for match ${matchId}` }, 400);
+          }
+          for (const [playerId, score] of Object.entries(entry as Record<string, unknown>)) {
+            if (typeof score !== 'number' || !Number.isInteger(score) || score < 50 || score > 150) {
+              return json({ error: `Invalid score for player ${playerId} in match ${matchId}` }, 400);
+            }
+          }
+        }
+
+        // Merge incoming scores with existing ones. Null value means delete that match's score block.
+        const raw = await env.RESULTS.get(KV_SCORES_KEY);
+        const existing: Record<string, unknown> = raw ? JSON.parse(raw) : {};
+        const merged = { ...existing, ...body };
+        for (const k of Object.keys(body)) {
+          if (body[k] === null) delete merged[k];
+        }
+
+        await env.RESULTS.put(KV_SCORES_KEY, JSON.stringify(merged));
         return json({ ok: true });
       }
 
