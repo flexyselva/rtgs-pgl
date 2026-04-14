@@ -1424,6 +1424,9 @@
     .pp-tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
     .pp-tab-pane { display: none; }
     .pp-tab-pane.active { display: block; }
+    #pp-pane-trend { padding: 8px 0; }
+    #pp-trend-canvas { max-width: 100%; }
+    .pp-trend-empty { color: var(--grey); font-size: 12px; text-align: center; padding: 24px 0; }
 
     .pp-h2h-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
     .pp-h2h-table th {
@@ -2102,6 +2105,135 @@
         </table>`;
     }
 
+    /* ── Score Trend Chart — Chart.js lazy load ── */
+    function loadChartJs(callback) {
+      if (window.Chart) { callback(); return; }
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js';
+      s.onload = callback;
+      s.onerror = () => { console.error('Failed to load Chart.js'); };
+      document.head.appendChild(s);
+    }
+
+    function renderScoreTrend(playerId) {
+      const player = PLAYERS.find(p => p.id === playerId);
+      if (!player) return;
+
+      const monthLabels = ['Apr 2026','May 2026','Jun 2026','Jul 2026','Aug 2026','Sep 2026','Oct 2026','Nov 2026'];
+      const playerMatches = MATCHES.filter(m => {
+        if (m.singles)  return m.singles.d === player.name || m.singles.r === player.name;
+        if (m.foursome) return m.foursome.d.includes(player.name) || m.foursome.r.includes(player.name);
+        return false;
+      });
+
+      const playedMatches = playerMatches.filter(m => m.status === 'played' && (m.format === 'fourballs' || m.format === 'singles'));
+      const scoreData = new Array(8).fill(null);
+
+      playedMatches.forEach(m => {
+        const monthIndex = monthLabels.indexOf(m.date);
+        if (monthIndex >= 0 && PLAYER_SCORES[m.id] && PLAYER_SCORES[m.id][player.id] !== undefined) {
+          scoreData[monthIndex] = PLAYER_SCORES[m.id][player.id];
+        }
+      });
+
+      const hasScores = scoreData.some(s => s !== null);
+      if (!hasScores) {
+        const pane = document.getElementById('pp-pane-trend');
+        if (pane) pane.innerHTML = '<div class="pp-trend-empty">No scored matches yet</div>';
+        return;
+      }
+
+      const pane = document.getElementById('pp-pane-trend');
+      if (pane) pane.innerHTML = '<canvas id="pp-trend-canvas"></canvas>';
+
+      loadChartJs(() => {
+        initTrendChart(scoreData, player.hcp, playerId, monthLabels);
+      });
+    }
+
+    function initTrendChart(scores, hcp, playerId, monthLabels) {
+      const canvas = document.getElementById('pp-trend-canvas');
+      if (!canvas) return;
+
+      if (window.trendChartInstance) window.trendChartInstance.destroy();
+
+      const monthShortLabels = monthLabels.map(m => m.slice(0, 3));
+      const hcpData = new Array(8).fill(hcp);
+
+      const ctx = canvas.getContext('2d');
+      window.trendChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: monthShortLabels,
+          datasets: [
+            {
+              label: 'Gross Score',
+              data: scores,
+              borderColor: '#c9a84c',
+              backgroundColor: 'rgba(201, 168, 76, 0.05)',
+              borderWidth: 2,
+              spanGaps: false,
+              pointRadius: 5,
+              pointBackgroundColor: '#c9a84c',
+              pointBorderColor: '#c9a84c',
+              tension: 0.3
+            },
+            {
+              label: `Handicap (HCP ${hcp})`,
+              data: hcpData,
+              borderColor: '#9faec0',
+              borderWidth: 2,
+              borderDash: [6, 4],
+              pointRadius: 0,
+              spanGaps: true,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 1.6,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: { color: '#d0d8e4', font: { size: 12, family: "'Raleway', sans-serif" } }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(10, 22, 40, 0.9)',
+              titleColor: '#c9a84c',
+              bodyColor: '#d0d8e4',
+              borderColor: 'rgba(201, 168, 76, 0.3)',
+              borderWidth: 1,
+              padding: 10,
+              displayColors: true,
+              callbacks: {
+                label: function(context) {
+                  if (context.dataset.label.includes('Handicap')) {
+                    return context.dataset.label;
+                  }
+                  return 'Score: ' + (context.parsed.y !== null ? context.parsed.y : 'N/A');
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(201, 168, 76, 0.1)', drawBorder: false },
+              ticks: { color: '#9faec0', font: { size: 11 } }
+            },
+            y: {
+              beginAtZero: false,
+              min: 50,
+              max: 150,
+              grid: { color: 'rgba(201, 168, 76, 0.1)', drawBorder: false },
+              ticks: { color: '#9faec0', font: { size: 11 } }
+            }
+          }
+        }
+      });
+    }
+
     function switchPpTab(btn, paneId) {
       document.querySelectorAll('.pp-tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.pp-tab-pane').forEach(p => p.classList.remove('active'));
@@ -2320,9 +2452,11 @@
         <div class="pp-tabs">
           <button class="pp-tab-btn active" onclick="switchPpTab(this,'pp-pane-hist')">Match History</button>
           <button class="pp-tab-btn" onclick="switchPpTab(this,'pp-pane-h2h')">vs Opponents</button>
+          <button class="pp-tab-btn" onclick="switchPpTab(this,'pp-pane-trend');renderScoreTrend('${playerId}')">Score Trend</button>
         </div>
         <div class="pp-tab-pane active" id="pp-pane-hist">${historyRows}</div>
         <div class="pp-tab-pane" id="pp-pane-h2h">${renderPlayerH2H(playerId)}</div>
+        <div class="pp-tab-pane" id="pp-pane-trend"></div>
       `;
 
       document.getElementById('modalMatchNum').textContent = player.id;

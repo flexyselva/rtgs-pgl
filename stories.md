@@ -42,6 +42,7 @@ _JIRA-ready format. Each story maps 1:1 to a JIRA issue when migrated._
 | [PGL-024](#pgl-024) | Score Update Audit Log | Feature | P1 | Done |
 | [PGL-022](#pgl-022) | Team Name Rename — Dhurandhar → Europe, Rushabh → USA | Data | P1 | Done |
 | [PGL-023](#pgl-023) | Add Sponsor — XDuce (index + season3 pages) | Feature | P2 | Done |
+| [PGL-031](#pgl-031) | Player Score Trend Chart | Feature | P2 | Done |
 
 ---
 
@@ -1045,3 +1046,42 @@ Set up a GitHub Actions CI/CD pipeline to automate deploys to Cloudflare Workers
 | `382b483` | 2026-04-06 | Add GitHub Actions CI/CD workflow for staging and production deploys |
 | `90924a5` | 2026-04-06 | fix: explicitly target top-level env in production deploy to suppress wrangler warning |
 | `ba64d6c` | 2026-04-06 | ci: opt into Node.js 24 for GitHub Actions runners |
+
+---
+
+## PGL-031
+
+**Player Score Trend Chart**
+
+| Field | Value |
+|-------|-------|
+| Type | Feature |
+| Priority | P2 |
+| Status | Done |
+| Created | 2026-04-14 |
+| Completed | 2026-04-14 |
+
+### Description
+Added a new "Score Trend" tab to the Player Profile modal showing a player's gross score progression across the season (April–November 2026). Line graph displays:
+- **X-axis:** Months (Apr to Nov)
+- **Y-axis:** Gross score (50–150 range)
+- **Solid line:** Player's actual gross scores (only for months with played matches)
+- **Dotted line:** Player handicap (horizontal reference)
+- **Responsive:** Mobile-optimized with Chart.js, lazy-loads on first tab click
+
+Data source: PLAYER_SCORES KV, filtered to fourballs & singles matches only. Players with no scored matches show "No scored matches yet" message.
+
+### Acceptance Criteria
+- Score Trend tab appears after "VS Opponents" tab ✓
+- Chart loads lazily (Chart.js injected on first tab click) ✓
+- X-axis shows all months Apr–Nov even if player has no score that month ✓
+- Solid line shows only months with actual scores (gaps where no score exists) ✓
+- Dotted line shows player handicap as horizontal reference ✓
+- Mobile responsive (tested at 375px width) ✓
+- Player with 4 scores shows 4 dots, player with 0 scores shows empty state ✓
+
+### Commits
+
+| SHA | Date | Message |
+|-----|------|---------|
+| (pending) | 2026-04-14 | PGL-031: Add Score Trend chart to player profile modal |
