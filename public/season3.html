@@ -2151,12 +2151,7 @@
       const yAxisMax = Math.min(150, maxScore + 10); // ceiling at 150
 
       const pane = document.getElementById('pp-pane-trend');
-      if (pane) pane.innerHTML = `
-        <div style="position: relative;">
-          <canvas id="pp-trend-canvas"></canvas>
-          <div style="position: absolute; top: 6px; right: 12px; font-size: 11px; color: #c9a84c; font-family: 'Raleway', sans-serif; font-weight: 500; letter-spacing: 0.05em; background: rgba(10, 22, 40, 0.8); padding: 3px 6px; border-radius: 2px;">HCP: ${player.hcp}</div>
-        </div>
-      `;
+      if (pane) pane.innerHTML = '<canvas id="pp-trend-canvas"></canvas>';
 
       loadChartJs(() => {
         initTrendChart(scoreData, player.hcp, playerId, monthLabels, yAxisMin, yAxisMax);
@@ -2172,6 +2167,28 @@
       const monthShortLabels = monthLabels.map(m => m.slice(0, 3));
       const hcpRefValue = 72 + hcp; // Y-axis value for HCP reference
       const hcpData = new Array(8).fill(hcpRefValue);
+
+      // Register HCP label plugin
+      const hcpLabelPlugin = {
+        id: 'hcpLabel',
+        afterDatasetsDraw(chart) {
+          const ctx = chart.ctx;
+          const xScale = chart.scales.x;
+          const yScale = chart.scales.y;
+          if (!xScale || !yScale) return;
+
+          // Position label at the last month (right end)
+          const lastMonthIndex = 7; // Nov (0-indexed)
+          const xPos = xScale.getPixelForValue(lastMonthIndex) + 12;
+          const yPos = yScale.getPixelForValue(hcpRefValue) - 8;
+
+          ctx.fillStyle = '#c9a84c';
+          ctx.font = '11px Raleway';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(`HCP: ${hcp}`, xPos, yPos);
+        }
+      };
 
       const ctx = canvas.getContext('2d');
       window.trendChartInstance = new Chart(ctx, {
@@ -2245,7 +2262,8 @@
               ticks: { color: '#9faec0', font: { size: 11 } }
             }
           }
-        }
+        },
+        plugins: [hcpLabelPlugin]
       });
     }
 
