@@ -2171,8 +2171,8 @@
               data: scores,
               borderColor: '#c9a84c',
               backgroundColor: 'rgba(201, 168, 76, 0.05)',
-              borderWidth: 2,
-              spanGaps: false,
+              borderWidth: 1.5,
+              spanGaps: true,
               pointRadius: 5,
               pointBackgroundColor: '#c9a84c',
               pointBorderColor: '#c9a84c',
@@ -2181,9 +2181,9 @@
             {
               label: `Handicap (HCP ${hcp})`,
               data: hcpData,
-              borderColor: '#9faec0',
-              borderWidth: 2,
-              borderDash: [6, 4],
+              borderColor: '#e8c97a',
+              borderWidth: 2.5,
+              borderDash: [5, 5],
               pointRadius: 0,
               spanGaps: true,
               fill: false
@@ -2196,8 +2196,7 @@
           aspectRatio: 1.6,
           plugins: {
             legend: {
-              position: 'top',
-              labels: { color: '#d0d8e4', font: { size: 12, family: "'Raleway', sans-serif" } }
+              display: false
             },
             tooltip: {
               backgroundColor: 'rgba(10, 22, 40, 0.9)',
@@ -2224,8 +2223,8 @@
             },
             y: {
               beginAtZero: false,
-              min: 50,
-              max: 150,
+              min: 70,
+              max: 120,
               grid: { color: 'rgba(201, 168, 76, 0.1)', drawBorder: false },
               ticks: { color: '#9faec0', font: { size: 11 } }
             }
