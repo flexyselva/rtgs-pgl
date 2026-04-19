@@ -530,7 +530,7 @@ export default {
     // ── POST /api/gallery/upload — organiser or admin only ──
     if (url.pathname === '/api/gallery/upload' && request.method === 'POST') {
       const tokenPayload = await verifyBearer(request.clone(), env.AUTH_HMAC_SECRET ?? '');
-      if (!tokenPayload || (tokenPayload.role !== 'organiser' && tokenPayload.role !== 'admin')) {
+      if (!tokenPayload || (tokenPayload.role !== 'organiser' && tokenPayload.role !== 'admin' && tokenPayload.role !== 'captain')) {
         return json({ error: 'Unauthorised' }, 401);
       }
 

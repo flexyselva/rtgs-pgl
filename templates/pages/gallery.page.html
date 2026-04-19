@@ -502,7 +502,7 @@
 
     // ── Upload section visibility ──
     function initUploadSection() {
-      if (SESSION && (SESSION.role === 'organiser' || SESSION.role === 'admin')) {
+      if (SESSION && (SESSION.role === 'organiser' || SESSION.role === 'admin' || SESSION.role === 'captain')) {
         document.getElementById('uploadSection').classList.add('visible');
       }
     }
