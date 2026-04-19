@@ -43,6 +43,7 @@ _JIRA-ready format. Each story maps 1:1 to a JIRA issue when migrated._
 | [PGL-022](#pgl-022) | Team Name Rename — Dhurandhar → Europe, Rushabh → USA | Data | P1 | Done |
 | [PGL-023](#pgl-023) | Add Sponsor — XDuce (index + season3 pages) | Feature | P2 | Done |
 | [PGL-031](#pgl-031) | Player Score Trend Chart | Feature | P2 | Done |
+| [PGL-032](#pgl-032) | Captain Gallery Upload | Feature | P2 | Done |
 
 ---
 
@@ -1094,3 +1095,31 @@ Data source: PLAYER_SCORES KV, filtered to fourballs & singles matches only. Pla
 | `26df85f` | 2026-04-14 | PGL-031: Include March in Score Trend X-axis |
 | `63dc8c5` | 2026-04-14 | PGL-031: Add December to X-axis, label score dots, fix HCP label |
 | `e2dc0ef` | 2026-04-14 | PGL-031: Fix HCP label text cutoff at canvas edge |
+
+---
+
+## PGL-032
+
+**Title:** Captain Gallery Upload
+**Type:** Feature
+**Priority:** P2
+**Status:** Done
+
+### Summary
+Allow captains (both Team Europe and Team USA) to upload photos to the Gallery, in addition to the existing organiser and admin roles.
+
+### Changes
+- `src/index.ts` — `POST /api/gallery/upload` auth check extended to include `captain` role
+- `templates/pages/gallery.page.html` + `public/gallery.html` — upload section shown for `captain` role
+
+### Acceptance Criteria
+- Captain Europe (`captain.d`) sees upload section on Gallery page ✓
+- Captain USA (`captain.r`) sees upload section on Gallery page ✓
+- Upload succeeds with a valid captain JWT ✓
+- Organiser and admin upload behaviour unchanged ✓
+
+### Commits
+
+| SHA | Date | Message |
+|-----|------|---------|
+| `8485fb2` | 2026-04-18 | feat: allow captains to upload photos to gallery |
